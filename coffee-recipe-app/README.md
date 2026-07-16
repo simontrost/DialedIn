@@ -1,10 +1,6 @@
 # Dialed In – Local Espresso Recipe App
 
-A mobile web app for your Espresso Machine and Grinder. All data remains inside your home network and is stored centrally in a SQLite database.
-
-<p align="center">
-  <img src="DialedIn_Logo.png" alt="Dialed In Logo" width="300">
-</p>
+A mobile-first web app for your Gaggia Classic Evo Pro E24 and Turin G-Micron DF64P. All data remains inside your home network and is stored centrally in a SQLite database on the Raspberry Pi.
 
 ## Features
 

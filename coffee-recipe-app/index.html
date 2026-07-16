@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#24170f">
+  <meta name="description" content="A local espresso recipe manager for your beans, grind settings, and shots.">
+  <title>Dialed In – Espresso Recipes</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Dialed In home page">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img">
+            <path d="M14 14h20v14a10 10 0 0 1-10 10h0a10 10 0 0 1-10-10V14Z"/>
+            <path d="M34 18h3a6 6 0 0 1 0 12h-3"/>
+            <path d="M18 8c0 3 3 3 3 6M25 8c0 3 3 3 3 6"/>
+          </svg>
+        </span>
+        <span>
+          <strong>Dialed In</strong>
+          <small>Espresso Recipe Book</small>
+        </span>
+      </a>
+
+      <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/>
+          <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.14.37.35.72.6 1 .3.3.68.44 1.1.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <p class="eyebrow" id="greeting">Good afternoon</p>
+          <h1>Your beans.<br><em>Perfectly dialed in.</em></h1>
+          <p class="hero-copy">Keep track of the grind setting, brew ratio, and shot time for every coffee.</p>
+        </div>
+        <button class="primary-button hero-button" id="addRecipeButton" type="button">
+          <span aria-hidden="true">＋</span> New recipe
+        </button>
+      </section>
+
+      <section class="equipment-strip" aria-label="Current equipment">
+        <div class="equipment-item">
+          <span class="equipment-icon" aria-hidden="true">☕</span>
+          <span><small>Espresso machine</small><strong id="machineLabel">Gaggia Classic Evo Pro E24</strong></span>
+        </div>
+        <div class="equipment-divider"></div>
+        <div class="equipment-item">
+          <span class="equipment-icon grinder" aria-hidden="true">◉</span>
+          <span><small>Grinder</small><strong id="grinderLabel">Turin G-Micron DF64P</strong></span>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Overview">
+        <article class="stat-card">
+          <span class="stat-icon bean">◆</span>
+          <div><strong id="recipeCount">0</strong><small>Coffees</small></div>
+        </article>
+        <article class="stat-card">
+          <span class="stat-icon ratio">1:2</span>
+          <div><strong id="averageRatio">–</strong><small>Avg. ratio</small></div>
+        </article>
+        <article class="stat-card">
+          <span class="stat-icon timer">◷</span>
+          <div><strong id="averageTime">–</strong><small>Avg. shot time</small></div>
+        </article>
+      </section>
+
+      <section class="content-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Recipe book</p>
+            <h2>Your coffees</h2>
+          </div>
+          <button class="secondary-button desktop-add" id="addRecipeButtonDesktop" type="button">＋ Recipe</button>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-field">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+            <input id="searchInput" type="search" placeholder="Search coffee or roaster …" autocomplete="off">
+          </label>
+          <select id="roastFilter" aria-label="Filter by roast level">
+            <option value="all">All roast levels</option>
+            <option value="light">Light</option>
+            <option value="medium">Medium</option>
+            <option value="dark">Dark</option>
+          </select>
+          <select id="statusFilter" aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="empty">Out of beans</option>
+            <option value="wishlist">Wishlist</option>
+          </select>
+        </div>
+
+        <div class="recipe-grid" id="recipeGrid"></div>
+
+        <div class="empty-state hidden" id="emptyState">
+          <div class="empty-cup" aria-hidden="true">☕</div>
+          <h3>No matching coffee yet</h3>
+          <p>Create your first recipe or adjust the filters.</p>
+          <button class="primary-button" id="emptyAddButton" type="button">Create first recipe</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Mobile Navigation">
+      <button class="active" type="button" data-action="home">
+        <span aria-hidden="true">⌂</span><small>Overview</small>
+      </button>
+      <button type="button" data-action="favorites">
+        <span aria-hidden="true">♡</span><small>Favorites</small>
+      </button>
+      <button class="nav-add" id="mobileAddButton" type="button" aria-label="New recipe">＋</button>
+      <button type="button" data-action="export">
+        <span aria-hidden="true">⇩</span><small>Backup</small>
+      </button>
+      <button type="button" data-action="settings">
+        <span aria-hidden="true">⚙</span><small>Setup</small>
+      </button>
+    </nav>
+  </div>
+
+  <dialog id="recipeDialog">
+    <form method="dialog" id="recipeForm">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Espresso Setup</p>
+          <h2 id="dialogTitle">New recipe</h2>
+        </div>
+        <button class="dialog-close" type="button" data-close-dialog aria-label="Close dialog">×</button>
+      </div>
+
+      <div class="form-grid">
+        <label class="field full">
+          <span>Coffee / bean *</span>
+          <input id="nameInput" name="name" required maxlength="60" placeholder="e.g. Espresso No. 3">
+        </label>
+        <label class="field">
+          <span>Roaster</span>
+          <input id="roasterInput" name="roaster" maxlength="60" placeholder="Roastery name">
+        </label>
+        <label class="field">
+          <span>Origin / blend</span>
+          <input id="originInput" name="origin" maxlength="80" placeholder="e.g. Brazil, 70/30 blend">
+        </label>
+        <label class="field">
+          <span>Roast level</span>
+          <select id="roastInput" name="roast">
+            <option value="light">Light</option>
+            <option value="medium" selected>Medium</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select id="statusInput" name="status">
+            <option value="active">Active</option>
+            <option value="empty">Out of beans</option>
+            <option value="wishlist">Wishlist</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">
+          <span>Recipe</span>
+          <small id="ratioPreview">Ratio 1:2.00</small>
+        </div>
+        <div class="recipe-fields">
+          <label class="metric-input">
+            <span>Dose</span>
+            <div><input id="doseInput" name="dose" type="number" min="1" max="40" step="0.1" value="18" required><small>g in</small></div>
+          </label>
+          <label class="metric-input">
+            <span>Yield</span>
+            <div><input id="yieldInput" name="yield" type="number" min="1" max="100" step="0.1" value="36" required><small>g out</small></div>
+          </label>
+          <label class="metric-input">
+            <span>Time</span>
+            <div><input id="timeInput" name="time" type="number" min="1" max="120" step="1" value="28" required><small>sec.</small></div>
+          </label>
+          <label class="metric-input">
+            <span>Grind setting</span>
+            <div><input id="grindInput" name="grind" type="text" maxlength="20" placeholder="e.g. 17"><small>Setting</small></div>
+          </label>
+          <label class="metric-input">
+            <span>Temperature</span>
+            <div><input id="tempInput" name="temp" type="number" min="70" max="110" step="0.5" placeholder="93"><small>°C</small></div>
+          </label>
+          <label class="metric-input">
+            <span>Rating</span>
+            <div><input id="ratingInput" name="rating" type="number" min="0" max="5" step="0.5" value="4"><small>/ 5</small></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="field full">
+          <span>Reorder link</span>
+          <input id="orderUrlInput" name="orderUrl" type="url" placeholder="https://…">
+        </label>
+        <label class="field full">
+          <span>Notes</span>
+          <textarea id="notesInput" name="notes" rows="4" maxlength="500" placeholder="Flavor, observations, next adjustment …"></textarea>
+        </label>
+        <label class="favorite-check full">
+          <input id="favoriteInput" name="favorite" type="checkbox">
+          <span>Mark as favorite</span>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="danger-button hidden" id="deleteRecipeButton" type="button">Delete</button>
+        <span class="action-spacer"></span>
+        <button class="secondary-button" type="button" data-close-dialog>Cancel</button>
+        <button class="primary-button" type="submit">Save recipe</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog">
+    <form method="dialog" id="settingsForm">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Your setup</p>
+          <h2>Settings</h2>
+        </div>
+        <button class="dialog-close" type="button" data-close-settings aria-label="Close dialog">×</button>
+      </div>
+
+      <div class="form-grid">
+        <label class="field full">
+          <span>Espresso machine</span>
+          <input id="machineInput" maxlength="80">
+        </label>
+        <label class="field full">
+          <span>Grinder</span>
+          <input id="grinderSettingsInput" maxlength="80">
+        </label>
+      </div>
+
+      <div class="backup-panel">
+        <h3>Back up data</h3>
+        <p>Your recipes are stored on this server. Export a backup regularly.</p>
+        <div class="backup-actions">
+          <button class="secondary-button" id="exportButton" type="button">Export JSON</button>
+          <label class="secondary-button file-button">
+            Import JSON
+            <input id="importInput" type="file" accept="application/json,.json">
+          </label>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="secondary-button" type="button" data-close-settings>Cancel</button>
+        <button class="primary-button" type="submit">Save setup</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
