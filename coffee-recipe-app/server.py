@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import ipaddress
 import json
+import math
 import os
 import re
 import socket
@@ -124,6 +125,31 @@ def db_connection():
 def normalize_text(value: Any) -> str:
     text = html.unescape(str(value or ""))
     return re.sub(r"\s+", " ", text).strip()
+
+
+def normalize_grind_setting(value: Any) -> str:
+    """Validate a numeric grind setting while keeping the existing TEXT column compatible."""
+    if value in (None, ""):
+        return ""
+
+    raw = normalize_text(value).replace(",", ".")
+    try:
+        number = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Grind setting must be a number.") from exc
+
+    if not math.isfinite(number) or not 0 <= number <= 100:
+        raise ValueError("Grind setting must be between 0 and 100.")
+
+    return f"{number:.4f}".rstrip("0").rstrip(".")
+
+
+def read_grind_setting(value: Any) -> str:
+    """Read legacy values without breaking the entire recipe list."""
+    try:
+        return normalize_grind_setting(value)
+    except ValueError:
+        return ""
 
 
 def fold_text(value: str) -> str:
@@ -370,7 +396,7 @@ def row_to_recipe(row: sqlite3.Row) -> dict[str, Any]:
         "dose": row["dose"],
         "yield": row["yield_amount"],
         "time": row["time_seconds"],
-        "grind": row["grind"],
+        "grind": read_grind_setting(row["grind"]),
         "temp": row["temp"],
         "rating": row["rating"],
         "orderUrl": row["order_url"],
@@ -412,6 +438,7 @@ def clean_recipe(payload: dict[str, Any], recipe_id: str | None = None) -> dict[
     rating = float(payload.get("rating", 0) or 0)
     temp_value = payload.get("temp")
     temp = float(temp_value) if temp_value not in (None, "") else None
+    grind = normalize_grind_setting(payload.get("grind"))
 
     if not 1 <= dose <= 40:
         raise ValueError("Dose must be between 1 and 40 g.")
@@ -437,7 +464,7 @@ def clean_recipe(payload: dict[str, Any], recipe_id: str | None = None) -> dict[
         "dose": dose,
         "yield": yield_amount,
         "time": time_seconds,
-        "grind": normalize_text(payload.get("grind"))[:20],
+        "grind": grind,
         "temp": temp,
         "rating": rating,
         "orderUrl": normalize_text(payload.get("orderUrl"))[:500],

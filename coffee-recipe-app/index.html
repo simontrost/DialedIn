@@ -80,7 +80,6 @@
             <p class="eyebrow">Recipe book</p>
             <h2>Your coffees</h2>
           </div>
-          <button class="secondary-button desktop-add" id="addRecipeButtonDesktop" type="button">＋ Recipe</button>
         </div>
 
         <div class="toolbar">
@@ -169,48 +168,48 @@
         </label>
         <label class="field">
           <span>Origin country</span>
-          <select id="originCountryInput" name="originCountry">
-            <option value="">Not specified</option>
-            <option>Brazil</option>
-            <option>Burundi</option>
-            <option>Colombia</option>
-            <option>Costa Rica</option>
-            <option>Cuba</option>
-            <option>Dominican Republic</option>
-            <option>Ecuador</option>
-            <option>El Salvador</option>
-            <option>Ethiopia</option>
-            <option>Guatemala</option>
-            <option>Haiti</option>
-            <option>Honduras</option>
-            <option>India</option>
-            <option>Indonesia</option>
-            <option>Jamaica</option>
-            <option>Kenya</option>
-            <option>Laos</option>
-            <option>Mexico</option>
-            <option>Myanmar</option>
-            <option>Nicaragua</option>
-            <option>Panama</option>
-            <option>Papua New Guinea</option>
-            <option>Peru</option>
-            <option>Philippines</option>
-            <option>Rwanda</option>
-            <option>Tanzania</option>
-            <option>Thailand</option>
-            <option>Timor-Leste</option>
-            <option>Uganda</option>
-            <option>Vietnam</option>
-            <option>Yemen</option>
-            <option>Multiple origins</option>
-            <option>Unknown</option>
-          </select>
+          <input id="originCountryInput" name="originCountry" list="originCountryOptions"
+            maxlength="50" autocomplete="off" placeholder="Select or type any country">
+          <datalist id="originCountryOptions">
+            <option value="Brazil"></option>
+            <option value="Burundi"></option>
+            <option value="Colombia"></option>
+            <option value="Costa Rica"></option>
+            <option value="Cuba"></option>
+            <option value="Dominican Republic"></option>
+            <option value="Ecuador"></option>
+            <option value="El Salvador"></option>
+            <option value="Ethiopia"></option>
+            <option value="Guatemala"></option>
+            <option value="Haiti"></option>
+            <option value="Honduras"></option>
+            <option value="India"></option>
+            <option value="Indonesia"></option>
+            <option value="Jamaica"></option>
+            <option value="Kenya"></option>
+            <option value="Laos"></option>
+            <option value="Mexico"></option>
+            <option value="Myanmar"></option>
+            <option value="Nicaragua"></option>
+            <option value="Panama"></option>
+            <option value="Papua New Guinea"></option>
+            <option value="Peru"></option>
+            <option value="Philippines"></option>
+            <option value="Rwanda"></option>
+            <option value="Tanzania"></option>
+            <option value="Thailand"></option>
+            <option value="Timor-Leste"></option>
+            <option value="Uganda"></option>
+            <option value="Vietnam"></option>
+            <option value="Yemen"></option>
+            <option value="Multiple origins"></option>
+          </datalist>
         </label>
         <label class="field">
           <span>Region</span>
-          <select id="originRegionInput" name="originRegion" disabled>
-            <option value="">Not specified</option>
-          </select>
+          <input id="originRegionInput" name="originRegion" list="originRegionOptions"
+            maxlength="60" autocomplete="off" placeholder="Select or type any region">
+          <datalist id="originRegionOptions"></datalist>
         </label>
         <label class="field">
           <span>Bean composition</span>
@@ -280,7 +279,7 @@
           </label>
           <label class="metric-input">
             <span>Grind setting</span>
-            <div><input id="grindInput" name="grind" type="text" maxlength="20" placeholder="e.g. 17"><small>Setting</small></div>
+            <div><input id="grindInput" name="grind" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="e.g. 17"></div>
           </label>
           <label class="metric-input">
             <span>Temperature</span>

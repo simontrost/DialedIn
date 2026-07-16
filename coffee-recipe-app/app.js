@@ -66,7 +66,9 @@
     scrapeStatus: document.querySelector("#scrapeStatus"),
     customBlendFields: document.querySelector("#customBlendFields"),
     arabicaBar: document.querySelector("#arabicaBar"),
-    blendSum: document.querySelector("#blendSum")
+    blendSum: document.querySelector("#blendSum"),
+    originCountryOptions: document.querySelector("#originCountryOptions"),
+    originRegionOptions: document.querySelector("#originRegionOptions")
   };
 
   const fields = {
@@ -275,13 +277,19 @@
     if (!exists) select.add(new Option(value, value));
   }
 
-  function populateRegionOptions(country, selectedRegion = "") {
-    fields.originRegion.innerHTML = '<option value="">Not specified</option>';
-    const regions = ORIGIN_REGIONS[country] || [];
-    regions.forEach(region => fields.originRegion.add(new Option(region, region)));
-    ensureSelectOption(fields.originRegion, selectedRegion);
-    fields.originRegion.disabled = regions.length === 0 && !selectedRegion;
-    fields.originRegion.value = selectedRegion || "";
+  function populateRegionOptions(country = "") {
+    const normalizedCountry = country.trim();
+    const regions = ORIGIN_REGIONS[normalizedCountry] || [];
+    els.originRegionOptions.replaceChildren(
+      ...regions.map(region => {
+        const option = document.createElement("option");
+        option.value = region;
+        return option;
+      })
+    );
+    fields.originRegion.placeholder = regions.length
+      ? "Select a suggestion or type any region"
+      : "Type any region";
   }
 
   function parseBlendPercentages(value = "") {
@@ -343,8 +351,8 @@
   function metadataIsBlank() {
     return !fields.name.value.trim()
       && !fields.roaster.value.trim()
-      && !fields.originCountry.value
-      && !fields.originRegion.value
+      && !fields.originCountry.value.trim()
+      && !fields.originRegion.value.trim()
       && !fields.blend.value;
   }
 
@@ -374,9 +382,9 @@
 
     fields.name.value = recipe?.name || "";
     fields.roaster.value = recipe?.roaster || "";
-    ensureSelectOption(fields.originCountry, recipe?.originCountry || "");
     fields.originCountry.value = recipe?.originCountry || "";
-    populateRegionOptions(fields.originCountry.value, recipe?.originRegion || "");
+    fields.originRegion.value = recipe?.originRegion || "";
+    populateRegionOptions(fields.originCountry.value);
     setBlendValue(recipe?.blend || "");
     fields.roast.value = recipe?.roast || "medium";
     fields.status.value = recipe?.status || "active";
@@ -418,15 +426,15 @@
     return {
       name: fields.name.value.trim(),
       roaster: fields.roaster.value.trim(),
-      originCountry: fields.originCountry.value,
-      originRegion: fields.originRegion.value,
+      originCountry: fields.originCountry.value.trim(),
+      originRegion: fields.originRegion.value.trim(),
       blend: currentBlendValue(),
       roast: fields.roast.value,
       status: fields.status.value,
       dose: Number(fields.dose.value),
       yield: Number(fields.yield.value),
       time: Number(fields.time.value),
-      grind: fields.grind.value.trim(),
+      grind: fields.grind.value === "" ? null : Number(fields.grind.value),
       temp: fields.temp.value ? Number(fields.temp.value) : null,
       rating: fields.rating.value ? Number(fields.rating.value) : 0,
       orderUrl: normalizeUrl(fields.orderUrl.value),
@@ -445,13 +453,13 @@
       fields.roaster.value = data.roaster;
       applied += 1;
     }
-    if (!fields.originCountry.value && data.originCountry) {
-      ensureSelectOption(fields.originCountry, data.originCountry);
+    if (!fields.originCountry.value.trim() && data.originCountry) {
       fields.originCountry.value = data.originCountry;
-      populateRegionOptions(data.originCountry, data.originRegion || "");
+      populateRegionOptions(data.originCountry);
       applied += 1;
-    } else if (!fields.originRegion.value && data.originRegion && fields.originCountry.value === data.originCountry) {
-      populateRegionOptions(fields.originCountry.value, data.originRegion);
+    }
+    if (!fields.originRegion.value.trim() && data.originRegion) {
+      fields.originRegion.value = data.originRegion;
       applied += 1;
     }
     if (!fields.blend.value && data.blend) {
@@ -635,7 +643,7 @@
       hour < 11 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   }
 
-  document.querySelectorAll("#addRecipeButton, #addRecipeButtonDesktop, #mobileAddButton, #emptyAddButton")
+  document.querySelectorAll("#addRecipeButton, #mobileAddButton, #emptyAddButton")
     .forEach(button => button.addEventListener("click", () => openRecipeDialog()));
 
   document.querySelector("#settingsButton").addEventListener("click", openSettings);
@@ -654,7 +662,7 @@
   [fields.name, fields.roaster, fields.originCountry, fields.originRegion, fields.blend]
     .forEach(input => input.addEventListener("input", updateScrapeAvailability));
 
-  fields.originCountry.addEventListener("change", () => {
+  fields.originCountry.addEventListener("input", () => {
     populateRegionOptions(fields.originCountry.value);
     updateScrapeAvailability();
   });
