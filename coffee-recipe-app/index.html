@@ -131,7 +131,7 @@
   </div>
 
   <dialog id="recipeDialog">
-    <form method="dialog" id="recipeForm">
+    <form id="recipeForm">
       <div class="dialog-header">
         <div>
           <p class="eyebrow">Espresso Setup</p>
@@ -139,6 +139,24 @@
         </div>
         <button class="dialog-close" type="button" data-close-dialog aria-label="Close dialog">×</button>
       </div>
+
+      <section class="import-panel">
+        <div class="import-panel-heading" id="importHelp">
+          <span class="import-icon" aria-hidden="true">↗</span>
+          <div>
+            <strong>Import coffee details from the shop</strong>
+            <small>For a brand-new recipe, paste the product link first. Dialed In will try to find the coffee name, roaster, origin, and bean composition.</small>
+          </div>
+        </div>
+        <div class="url-import-row">
+          <label class="field import-url-field">
+            <span>Reorder link</span>
+            <input id="orderUrlInput" name="orderUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://roastery.example/coffee">
+          </label>
+          <button class="secondary-button scrape-button" id="scrapeButton" type="button">Fetch details</button>
+        </div>
+        <p class="scrape-status" id="scrapeStatus" role="status" aria-live="polite"></p>
+      </section>
 
       <div class="form-grid">
         <label class="field full">
@@ -150,9 +168,80 @@
           <input id="roasterInput" name="roaster" maxlength="60" placeholder="Roastery name">
         </label>
         <label class="field">
-          <span>Origin / blend</span>
-          <input id="originInput" name="origin" maxlength="80" placeholder="e.g. Brazil, 70/30 blend">
+          <span>Origin country</span>
+          <select id="originCountryInput" name="originCountry">
+            <option value="">Not specified</option>
+            <option>Brazil</option>
+            <option>Burundi</option>
+            <option>Colombia</option>
+            <option>Costa Rica</option>
+            <option>Cuba</option>
+            <option>Dominican Republic</option>
+            <option>Ecuador</option>
+            <option>El Salvador</option>
+            <option>Ethiopia</option>
+            <option>Guatemala</option>
+            <option>Haiti</option>
+            <option>Honduras</option>
+            <option>India</option>
+            <option>Indonesia</option>
+            <option>Jamaica</option>
+            <option>Kenya</option>
+            <option>Laos</option>
+            <option>Mexico</option>
+            <option>Myanmar</option>
+            <option>Nicaragua</option>
+            <option>Panama</option>
+            <option>Papua New Guinea</option>
+            <option>Peru</option>
+            <option>Philippines</option>
+            <option>Rwanda</option>
+            <option>Tanzania</option>
+            <option>Thailand</option>
+            <option>Timor-Leste</option>
+            <option>Uganda</option>
+            <option>Vietnam</option>
+            <option>Yemen</option>
+            <option>Multiple origins</option>
+            <option>Unknown</option>
+          </select>
         </label>
+        <label class="field">
+          <span>Region</span>
+          <select id="originRegionInput" name="originRegion" disabled>
+            <option value="">Not specified</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Bean composition</span>
+          <select id="blendInput" name="blend">
+            <option value="">Not specified</option>
+            <option value="100% Arabica">100% Arabica</option>
+            <option value="90% Arabica / 10% Robusta">90% Arabica / 10% Robusta</option>
+            <option value="80% Arabica / 20% Robusta">80% Arabica / 20% Robusta</option>
+            <option value="70% Arabica / 30% Robusta">70% Arabica / 30% Robusta</option>
+            <option value="60% Arabica / 40% Robusta">60% Arabica / 40% Robusta</option>
+            <option value="50% Arabica / 50% Robusta">50% Arabica / 50% Robusta</option>
+            <option value="30% Arabica / 70% Robusta">30% Arabica / 70% Robusta</option>
+            <option value="100% Robusta">100% Robusta</option>
+            <option value="Arabica / Robusta blend">Arabica / Robusta blend (ratio unknown)</option>
+            <option value="custom">Custom ratio</option>
+          </select>
+        </label>
+        <div class="custom-blend-fields full hidden" id="customBlendFields">
+          <label class="metric-input compact-metric">
+            <span>Arabica</span>
+            <div><input id="arabicaInput" type="number" min="0" max="100" step="1" value="50"><small>%</small></div>
+          </label>
+          <div class="blend-visual" aria-hidden="true">
+            <div class="blend-bar"><span id="arabicaBar"></span></div>
+            <small id="blendSum">50% Arabica · 50% Robusta</small>
+          </div>
+          <label class="metric-input compact-metric">
+            <span>Robusta</span>
+            <div><input id="robustaInput" type="number" min="0" max="100" step="1" value="50"><small>%</small></div>
+          </label>
+        </div>
         <label class="field">
           <span>Roast level</span>
           <select id="roastInput" name="roast">
@@ -206,10 +295,6 @@
 
       <div class="form-grid">
         <label class="field full">
-          <span>Reorder link</span>
-          <input id="orderUrlInput" name="orderUrl" type="url" placeholder="https://…">
-        </label>
-        <label class="field full">
           <span>Notes</span>
           <textarea id="notesInput" name="notes" rows="4" maxlength="500" placeholder="Flavor, observations, next adjustment …"></textarea>
         </label>
@@ -229,7 +314,7 @@
   </dialog>
 
   <dialog id="settingsDialog">
-    <form method="dialog" id="settingsForm">
+    <form id="settingsForm">
       <div class="dialog-header">
         <div>
           <p class="eyebrow">Your setup</p>

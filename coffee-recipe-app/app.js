@@ -6,11 +6,39 @@
     grinder: "Turin G-Micron DF64P"
   };
 
+  const ORIGIN_REGIONS = Object.freeze({
+    Brazil: ["Cerrado Mineiro", "Espírito Santo", "Mogiana", "Minas Gerais", "Sul de Minas"],
+    Burundi: ["Kayanza", "Kirundo", "Ngozi"],
+    Colombia: ["Antioquia", "Cauca", "Huila", "Nariño", "Sierra Nevada", "Tolima"],
+    "Costa Rica": ["Brunca", "Central Valley", "Tarrazú", "West Valley"],
+    "El Salvador": ["Alotepec-Metapán", "Apaneca-Ilamatepec", "Bálsamo-Quezaltepec"],
+    Ethiopia: ["Guji", "Harrar", "Limu", "Sidama", "Yirgacheffe"],
+    Guatemala: ["Acatenango", "Antigua", "Atitlán", "Cobán", "Huehuetenango"],
+    Honduras: ["Agalta", "Copán", "El Paraíso", "Montecillos", "Opalaca"],
+    India: ["Baba Budangiri", "Chikmagalur", "Coorg", "Kerala"],
+    Indonesia: ["Bali", "Flores", "Java", "Sulawesi", "Sumatra"],
+    Jamaica: ["Blue Mountains"],
+    Kenya: ["Embu", "Kirinyaga", "Kiambu", "Murang'a", "Nyeri"],
+    Mexico: ["Chiapas", "Oaxaca", "Veracruz"],
+    Nicaragua: ["Jinotega", "Matagalpa", "Nueva Segovia"],
+    Panama: ["Boquete", "Volcán"],
+    "Papua New Guinea": ["Eastern Highlands", "Western Highlands"],
+    Peru: ["Cajamarca", "Cusco", "Junín", "San Martín"],
+    Rwanda: ["Gakenke", "Huye", "Kivu", "Nyamasheke"],
+    Tanzania: ["Arusha", "Kilimanjaro", "Mbeya"],
+    Uganda: ["Bugisu", "Rwenzori"],
+    Vietnam: ["Central Highlands", "Da Lat"],
+    Yemen: ["Bani Matar", "Haraz", "Haimah" ]
+  });
+
   const state = {
     recipes: [],
     settings: { ...defaultSettings },
     editingId: null,
-    favoritesOnly: false
+    favoritesOnly: false,
+    scrapeTimer: null,
+    lastScrapedUrl: "",
+    scrapeInProgress: false
   };
 
   const els = {
@@ -32,13 +60,23 @@
     machineLabel: document.querySelector("#machineLabel"),
     grinderLabel: document.querySelector("#grinderLabel"),
     ratioPreview: document.querySelector("#ratioPreview"),
-    importInput: document.querySelector("#importInput")
+    importInput: document.querySelector("#importInput"),
+    importHelp: document.querySelector("#importHelp"),
+    scrapeButton: document.querySelector("#scrapeButton"),
+    scrapeStatus: document.querySelector("#scrapeStatus"),
+    customBlendFields: document.querySelector("#customBlendFields"),
+    arabicaBar: document.querySelector("#arabicaBar"),
+    blendSum: document.querySelector("#blendSum")
   };
 
   const fields = {
     name: document.querySelector("#nameInput"),
     roaster: document.querySelector("#roasterInput"),
-    origin: document.querySelector("#originInput"),
+    originCountry: document.querySelector("#originCountryInput"),
+    originRegion: document.querySelector("#originRegionInput"),
+    blend: document.querySelector("#blendInput"),
+    arabica: document.querySelector("#arabicaInput"),
+    robusta: document.querySelector("#robustaInput"),
     roast: document.querySelector("#roastInput"),
     status: document.querySelector("#statusInput"),
     dose: document.querySelector("#doseInput"),
@@ -91,8 +129,11 @@
   }
 
   function normalizeUrl(value = "") {
-    const trimmed = value.trim();
+    let trimmed = value.trim();
     if (!trimmed) return "";
+    if (!/^https?:\/\//i.test(trimmed) && /^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(trimmed)) {
+      trimmed = `https://${trimmed}`;
+    }
     try {
       const url = new URL(trimmed);
       return ["http:", "https:"].includes(url.protocol) ? url.href : "";
@@ -126,6 +167,15 @@
     return ({ light: "light roast", medium: "medium roast", dark: "dark roast" })[roast] || roast;
   }
 
+  function originLabel(recipe) {
+    const values = [recipe.originCountry, recipe.originRegion].filter(Boolean);
+    return values.length ? values.join(" · ") : "Origin not set";
+  }
+
+  function blendLabel(recipe) {
+    return recipe.blend || "Composition not set";
+  }
+
   function filteredRecipes() {
     const query = els.search.value.trim().toLocaleLowerCase("en");
     const roast = els.roastFilter.value;
@@ -133,7 +183,14 @@
 
     return [...state.recipes]
       .filter(recipe => {
-        const haystack = [recipe.name, recipe.roaster, recipe.origin, recipe.notes].join(" ").toLocaleLowerCase("en");
+        const haystack = [
+          recipe.name,
+          recipe.roaster,
+          recipe.originCountry,
+          recipe.originRegion,
+          recipe.blend,
+          recipe.notes
+        ].join(" ").toLocaleLowerCase("en");
         return (!query || haystack.includes(query))
           && (roast === "all" || recipe.roast === roast)
           && (status === "all" || recipe.status === status)
@@ -159,7 +216,11 @@
                 ${recipe.favorite ? "♥" : "♡"}
               </button>
             </div>
-            <p class="recipe-meta">${escapeHtml(recipe.roaster || "No roaster")} · ${escapeHtml(recipe.origin || roastLabel(recipe.roast))}</p>
+            <p class="recipe-meta">${escapeHtml(recipe.roaster || "No roaster")}</p>
+            <div class="coffee-tags">
+              <span><b>Origin</b>${escapeHtml(originLabel(recipe))}</span>
+              <span><b>Beans</b>${escapeHtml(blendLabel(recipe))}</span>
+            </div>
 
             <div class="recipe-metrics">
               <div><strong>${formatNumber(recipe.dose)} g</strong><small>In</small></div>
@@ -208,15 +269,115 @@
     els.grinderLabel.textContent = state.settings.grinder;
   }
 
+  function ensureSelectOption(select, value) {
+    if (!value) return;
+    const exists = [...select.options].some(option => option.value === value);
+    if (!exists) select.add(new Option(value, value));
+  }
+
+  function populateRegionOptions(country, selectedRegion = "") {
+    fields.originRegion.innerHTML = '<option value="">Not specified</option>';
+    const regions = ORIGIN_REGIONS[country] || [];
+    regions.forEach(region => fields.originRegion.add(new Option(region, region)));
+    ensureSelectOption(fields.originRegion, selectedRegion);
+    fields.originRegion.disabled = regions.length === 0 && !selectedRegion;
+    fields.originRegion.value = selectedRegion || "";
+  }
+
+  function parseBlendPercentages(value = "") {
+    const arabica = value.match(/(\d{1,3})\s*%\s*Arabica/i);
+    const robusta = value.match(/(\d{1,3})\s*%\s*Robusta/i);
+    if (!arabica || !robusta) return null;
+    const a = Number(arabica[1]);
+    const r = Number(robusta[1]);
+    return a + r === 100 ? { arabica: a, robusta: r } : null;
+  }
+
+  function setBlendValue(value = "") {
+    if (!value) {
+      fields.blend.value = "";
+      updateBlendUI();
+      return;
+    }
+    const existing = [...fields.blend.options].some(option => option.value === value);
+    if (existing && value !== "custom") {
+      fields.blend.value = value;
+    } else {
+      const percentages = parseBlendPercentages(value);
+      if (percentages) {
+        fields.blend.value = "custom";
+        fields.arabica.value = percentages.arabica;
+        fields.robusta.value = percentages.robusta;
+      } else {
+        ensureSelectOption(fields.blend, value);
+        fields.blend.value = value;
+      }
+    }
+    updateBlendUI();
+  }
+
+  function updateBlendUI(changedField = null) {
+    const custom = fields.blend.value === "custom";
+    els.customBlendFields.classList.toggle("hidden", !custom);
+    if (!custom) return;
+
+    let arabica = Math.max(0, Math.min(100, Number(fields.arabica.value) || 0));
+    let robusta = Math.max(0, Math.min(100, Number(fields.robusta.value) || 0));
+    if (changedField === "arabica") robusta = 100 - arabica;
+    if (changedField === "robusta") arabica = 100 - robusta;
+    if (changedField === null && arabica + robusta !== 100) robusta = 100 - arabica;
+
+    fields.arabica.value = arabica;
+    fields.robusta.value = robusta;
+    els.arabicaBar.style.width = `${arabica}%`;
+    els.blendSum.textContent = `${arabica}% Arabica · ${robusta}% Robusta`;
+  }
+
+  function currentBlendValue() {
+    if (fields.blend.value !== "custom") return fields.blend.value;
+    const arabica = Math.max(0, Math.min(100, Number(fields.arabica.value) || 0));
+    const robusta = 100 - arabica;
+    return `${arabica}% Arabica / ${robusta}% Robusta`;
+  }
+
+  function metadataIsBlank() {
+    return !fields.name.value.trim()
+      && !fields.roaster.value.trim()
+      && !fields.originCountry.value
+      && !fields.originRegion.value
+      && !fields.blend.value;
+  }
+
+  function setScrapeStatus(message = "", type = "") {
+    els.scrapeStatus.textContent = message;
+    els.scrapeStatus.dataset.type = type;
+  }
+
+  function updateScrapeAvailability() {
+    const newRecipe = !state.editingId;
+    els.importHelp.classList.toggle("hidden", !newRecipe);
+    els.scrapeButton.classList.toggle("hidden", !newRecipe);
+    if (!newRecipe) {
+      setScrapeStatus("");
+      return;
+    }
+    els.scrapeButton.disabled = state.scrapeInProgress || !metadataIsBlank() || !normalizeUrl(fields.orderUrl.value);
+  }
+
   function openRecipeDialog(recipe = null) {
     state.editingId = recipe?.id || null;
+    state.lastScrapedUrl = "";
+    clearTimeout(state.scrapeTimer);
     els.recipeForm.reset();
     els.dialogTitle.textContent = recipe ? "Edit recipe" : "New recipe";
     els.deleteButton.classList.toggle("hidden", !recipe);
 
     fields.name.value = recipe?.name || "";
     fields.roaster.value = recipe?.roaster || "";
-    fields.origin.value = recipe?.origin || "";
+    ensureSelectOption(fields.originCountry, recipe?.originCountry || "");
+    fields.originCountry.value = recipe?.originCountry || "";
+    populateRegionOptions(fields.originCountry.value, recipe?.originRegion || "");
+    setBlendValue(recipe?.blend || "");
     fields.roast.value = recipe?.roast || "medium";
     fields.status.value = recipe?.status || "active";
     fields.dose.value = recipe?.dose ?? 18;
@@ -229,14 +390,15 @@
     fields.notes.value = recipe?.notes || "";
     fields.favorite.checked = Boolean(recipe?.favorite);
 
+    setScrapeStatus("");
     updateRatioPreview();
+    updateScrapeAvailability();
     els.recipeDialog.showModal();
-    setTimeout(() => fields.name.focus(), 80);
+    setTimeout(() => (recipe ? fields.name : fields.orderUrl).focus(), 80);
   }
 
   function closeRecipeDialog() {
-    els.recipeDialog.close();
-    state.editingId = null;
+    if (els.recipeDialog.open) els.recipeDialog.close();
   }
 
   function openSettings() {
@@ -256,7 +418,9 @@
     return {
       name: fields.name.value.trim(),
       roaster: fields.roaster.value.trim(),
-      origin: fields.origin.value.trim(),
+      originCountry: fields.originCountry.value,
+      originRegion: fields.originRegion.value,
+      blend: currentBlendValue(),
       roast: fields.roast.value,
       status: fields.status.value,
       dose: Number(fields.dose.value),
@@ -269,6 +433,82 @@
       notes: fields.notes.value.trim(),
       favorite: fields.favorite.checked
     };
+  }
+
+  function applyScrapedData(data) {
+    let applied = 0;
+    if (!fields.name.value.trim() && data.name) {
+      fields.name.value = data.name;
+      applied += 1;
+    }
+    if (!fields.roaster.value.trim() && data.roaster) {
+      fields.roaster.value = data.roaster;
+      applied += 1;
+    }
+    if (!fields.originCountry.value && data.originCountry) {
+      ensureSelectOption(fields.originCountry, data.originCountry);
+      fields.originCountry.value = data.originCountry;
+      populateRegionOptions(data.originCountry, data.originRegion || "");
+      applied += 1;
+    } else if (!fields.originRegion.value && data.originRegion && fields.originCountry.value === data.originCountry) {
+      populateRegionOptions(fields.originCountry.value, data.originRegion);
+      applied += 1;
+    }
+    if (!fields.blend.value && data.blend) {
+      setBlendValue(data.blend);
+      applied += 1;
+    }
+    return applied;
+  }
+
+  async function scrapeProductInfo(manual = false) {
+    if (state.editingId || state.scrapeInProgress) return;
+    const url = normalizeUrl(fields.orderUrl.value);
+    if (!url) {
+      if (manual) setScrapeStatus("Enter a valid http or https product link.", "error");
+      return;
+    }
+    if (!metadataIsBlank()) {
+      if (manual) setScrapeStatus("Automatic import is only available before you enter any coffee details.", "info");
+      updateScrapeAvailability();
+      return;
+    }
+    if (!manual && state.lastScrapedUrl === url) return;
+
+    fields.orderUrl.value = url;
+    state.scrapeInProgress = true;
+    els.scrapeButton.textContent = "Fetching…";
+    setScrapeStatus("Reading product information…", "loading");
+    updateScrapeAvailability();
+
+    try {
+      const data = await api("/api/scrape-product", {
+        method: "POST",
+        body: JSON.stringify({ url })
+      });
+      state.lastScrapedUrl = url;
+      const applied = applyScrapedData(data);
+      if (applied) {
+        const sourceNote = data.finalUrl && data.finalUrl !== url ? " after following the shop redirect" : "";
+        setScrapeStatus(`Imported ${applied} field${applied === 1 ? "" : "s"}${sourceNote}. Please verify the result.`, "success");
+      } else {
+        setScrapeStatus("The page loaded, but no reliable coffee details were found. You can enter them manually.", "info");
+      }
+    } catch (error) {
+      setScrapeStatus(`${error.message} You can still fill in the recipe manually.`, "error");
+    } finally {
+      state.scrapeInProgress = false;
+      els.scrapeButton.textContent = "Fetch details";
+      updateScrapeAvailability();
+    }
+  }
+
+  function scheduleAutomaticScrape() {
+    clearTimeout(state.scrapeTimer);
+    updateScrapeAvailability();
+    const url = normalizeUrl(fields.orderUrl.value);
+    if (state.editingId || !url || !metadataIsBlank() || state.lastScrapedUrl === url) return;
+    state.scrapeTimer = setTimeout(() => scrapeProductInfo(false), 850);
   }
 
   async function saveRecipe(event) {
@@ -405,11 +645,27 @@
   els.recipeForm.addEventListener("submit", saveRecipe);
   els.settingsForm.addEventListener("submit", saveSettings);
   els.deleteButton.addEventListener("click", deleteRecipe);
+  els.scrapeButton.addEventListener("click", () => scrapeProductInfo(true));
   document.querySelector("#exportButton").addEventListener("click", exportData);
   els.importInput.addEventListener("change", event => importData(event.target.files?.[0]));
 
   [els.search, els.roastFilter, els.statusFilter].forEach(input => input.addEventListener("input", render));
   [fields.dose, fields.yield].forEach(input => input.addEventListener("input", updateRatioPreview));
+  [fields.name, fields.roaster, fields.originCountry, fields.originRegion, fields.blend]
+    .forEach(input => input.addEventListener("input", updateScrapeAvailability));
+
+  fields.originCountry.addEventListener("change", () => {
+    populateRegionOptions(fields.originCountry.value);
+    updateScrapeAvailability();
+  });
+  fields.blend.addEventListener("change", () => {
+    updateBlendUI();
+    updateScrapeAvailability();
+  });
+  fields.arabica.addEventListener("input", () => updateBlendUI("arabica"));
+  fields.robusta.addEventListener("input", () => updateBlendUI("robusta"));
+  fields.orderUrl.addEventListener("input", scheduleAutomaticScrape);
+  fields.orderUrl.addEventListener("blur", () => scrapeProductInfo(false));
 
   els.grid.addEventListener("click", event => {
     const favoriteButton = event.target.closest("[data-favorite-id]");
@@ -442,12 +698,12 @@
     if (action === "settings") openSettings();
   });
 
-  [els.recipeDialog, els.settingsDialog].forEach(dialog => {
-    dialog.addEventListener("click", event => {
-      const rect = dialog.getBoundingClientRect();
-      const outside = event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom;
-      if (outside) dialog.close();
-    });
+  // Dialogs now close only through their explicit controls or the Escape key.
+  // This avoids accidental closes caused by clicks inside empty form areas.
+  els.recipeDialog.addEventListener("close", () => {
+    state.editingId = null;
+    state.scrapeInProgress = false;
+    clearTimeout(state.scrapeTimer);
   });
 
   setGreeting();
