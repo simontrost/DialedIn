@@ -1,9 +1,9 @@
-# Dialed In – Local Espresso Recipe App
+# Dialed In
 
-A mobile web app for your Espresso Machine and Grinder. All data remains inside your home network and is stored centrally in a SQLite database.
+A mobile web app for your espresso machine and grinder. All data remains inside your home network and is stored centrally in a SQLite database.
 
 <p align="center">
-  <img src="DialedIn_Logo.png" alt="Dialed In Logo" width="300">
+  <img src="DialedIn_Logo.png" alt="Dialed In Logo" width="400">
 </p>
 
 ## Features
@@ -11,16 +11,22 @@ A mobile web app for your Espresso Machine and Grinder. All data remains inside 
 - Dashboard with coffees, average brew ratio, and average shot time
 - Recipes with dose, yield, ratio, shot time, grind setting, and temperature
 - Roaster, origin/blend, roast level, status, rating, and notes
-- Reorder link for each coffee
+- Reorder link for each coffee, scrape website for information when creating a new recipe entry
 - Search, filters, and favorites
 - Create, edit, and delete recipes
 - Central SQLite backend shared by phone, tablet, and desktop
 - JSON backup and restore
 - Responsive coffee-inspired interface optimized for smartphones
 
-## Recommended: Automatic Installation on Raspberry Pi OS
 
-Extract the ZIP archive, open the project directory, and run:
+### WebApp Mobile
+
+| <img src="assets/main.jpg" height="500" /> | <img src="assets/recipes.jpg" height="500" /> | | <img src="assets/new.jpg" height="500" /> |
+
+
+## Recommended: Automatic Installation on a linux host device (e.g. raspberry pi os)
+
+Extract the ZIP archive or clone git, open the project directory, and run:
 
 ```bash
 chmod +x install.sh
@@ -30,10 +36,10 @@ sudo ./install.sh
 Then open the app on a device connected to the same network:
 
 ```text
-http://RASPBERRY-PI-IP:8080
+http://<IP_ADDRESS>:8080
 ```
 
-Display the Raspberry Pi's IP address with:
+Display the your IP address with:
 
 ```bash
 hostname -I
@@ -58,7 +64,7 @@ docker compose up -d --build
 Then open:
 
 ```text
-http://RASPBERRY-PI-IP:8080
+http://<IP_ADDRESS>:8080
 ```
 
 The SQLite database is stored at `data/coffee.db`.
@@ -93,7 +99,7 @@ http://localhost:8080
 On many devices, the default hostname works automatically:
 
 ```text
-http://raspberrypi.local:8080
+http://hostname.local:8080
 ```
 
 You can change the hostname with:
@@ -122,13 +128,8 @@ cp /opt/dialed-in-coffee/data/coffee.db ~/coffee-backup.db
 
 The app intentionally has no login and is intended for use inside your private home network. Do not forward port 8080 directly to the public internet. For remote access, use a private VPN such as Tailscale.
 
-## Project Structure
+## License
+Creative Commons Attribution–NonCommercial 4.0
 
-- `server.py` – Flask API and SQLite database
-- `index.html` – user interface
-- `styles.css` – responsive design
-- `app.js` – frontend logic
-- `requirements.txt` – Python dependencies
-- `install.sh` – automatic systemd installation
-- `Dockerfile` / `docker-compose.yml` – Docker deployment
-- `data/coffee.db` – created automatically on first launch
+Full license text:
+https://creativecommons.org/licenses/by-nc/4.0/legalcode.txt
