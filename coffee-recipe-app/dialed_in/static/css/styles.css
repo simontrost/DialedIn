@@ -961,22 +961,49 @@ body.scanner-open {
   background: #000;
 }
 
-#barcodeReader,
-#barcodeReader > div {
+#barcodeReader {
+  position: absolute;
+  inset: 0;
   width: 100% !important;
   height: 100% !important;
+  overflow: hidden;
   border: 0 !important;
-  background: #000 !important;
+  background: #000;
+}
+
+/*
+ * html5-qrcode inserts helper divs and a decoding canvas dynamically.
+ * Do not give those helper elements an opaque black background: on iOS
+ * one of them can otherwise cover the live video after it starts.
+ */
+#barcodeReader > div {
+  background: transparent !important;
 }
 
 #barcodeReader video {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 0;
+  display: block !important;
   width: 100% !important;
   height: 100% !important;
+  max-width: none !important;
   object-fit: cover !important;
+  background: transparent !important;
 }
 
-#barcodeReader canvas { display: none !important; }
-#barcodeReader img { max-width: 100%; }
+/* Keep the decoding canvas available to the library, but never let it
+   visually cover the camera preview. */
+#barcodeReader canvas {
+  position: absolute !important;
+  z-index: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#barcodeReader img {
+  max-width: 100%;
+}
 
 .barcode-viewfinder {
   position: absolute;

@@ -579,13 +579,7 @@
         { facingMode: "environment" },
         {
           fps: 10,
-          disableFlip: true,
-          qrbox: (viewfinderWidth, viewfinderHeight) => {
-            const width = Math.min(Math.floor(viewfinderWidth * 0.84), 520);
-            const preferredHeight = Math.max(100, Math.floor(width * 0.30));
-            const height = Math.min(preferredHeight, Math.floor(viewfinderHeight * 0.42));
-            return { width, height };
-          }
+          disableFlip: true
         },
         decodedText => {
           void handleBarcodeDetected(decodedText);
