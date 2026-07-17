@@ -11,6 +11,7 @@ A mobile web app for your espresso machine and grinder. All data remains inside 
 - Dashboard with coffees, average brew ratio, and average shot time
 - Recipes with dose, yield, ratio, shot time, grind setting, and temperature
 - Roaster, origin/blend, roast level, status, rating, and notes
+- barcode scanner for fetching bean details
 - Reorder link for each coffee, scrape website for information when creating a new recipe entry
 - Search, filters, and favorites
 - Create, edit, and delete recipes
