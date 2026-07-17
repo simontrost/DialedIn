@@ -550,7 +550,11 @@
     state.barcodeScanHandled = false;
     els.barcodeScanner.classList.remove("hidden");
     document.body.classList.add("scanner-open");
-    setBarcodeScannerStatus("Hold the barcode inside the frame.", "loading");
+    setBarcodeScannerStatus("Starting camera…", "loading");
+
+    // Give Safari one paint cycle so the full-screen overlay becomes visible
+    // before the native camera permission dialog is opened.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
     const scanner = new window.Html5Qrcode("barcodeReader", {
       formatsToSupport: supportedBarcodeFormats(),
@@ -559,21 +563,17 @@
     state.barcodeScanner = scanner;
 
     try {
+      // Avoid exact constraints and a forced aspect ratio. Both can make
+      // iOS Safari reject an otherwise usable rear camera.
       await scanner.start(
-        { facingMode: { exact: "environment" } },
+        { facingMode: "environment" },
         {
-          fps: 15,
-          aspectRatio: 1.777778,
+          fps: 10,
           disableFlip: true,
           qrbox: (viewfinderWidth, viewfinderHeight) => {
-            const width = Math.min(
-              Math.floor(viewfinderWidth * 0.82),
-              520
-            );
-            const height = Math.min(
-              Math.max(105, Math.floor(width * 0.30)),
-              Math.floor(viewfinderHeight * 0.32)
-            );
+            const width = Math.min(Math.floor(viewfinderWidth * 0.84), 520);
+            const preferredHeight = Math.max(100, Math.floor(width * 0.30));
+            const height = Math.min(preferredHeight, Math.floor(viewfinderHeight * 0.42));
             return { width, height };
           }
         },
@@ -584,34 +584,17 @@
           // Unsuccessful frames are expected while the barcode is aligned.
         }
       );
-    } catch (primaryError) {
-      try {
-        await scanner.start(
-          { facingMode: "environment" },
-          {
-            fps: 12,
-            aspectRatio: 1.777778,
-            disableFlip: true,
-            qrbox: (viewfinderWidth, viewfinderHeight) => {
-              const width = Math.min(Math.floor(viewfinderWidth * 0.82), 520);
-              return {
-                width,
-                height: Math.max(105, Math.floor(width * 0.30))
-              };
-            }
-          },
-          decodedText => {
-            void handleBarcodeDetected(decodedText);
-          },
-          () => {}
-        );
-      } catch (fallbackError) {
-        await stopBarcodeScanner();
-        setBarcodeStatus(
-          `The camera could not be started. Check camera permission and HTTPS. (${fallbackError})`,
-          "error"
-        );
-      }
+
+      setBarcodeScannerStatus("Hold the barcode inside the frame.", "loading");
+    } catch (error) {
+      console.error("Could not start barcode camera:", error);
+      await stopBarcodeScanner();
+
+      const message = String(error?.message || error || "Unknown camera error");
+      setBarcodeStatus(
+        `The camera could not be started: ${message}`,
+        "error"
+      );
     }
   }
 
