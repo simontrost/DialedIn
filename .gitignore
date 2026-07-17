@@ -1,2 +1,7 @@
-./coffe-recipe-app/data
-./coffe-recipe-app/.venv
+coffee-recipe-app/.venv/
+coffee-recipe-app/data/*.db
+coffee-recipe-app/data/*.db-shm
+coffee-recipe-app/data/*.db-wal
+
+__pycache__/
+*.pyc
