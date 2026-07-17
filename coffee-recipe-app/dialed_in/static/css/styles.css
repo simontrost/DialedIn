@@ -827,7 +827,12 @@ dialog form { padding: 26px; }
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
 
-/* Barcode scanner — step 2 */
+/* Full-screen live barcode scanner */
+body.scanner-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
 .barcode-import-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -835,9 +840,7 @@ dialog form { padding: 26px; }
   gap: 10px;
 }
 
-.barcode-input-field {
-  min-width: 0;
-}
+.barcode-input-field { min-width: 0; }
 
 .barcode-scan-button,
 .barcode-lookup-button {
@@ -859,9 +862,7 @@ dialog form { padding: 26px; }
   fill: currentColor;
 }
 
-.barcode-lookup-button {
-  min-width: 96px;
-}
+.barcode-lookup-button { min-width: 96px; }
 
 .barcode-scan-button:disabled,
 .barcode-lookup-button:disabled {
@@ -889,35 +890,201 @@ dialog form { padding: 26px; }
   background: var(--line);
 }
 
-.barcode-scanner {
-  margin-top: 12px;
+.barcode-scanner-overlay {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  color: #fff;
+  background: #090706;
+}
+
+.barcode-scanner-header {
+  min-height: calc(68px + env(safe-area-inset-top, 0px));
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
+  display: grid;
+  grid-template-columns: 46px 1fr 46px;
+  align-items: center;
+  gap: 12px;
+  background: rgba(20, 14, 11, .96);
+}
+
+.barcode-scanner-header > div { text-align: center; }
+.barcode-scanner-header strong,
+.barcode-scanner-header small { display: block; }
+.barcode-scanner-header strong { font-size: .95rem; }
+.barcode-scanner-header small {
+  margin-top: 2px;
+  color: rgba(255,255,255,.58);
+  font-size: .66rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.scanner-icon-button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255,255,255,.08);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.scanner-header-spacer { width: 44px; height: 44px; }
+
+.barcode-camera-stage {
+  position: relative;
+  min-height: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 10px;
-  background: var(--cream-50);
+  background: #000;
 }
 
-#barcodeReader {
-  width: 100%;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--espresso-950);
+#barcodeReader,
+#barcodeReader > div {
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: #000 !important;
 }
 
-#barcodeReader video,
-#barcodeReader img,
-#barcodeReader canvas {
-  max-width: 100% !important;
-  border-radius: 12px;
+#barcodeReader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
 }
 
-.barcode-scanner-actions {
-  display: flex;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin-top: 10px;
+#barcodeReader canvas { display: none !important; }
+#barcodeReader img { max-width: 100%; }
+
+.barcode-viewfinder {
+  position: absolute;
+  z-index: 4;
+  left: 9%;
+  top: 50%;
+  width: 82%;
+  aspect-ratio: 3.35 / 1;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.viewfinder-corner {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-color: var(--crema-400);
+  border-style: solid;
+}
+
+.corner-top-left {
+  left: 0;
+  top: 0;
+  border-width: 4px 0 0 4px;
+  border-radius: 12px 0 0;
+}
+
+.corner-top-right {
+  right: 0;
+  top: 0;
+  border-width: 4px 4px 0 0;
+  border-radius: 0 12px 0 0;
+}
+
+.corner-bottom-left {
+  left: 0;
+  bottom: 0;
+  border-width: 0 0 4px 4px;
+  border-radius: 0 0 0 12px;
+}
+
+.corner-bottom-right {
+  right: 0;
+  bottom: 0;
+  border-width: 0 4px 4px 0;
+  border-radius: 0 0 12px;
+}
+
+.barcode-scan-line {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 14%;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--crema-400);
+  box-shadow: 0 0 10px rgba(221,165,111,.9);
+  animation: barcode-scan 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes barcode-scan {
+  from { top: 14%; }
+  to { top: calc(86% - 2px); }
+}
+
+.barcode-camera-shade {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(0,0,0,.58);
+}
+
+.shade-top {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(50% - 12.25vw);
+}
+
+.shade-bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(50% - 12.25vw);
+}
+
+.shade-left {
+  left: 0;
+  top: calc(50% - 12.25vw);
+  width: 9%;
+  height: 24.5vw;
+}
+
+.shade-right {
+  right: 0;
+  top: calc(50% - 12.25vw);
+  width: 9%;
+  height: 24.5vw;
+}
+
+.barcode-scanner-footer {
+  padding: 17px 20px calc(18px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+  background: rgba(20,14,11,.98);
+}
+
+.barcode-scanner-footer p {
+  min-height: 22px;
+  margin: 0 0 14px;
+  color: rgba(255,255,255,.78);
+  font-size: .85rem;
+}
+
+.barcode-scanner-footer p[data-type="success"] { color: #a9d3a2; }
+.barcode-scanner-footer p[data-type="error"] { color: #f3a49d; }
+
+.scanner-cancel-button {
+  min-width: 150px;
+  min-height: 46px;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 999px;
+  padding: 0 22px;
+  color: #fff;
+  background: rgba(255,255,255,.08);
+  font-weight: 800;
 }
 
 @media (max-width: 700px) {
@@ -925,14 +1092,37 @@ dialog form { padding: 26px; }
     grid-template-columns: 1fr 1fr;
   }
 
-  .barcode-input-field {
-    grid-column: 1 / -1;
-  }
+  .barcode-input-field { grid-column: 1 / -1; }
 
   .barcode-scan-button,
   .barcode-lookup-button {
     width: 100%;
     min-width: 0;
   }
+}
+
+@media (min-width: 900px) {
+  .barcode-viewfinder {
+    left: 18%;
+    width: 64%;
+  }
+
+  .shade-top,
+  .shade-bottom {
+    height: calc(50% - 9.55vw);
+  }
+
+  .shade-left,
+  .shade-right {
+    top: calc(50% - 9.55vw);
+    height: 19.1vw;
+  }
+
+  .shade-left { width: 18%; }
+  .shade-right { width: 18%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barcode-scan-line { animation: none; top: 50%; }
 }
 

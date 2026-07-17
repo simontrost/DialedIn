@@ -70,11 +70,11 @@
     barcodeImportRow: document.querySelector("#barcodeImportRow"),
     barcodeScanButton: document.querySelector("#barcodeScanButton"),
     barcodeLookupButton: document.querySelector("#barcodeLookupButton"),
-    barcodeImageInput: document.querySelector("#barcodeImageInput"),
     barcodeScanner: document.querySelector("#barcodeScanner"),
     barcodeReader: document.querySelector("#barcodeReader"),
-    barcodePhotoButton: document.querySelector("#barcodePhotoButton"),
     barcodeStopButton: document.querySelector("#barcodeStopButton"),
+    barcodeCancelButton: document.querySelector("#barcodeCancelButton"),
+    barcodeScannerStatus: document.querySelector("#barcodeScannerStatus"),
     barcodeStatus: document.querySelector("#barcodeStatus"),
     customBlendFields: document.querySelector("#customBlendFields"),
     arabicaBar: document.querySelector("#arabicaBar"),
@@ -413,27 +413,39 @@
     }
   }
 
-  async function stopBarcodeScanner() {
+  function setBarcodeScannerStatus(message, type = "") {
+    els.barcodeScannerStatus.textContent = message;
+    els.barcodeScannerStatus.dataset.type = type;
+  }
+
+  async function stopBarcodeScanner({ keepMessage = false } = {}) {
     const scanner = state.barcodeScanner;
     state.barcodeScanner = null;
     state.barcodeScanHandled = false;
 
     if (scanner) {
       try {
-        await scanner.stop();
+        if (scanner.isScanning) {
+          await scanner.stop();
+        }
       } catch {
-        // stop() throws when only an uploaded image was scanned.
+        // The camera may already have stopped after a successful scan.
       }
 
       try {
         scanner.clear();
       } catch {
-        // The reader element may already be clear.
+        // The reader element may already be empty.
       }
     }
 
     els.barcodeReader.replaceChildren();
     els.barcodeScanner.classList.add("hidden");
+    document.body.classList.remove("scanner-open");
+
+    if (!keepMessage) {
+      setBarcodeScannerStatus("Hold the barcode inside the frame.");
+    }
   }
 
   async function lookupBarcode(value = fields.barcode.value) {
@@ -474,14 +486,20 @@
         );
       } else {
         setBarcodeStatus(
-          "The barcode was found, but it did not contain any additional reliable coffee details.",
+          "The barcode was recognized, but no additional reliable coffee details were available.",
           "info"
         );
       }
 
       updateScrapeAvailability();
     } catch (error) {
-      setBarcodeStatus(`${error.message} You can still enter the coffee manually.`, "error");
+      const notFound = /404|not found|no product/i.test(error.message);
+      setBarcodeStatus(
+        notFound
+          ? `Barcode ${barcode} was recognized, but this product is not in Open Food Facts. Enter the coffee details manually.`
+          : `${error.message} You can still enter the coffee manually.`,
+        "error"
+      );
     } finally {
       state.barcodeInProgress = false;
       els.barcodeLookupButton.textContent = "Look up";
@@ -492,12 +510,20 @@
   async function handleBarcodeDetected(decodedText) {
     if (state.barcodeScanHandled) return;
 
-    state.barcodeScanHandled = true;
     const barcode = normalizeBarcode(decodedText);
-    fields.barcode.value = barcode;
-    setBarcodeStatus(`Barcode ${barcode} detected.`, "success");
+    if (!barcode) return;
 
-    await stopBarcodeScanner();
+    state.barcodeScanHandled = true;
+    fields.barcode.value = barcode;
+    setBarcodeScannerStatus(`Barcode ${barcode} recognized`, "success");
+
+    if (navigator.vibrate) {
+      navigator.vibrate(80);
+    }
+
+    await new Promise(resolve => window.setTimeout(resolve, 350));
+    await stopBarcodeScanner({ keepMessage: true });
+    setBarcodeStatus(`Barcode ${barcode} recognized. Looking up product…`, "success");
     await lookupBarcode(barcode);
   }
 
@@ -512,86 +538,80 @@
       return;
     }
 
-    // A live camera stream requires HTTPS. The HTTP fallback takes a photo.
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
       setBarcodeStatus(
-        "Live scanning needs HTTPS. Opening the camera to take a barcode photo instead.",
-        "info"
+        "Live camera scanning requires HTTPS. Open Dialed In through an HTTPS address or enter the barcode manually.",
+        "error"
       );
-      els.barcodeImageInput.click();
       return;
     }
 
     await stopBarcodeScanner();
-    els.barcodeScanner.classList.remove("hidden");
     state.barcodeScanHandled = false;
+    els.barcodeScanner.classList.remove("hidden");
+    document.body.classList.add("scanner-open");
+    setBarcodeScannerStatus("Hold the barcode inside the frame.", "loading");
 
     const scanner = new window.Html5Qrcode("barcodeReader", {
-      formatsToSupport: supportedBarcodeFormats()
+      formatsToSupport: supportedBarcodeFormats(),
+      verbose: false
     });
     state.barcodeScanner = scanner;
 
-    setBarcodeStatus("Point the rear camera at the EAN or UPC barcode.", "loading");
-
     try {
       await scanner.start(
-        { facingMode: "environment" },
+        { facingMode: { exact: "environment" } },
         {
-          fps: 10,
+          fps: 15,
           aspectRatio: 1.777778,
-          qrbox: (viewfinderWidth, viewfinderHeight) => ({
-            width: Math.max(180, Math.min(360, Math.floor(viewfinderWidth * 0.86))),
-            height: Math.max(90, Math.min(160, Math.floor(viewfinderHeight * 0.34)))
-          })
+          disableFlip: true,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const width = Math.min(
+              Math.floor(viewfinderWidth * 0.82),
+              520
+            );
+            const height = Math.min(
+              Math.max(105, Math.floor(width * 0.30)),
+              Math.floor(viewfinderHeight * 0.32)
+            );
+            return { width, height };
+          }
         },
         decodedText => {
           void handleBarcodeDetected(decodedText);
         },
         () => {
-          // Failed frames are normal while the barcode is aligned.
+          // Unsuccessful frames are expected while the barcode is aligned.
         }
       );
-    } catch (error) {
-      await stopBarcodeScanner();
-      setBarcodeStatus(
-        `The camera could not be started: ${error}. You can take a photo instead.`,
-        "error"
-      );
-    }
-  }
-
-  async function scanBarcodeImage(file) {
-    if (!file) return;
-
-    if (!window.Html5Qrcode) {
-      setBarcodeStatus(
-        "The scanner library could not be loaded. Enter the barcode manually.",
-        "error"
-      );
-      els.barcodeImageInput.value = "";
-      return;
-    }
-
-    await stopBarcodeScanner();
-    els.barcodeScanner.classList.remove("hidden");
-    setBarcodeStatus("Reading the barcode photo…", "loading");
-
-    const scanner = new window.Html5Qrcode("barcodeReader", {
-      formatsToSupport: supportedBarcodeFormats()
-    });
-    state.barcodeScanner = scanner;
-
-    try {
-      const decodedText = await scanner.scanFile(file, true);
-      await handleBarcodeDetected(decodedText);
-    } catch {
-      setBarcodeStatus(
-        "No EAN or UPC barcode was recognized. Try again with the full barcode sharp and well lit.",
-        "error"
-      );
-      await stopBarcodeScanner();
-    } finally {
-      els.barcodeImageInput.value = "";
+    } catch (primaryError) {
+      try {
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 12,
+            aspectRatio: 1.777778,
+            disableFlip: true,
+            qrbox: (viewfinderWidth, viewfinderHeight) => {
+              const width = Math.min(Math.floor(viewfinderWidth * 0.82), 520);
+              return {
+                width,
+                height: Math.max(105, Math.floor(width * 0.30))
+              };
+            }
+          },
+          decodedText => {
+            void handleBarcodeDetected(decodedText);
+          },
+          () => {}
+        );
+      } catch (fallbackError) {
+        await stopBarcodeScanner();
+        setBarcodeStatus(
+          `The camera could not be started. Check camera permission and HTTPS. (${fallbackError})`,
+          "error"
+        );
+      }
     }
   }
 
@@ -903,15 +923,19 @@
   els.barcodeLookupButton.addEventListener("click", () => {
     void lookupBarcode();
   });
-  els.barcodePhotoButton.addEventListener("click", () => {
-    els.barcodeImageInput.click();
+  [els.barcodeStopButton, els.barcodeCancelButton].forEach(button => {
+    button.addEventListener("click", () => {
+      void stopBarcodeScanner();
+      setBarcodeStatus("Barcode scan cancelled.", "info");
+    });
   });
-  els.barcodeStopButton.addEventListener("click", () => {
-    void stopBarcodeScanner();
-    setBarcodeStatus("");
-  });
-  els.barcodeImageInput.addEventListener("change", event => {
-    void scanBarcodeImage(event.target.files?.[0]);
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !els.barcodeScanner.classList.contains("hidden")) {
+      event.preventDefault();
+      void stopBarcodeScanner();
+      setBarcodeStatus("Barcode scan cancelled.", "info");
+    }
   });
   fields.barcode.addEventListener("input", () => {
     fields.barcode.value = normalizeBarcode(fields.barcode.value);

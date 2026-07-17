@@ -174,22 +174,6 @@
           </button>
         </div>
 
-        <input
-          id="barcodeImageInput"
-          type="file"
-          accept="image/*"
-          capture="environment"
-          hidden
-        >
-
-        <div class="barcode-scanner hidden" id="barcodeScanner">
-          <div id="barcodeReader"></div>
-          <div class="barcode-scanner-actions">
-            <button class="secondary-button" id="barcodePhotoButton" type="button">Take photo</button>
-            <button class="secondary-button" id="barcodeStopButton" type="button">Close camera</button>
-          </div>
-        </div>
-
         <p class="scrape-status" id="barcodeStatus" role="status" aria-live="polite"></p>
 
         <div class="import-divider" aria-hidden="true"><span>or use a product link</span></div>
@@ -398,6 +382,41 @@
       </div>
     </form>
   </dialog>
+
+  <div class="barcode-scanner-overlay hidden" id="barcodeScanner" role="dialog" aria-modal="true" aria-labelledby="barcodeScannerTitle">
+    <header class="barcode-scanner-header">
+      <button class="scanner-icon-button" id="barcodeStopButton" type="button" aria-label="Close barcode scanner">×</button>
+      <div>
+        <strong id="barcodeScannerTitle">Barcode scanner</strong>
+        <small>EAN / UPC</small>
+      </div>
+      <span class="scanner-header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <div class="barcode-camera-stage">
+      <div id="barcodeReader"></div>
+
+      <div class="barcode-viewfinder" aria-hidden="true">
+        <span class="viewfinder-corner corner-top-left"></span>
+        <span class="viewfinder-corner corner-top-right"></span>
+        <span class="viewfinder-corner corner-bottom-left"></span>
+        <span class="viewfinder-corner corner-bottom-right"></span>
+        <span class="barcode-scan-line"></span>
+      </div>
+
+      <div class="barcode-camera-shade shade-top" aria-hidden="true"></div>
+      <div class="barcode-camera-shade shade-bottom" aria-hidden="true"></div>
+      <div class="barcode-camera-shade shade-left" aria-hidden="true"></div>
+      <div class="barcode-camera-shade shade-right" aria-hidden="true"></div>
+    </div>
+
+    <footer class="barcode-scanner-footer">
+      <p id="barcodeScannerStatus" role="status" aria-live="polite">
+        Hold the barcode inside the frame.
+      </p>
+      <button class="scanner-cancel-button" id="barcodeCancelButton" type="button">Cancel</button>
+    </footer>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
