@@ -392,8 +392,11 @@
       formats.EAN_13,
       formats.EAN_8,
       formats.UPC_A,
-      formats.UPC_E
-    ];
+      formats.UPC_E,
+      formats.CODE_128,
+      formats.CODE_39,
+      formats.ITF
+    ].filter(format => format !== undefined);
   }
 
   function updateBarcodeAvailability() {
@@ -578,8 +581,28 @@
       await scanner.start(
         { facingMode: "environment" },
         {
-          fps: 10,
-          disableFlip: true
+          fps: 15,
+          disableFlip: true,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            /*
+             * Decode only the same wide, shallow area shown by the gold
+             * viewfinder. Processing the complete portrait frame makes a
+             * 1D barcode too small for reliable EAN/UPC recognition.
+             */
+            const width = Math.min(
+              Math.floor(viewfinderWidth * 0.82),
+              640
+            );
+            const height = Math.max(
+              120,
+              Math.min(
+                Math.floor(width / 3.35),
+                Math.floor(viewfinderHeight * 0.34)
+              )
+            );
+
+            return { width, height };
+          }
         },
         decodedText => {
           void handleBarcodeDetected(decodedText);
@@ -589,7 +612,7 @@
         }
       );
 
-      setBarcodeScannerStatus("Hold the barcode inside the frame.", "loading");
+      setBarcodeScannerStatus("Fill the frame with the barcode and hold it steady.", "loading");
     } catch (error) {
       console.error("Could not start barcode camera:", error);
       await stopBarcodeScanner();
