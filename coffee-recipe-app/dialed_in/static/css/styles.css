@@ -764,19 +764,20 @@ dialog form { padding: 26px; }
   .bottom-nav {
     position: fixed;
     z-index: 50;
-    left: 10px;
-    right: 10px;
-    bottom: calc(8px + var(--safe-bottom));
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: grid;
     grid-template-columns: 1fr 1fr 64px 1fr 1fr;
-    align-items: center;
-    height: 68px;
+    align-items: start;
+    height: calc(68px + var(--safe-bottom));
     border: 1px solid rgba(255,255,255,.6);
-    border-radius: 23px;
-    padding: 0 8px;
-    background: rgba(36,23,15,.94);
+    border-bottom: 0;
+    border-radius: 23px 23px 0 0;
+    padding: 0 8px var(--safe-bottom);
+    background: rgba(36,23,15,.97);
     backdrop-filter: blur(16px);
-    box-shadow: 0 18px 50px rgba(28,18,13,.28);
+    box-shadow: 0 -10px 36px rgba(28,18,13,.22);
   }
   .bottom-nav button {
     height: 54px;
@@ -963,14 +964,46 @@ body.scanner-open {
 
 #barcodeReader {
   position: absolute;
-  z-index: 1;
   inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden;
+  border: 0 !important;
   background: #000;
+}
+
+/*
+ * html5-qrcode inserts helper divs and a decoding canvas dynamically.
+ * Do not give those helper elements an opaque black background: on iOS
+ * one of them can otherwise cover the live video after it starts.
+ */
+#barcodeReader > div {
+  background: transparent !important;
+}
+
+#barcodeReader video {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 0;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  background: transparent !important;
+}
+
+/* Keep the decoding canvas available to the library, but never let it
+   visually cover the camera preview. */
+#barcodeReader canvas {
+  position: absolute !important;
+  z-index: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#barcodeReader img {
+  max-width: 100%;
 }
 
 .barcode-viewfinder {
