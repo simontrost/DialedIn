@@ -394,7 +394,7 @@
     </header>
 
     <div class="barcode-camera-stage">
-      <div id="barcodeReader"></div>
+      <video id="barcodeReader" autoplay muted playsinline></video>
 
       <div class="barcode-viewfinder" aria-hidden="true">
         <span class="viewfinder-corner corner-top-left"></span>
@@ -420,7 +420,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+  <script src="https://unpkg.com/@zxing/browser@0.2.0" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

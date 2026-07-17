@@ -384,21 +384,6 @@
     els.barcodeStatus.dataset.type = type;
   }
 
-  function supportedBarcodeFormats() {
-    const formats = window.Html5QrcodeSupportedFormats;
-    if (!formats) return undefined;
-
-    return [
-      formats.EAN_13,
-      formats.EAN_8,
-      formats.UPC_A,
-      formats.UPC_E,
-      formats.CODE_128,
-      formats.CODE_39,
-      formats.ITF
-    ].filter(format => format !== undefined);
-  }
-
   function updateBarcodeAvailability() {
     const newRecipe = !state.editingId;
     const barcode = normalizeBarcode(fields.barcode.value);
@@ -426,23 +411,23 @@
     state.barcodeScanner = null;
     state.barcodeScanHandled = false;
 
-    if (scanner) {
+    if (scanner?.controls) {
       try {
-        if (scanner.isScanning) {
-          await scanner.stop();
-        }
+        scanner.controls.stop();
       } catch {
-        // The camera may already have stopped after a successful scan.
-      }
-
-      try {
-        scanner.clear();
-      } catch {
-        // The reader element may already be empty.
+        // The stream may already have stopped after a successful scan.
       }
     }
 
-    els.barcodeReader.replaceChildren();
+    const stream = els.barcodeReader.srcObject;
+    if (stream instanceof MediaStream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
+
+    els.barcodeReader.pause();
+    els.barcodeReader.srcObject = null;
+    els.barcodeReader.removeAttribute("src");
+    els.barcodeReader.load();
 
     if (els.barcodeScanner.open) {
       els.barcodeScanner.close();
@@ -538,9 +523,9 @@
   async function startBarcodeScanner() {
     if (state.editingId || state.barcodeInProgress) return;
 
-    if (!window.Html5Qrcode) {
+    if (!window.ZXingBrowser) {
       setBarcodeStatus(
-        "The scanner library could not be loaded. Check the internet connection or enter the barcode manually.",
+        "The ZXing scanner library could not be loaded. Check the internet connection or enter the barcode manually.",
         "error"
       );
       return;
@@ -565,63 +550,48 @@
     document.body.classList.add("scanner-open");
     setBarcodeScannerStatus("Starting camera…", "loading");
 
-    // Give Safari one paint cycle so the full-screen overlay becomes visible
-    // before the native camera permission dialog is opened.
+    // Let Safari paint the top-layer dialog before requesting camera access.
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-    const scanner = new window.Html5Qrcode("barcodeReader", {
-      formatsToSupport: supportedBarcodeFormats(),
-      verbose: false
-    });
-    state.barcodeScanner = scanner;
+    const Reader = window.ZXingBrowser.BrowserMultiFormatOneDReader
+      || window.ZXingBrowser.BrowserMultiFormatReader;
+    const reader = new Reader(undefined, 150);
 
     try {
-      // Avoid exact constraints and a forced aspect ratio. Both can make
-      // iOS Safari reject an otherwise usable rear camera.
-      await scanner.start(
-        { facingMode: "environment" },
+      const controls = await reader.decodeFromConstraints(
         {
-          fps: 15,
-          disableFlip: true,
-          qrbox: (viewfinderWidth, viewfinderHeight) => {
-            /*
-             * Decode only the same wide, shallow area shown by the gold
-             * viewfinder. Processing the complete portrait frame makes a
-             * 1D barcode too small for reliable EAN/UPC recognition.
-             */
-            const width = Math.min(
-              Math.floor(viewfinderWidth * 0.82),
-              640
-            );
-            const height = Math.max(
-              120,
-              Math.min(
-                Math.floor(width / 3.35),
-                Math.floor(viewfinderHeight * 0.34)
-              )
-            );
-
-            return { width, height };
+          audio: false,
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
           }
         },
-        decodedText => {
-          void handleBarcodeDetected(decodedText);
-        },
-        () => {
-          // Unsuccessful frames are expected while the barcode is aligned.
+        els.barcodeReader,
+        (result, error) => {
+          if (result && !state.barcodeScanHandled) {
+            void handleBarcodeDetected(result.getText());
+            return;
+          }
+
+          // NotFoundException is expected for frames without a readable code.
+          if (error && error.name !== "NotFoundException") {
+            console.debug("ZXing scan frame:", error.name || error);
+          }
         }
       );
 
-      setBarcodeScannerStatus("Fill the frame with the barcode and hold it steady.", "loading");
+      state.barcodeScanner = { reader, controls };
+      setBarcodeScannerStatus(
+        "Fill the frame with the barcode and hold it steady.",
+        "loading"
+      );
     } catch (error) {
-      console.error("Could not start barcode camera:", error);
+      console.error("Could not start ZXing barcode camera:", error);
       await stopBarcodeScanner();
 
       const message = String(error?.message || error || "Unknown camera error");
-      setBarcodeStatus(
-        `The camera could not be started: ${message}`,
-        "error"
-      );
+      setBarcodeStatus(`The camera could not be started: ${message}`, "error");
     }
   }
 
