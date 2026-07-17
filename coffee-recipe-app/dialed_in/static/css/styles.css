@@ -894,10 +894,27 @@ body.scanner-open {
   position: fixed;
   z-index: 1000;
   inset: 0;
-  display: grid;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  overflow: hidden;
   grid-template-rows: auto minmax(0, 1fr) auto;
   color: #fff;
   background: #090706;
+}
+
+.barcode-scanner-overlay[open] {
+  display: grid;
+}
+
+.barcode-scanner-overlay::backdrop {
+  background: #090706;
+  backdrop-filter: none;
 }
 
 .barcode-scanner-header {

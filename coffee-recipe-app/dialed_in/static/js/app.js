@@ -440,6 +440,11 @@
     }
 
     els.barcodeReader.replaceChildren();
+
+    if (els.barcodeScanner.open) {
+      els.barcodeScanner.close();
+    }
+
     els.barcodeScanner.classList.add("hidden");
     document.body.classList.remove("scanner-open");
 
@@ -549,6 +554,11 @@
     await stopBarcodeScanner();
     state.barcodeScanHandled = false;
     els.barcodeScanner.classList.remove("hidden");
+
+    if (!els.barcodeScanner.open) {
+      els.barcodeScanner.showModal();
+    }
+
     document.body.classList.add("scanner-open");
     setBarcodeScannerStatus("Starting camera…", "loading");
 
@@ -911,6 +921,12 @@
       void stopBarcodeScanner();
       setBarcodeStatus("Barcode scan cancelled.", "info");
     });
+  });
+
+  els.barcodeScanner.addEventListener("cancel", event => {
+    event.preventDefault();
+    void stopBarcodeScanner();
+    setBarcodeStatus("Barcode scan cancelled.", "info");
   });
 
   document.addEventListener("keydown", event => {
