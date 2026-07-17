@@ -143,10 +143,57 @@
         <div class="import-panel-heading" id="importHelp">
           <span class="import-icon" aria-hidden="true">↗</span>
           <div>
-            <strong>Import coffee details from the shop</strong>
-            <small>For a brand-new recipe, paste the product link first. Dialed In will try to find the coffee name, roaster, origin, and bean composition.</small>
+            <strong>Import coffee details</strong>
+            <small>For a brand-new recipe, scan the bag or paste the product link. Dialed In will try to find the coffee name, roaster, origin, bean composition, and roast level.</small>
           </div>
         </div>
+
+        <div class="barcode-import-row" id="barcodeImportRow">
+          <label class="field barcode-input-field">
+            <span>Barcode</span>
+            <input
+              id="barcodeInput"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              maxlength="18"
+              placeholder="EAN / UPC"
+              aria-describedby="barcodeStatus"
+            >
+          </label>
+
+          <button class="secondary-button barcode-scan-button" id="barcodeScanButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8.5 5 10 3h4l1.5 2H19a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3.5Zm3.5 3.25A4.75 4.75 0 1 0 12 17.75a4.75 4.75 0 0 0 0-9.5Zm0 2A2.75 2.75 0 1 1 12 15.75a2.75 2.75 0 0 1 0-5.5Z"/>
+            </svg>
+            Scan barcode
+          </button>
+
+          <button class="secondary-button barcode-lookup-button" id="barcodeLookupButton" type="button">
+            Look up
+          </button>
+        </div>
+
+        <input
+          id="barcodeImageInput"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+        >
+
+        <div class="barcode-scanner hidden" id="barcodeScanner">
+          <div id="barcodeReader"></div>
+          <div class="barcode-scanner-actions">
+            <button class="secondary-button" id="barcodePhotoButton" type="button">Take photo</button>
+            <button class="secondary-button" id="barcodeStopButton" type="button">Close camera</button>
+          </div>
+        </div>
+
+        <p class="scrape-status" id="barcodeStatus" role="status" aria-live="polite"></p>
+
+        <div class="import-divider" aria-hidden="true"><span>or use a product link</span></div>
+
         <div class="url-import-row">
           <label class="field import-url-field">
             <span>Reorder link</span>
@@ -354,6 +401,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
   <script src="app.js" defer></script>
 </body>
 </html>

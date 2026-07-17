@@ -826,3 +826,113 @@ dialog form { padding: 26px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* Barcode scanner — step 2 */
+.barcode-import-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.barcode-input-field {
+  min-width: 0;
+}
+
+.barcode-scan-button,
+.barcode-lookup-button {
+  min-height: 52px;
+  border-radius: 14px;
+}
+
+.barcode-scan-button {
+  min-width: 156px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.barcode-scan-button svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+}
+
+.barcode-lookup-button {
+  min-width: 96px;
+}
+
+.barcode-scan-button:disabled,
+.barcode-lookup-button:disabled {
+  cursor: not-allowed;
+  opacity: .48;
+  transform: none;
+}
+
+.import-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 13px 0;
+  color: var(--muted);
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.import-divider::before,
+.import-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.barcode-scanner {
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 10px;
+  background: var(--cream-50);
+}
+
+#barcodeReader {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--espresso-950);
+}
+
+#barcodeReader video,
+#barcodeReader img,
+#barcodeReader canvas {
+  max-width: 100% !important;
+  border-radius: 12px;
+}
+
+.barcode-scanner-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 10px;
+}
+
+@media (max-width: 700px) {
+  .barcode-import-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .barcode-input-field {
+    grid-column: 1 / -1;
+  }
+
+  .barcode-scan-button,
+  .barcode-lookup-button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+

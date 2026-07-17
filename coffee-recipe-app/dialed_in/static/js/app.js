@@ -38,7 +38,10 @@
     favoritesOnly: false,
     scrapeTimer: null,
     lastScrapedUrl: "",
-    scrapeInProgress: false
+    scrapeInProgress: false,
+    barcodeInProgress: false,
+    barcodeScanner: null,
+    barcodeScanHandled: false
   };
 
   const els = {
@@ -64,6 +67,15 @@
     importHelp: document.querySelector("#importHelp"),
     scrapeButton: document.querySelector("#scrapeButton"),
     scrapeStatus: document.querySelector("#scrapeStatus"),
+    barcodeImportRow: document.querySelector("#barcodeImportRow"),
+    barcodeScanButton: document.querySelector("#barcodeScanButton"),
+    barcodeLookupButton: document.querySelector("#barcodeLookupButton"),
+    barcodeImageInput: document.querySelector("#barcodeImageInput"),
+    barcodeScanner: document.querySelector("#barcodeScanner"),
+    barcodeReader: document.querySelector("#barcodeReader"),
+    barcodePhotoButton: document.querySelector("#barcodePhotoButton"),
+    barcodeStopButton: document.querySelector("#barcodeStopButton"),
+    barcodeStatus: document.querySelector("#barcodeStatus"),
     customBlendFields: document.querySelector("#customBlendFields"),
     arabicaBar: document.querySelector("#arabicaBar"),
     blendSum: document.querySelector("#blendSum"),
@@ -88,6 +100,7 @@
     temp: document.querySelector("#tempInput"),
     rating: document.querySelector("#ratingInput"),
     orderUrl: document.querySelector("#orderUrlInput"),
+    barcode: document.querySelector("#barcodeInput"),
     notes: document.querySelector("#notesInput"),
     favorite: document.querySelector("#favoriteInput"),
     machine: document.querySelector("#machineInput"),
@@ -361,15 +374,242 @@
     els.scrapeStatus.dataset.type = type;
   }
 
+
+  function normalizeBarcode(value = "") {
+    return String(value).replace(/\D/g, "");
+  }
+
+  function setBarcodeStatus(message = "", type = "") {
+    els.barcodeStatus.textContent = message;
+    els.barcodeStatus.dataset.type = type;
+  }
+
+  function supportedBarcodeFormats() {
+    const formats = window.Html5QrcodeSupportedFormats;
+    if (!formats) return undefined;
+
+    return [
+      formats.EAN_13,
+      formats.EAN_8,
+      formats.UPC_A,
+      formats.UPC_E
+    ];
+  }
+
+  function updateBarcodeAvailability() {
+    const newRecipe = !state.editingId;
+    const barcode = normalizeBarcode(fields.barcode.value);
+
+    els.barcodeImportRow.classList.toggle("hidden", !newRecipe);
+    els.barcodeStatus.classList.toggle("hidden", !newRecipe);
+    els.barcodeScanButton.disabled = !newRecipe || state.barcodeInProgress;
+    els.barcodeLookupButton.disabled = !newRecipe
+      || state.barcodeInProgress
+      || !barcode;
+
+    if (!newRecipe) {
+      setBarcodeStatus("");
+      void stopBarcodeScanner();
+    }
+  }
+
+  async function stopBarcodeScanner() {
+    const scanner = state.barcodeScanner;
+    state.barcodeScanner = null;
+    state.barcodeScanHandled = false;
+
+    if (scanner) {
+      try {
+        await scanner.stop();
+      } catch {
+        // stop() throws when only an uploaded image was scanned.
+      }
+
+      try {
+        scanner.clear();
+      } catch {
+        // The reader element may already be clear.
+      }
+    }
+
+    els.barcodeReader.replaceChildren();
+    els.barcodeScanner.classList.add("hidden");
+  }
+
+  async function lookupBarcode(value = fields.barcode.value) {
+    if (state.editingId || state.barcodeInProgress) return;
+
+    const barcode = normalizeBarcode(value);
+    if (!barcode) {
+      setBarcodeStatus("Scan a barcode or enter its digits first.", "error");
+      fields.barcode.focus();
+      return;
+    }
+
+    const detailsWereBlank = metadataIsBlank();
+    fields.barcode.value = barcode;
+    state.barcodeInProgress = true;
+    els.barcodeLookupButton.textContent = "Looking up…";
+    setBarcodeStatus(`Looking up ${barcode}…`, "loading");
+    updateBarcodeAvailability();
+
+    try {
+      const data = await api("/api/barcode/lookup", {
+        method: "POST",
+        body: JSON.stringify({ barcode })
+      });
+
+      fields.barcode.value = data.barcode || barcode;
+      let applied = applyScrapedData(data);
+
+      if (detailsWereBlank && data.roast && fields.roast.value !== data.roast) {
+        fields.roast.value = data.roast;
+        applied += 1;
+      }
+
+      if (applied) {
+        setBarcodeStatus(
+          `Barcode found. Imported ${applied} field${applied === 1 ? "" : "s"} from Open Food Facts. Please verify the result.`,
+          "success"
+        );
+      } else {
+        setBarcodeStatus(
+          "The barcode was found, but it did not contain any additional reliable coffee details.",
+          "info"
+        );
+      }
+
+      updateScrapeAvailability();
+    } catch (error) {
+      setBarcodeStatus(`${error.message} You can still enter the coffee manually.`, "error");
+    } finally {
+      state.barcodeInProgress = false;
+      els.barcodeLookupButton.textContent = "Look up";
+      updateBarcodeAvailability();
+    }
+  }
+
+  async function handleBarcodeDetected(decodedText) {
+    if (state.barcodeScanHandled) return;
+
+    state.barcodeScanHandled = true;
+    const barcode = normalizeBarcode(decodedText);
+    fields.barcode.value = barcode;
+    setBarcodeStatus(`Barcode ${barcode} detected.`, "success");
+
+    await stopBarcodeScanner();
+    await lookupBarcode(barcode);
+  }
+
+  async function startBarcodeScanner() {
+    if (state.editingId || state.barcodeInProgress) return;
+
+    if (!window.Html5Qrcode) {
+      setBarcodeStatus(
+        "The scanner library could not be loaded. Check the internet connection or enter the barcode manually.",
+        "error"
+      );
+      return;
+    }
+
+    // A live camera stream requires HTTPS. The HTTP fallback takes a photo.
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setBarcodeStatus(
+        "Live scanning needs HTTPS. Opening the camera to take a barcode photo instead.",
+        "info"
+      );
+      els.barcodeImageInput.click();
+      return;
+    }
+
+    await stopBarcodeScanner();
+    els.barcodeScanner.classList.remove("hidden");
+    state.barcodeScanHandled = false;
+
+    const scanner = new window.Html5Qrcode("barcodeReader", {
+      formatsToSupport: supportedBarcodeFormats()
+    });
+    state.barcodeScanner = scanner;
+
+    setBarcodeStatus("Point the rear camera at the EAN or UPC barcode.", "loading");
+
+    try {
+      await scanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          aspectRatio: 1.777778,
+          qrbox: (viewfinderWidth, viewfinderHeight) => ({
+            width: Math.max(180, Math.min(360, Math.floor(viewfinderWidth * 0.86))),
+            height: Math.max(90, Math.min(160, Math.floor(viewfinderHeight * 0.34)))
+          })
+        },
+        decodedText => {
+          void handleBarcodeDetected(decodedText);
+        },
+        () => {
+          // Failed frames are normal while the barcode is aligned.
+        }
+      );
+    } catch (error) {
+      await stopBarcodeScanner();
+      setBarcodeStatus(
+        `The camera could not be started: ${error}. You can take a photo instead.`,
+        "error"
+      );
+    }
+  }
+
+  async function scanBarcodeImage(file) {
+    if (!file) return;
+
+    if (!window.Html5Qrcode) {
+      setBarcodeStatus(
+        "The scanner library could not be loaded. Enter the barcode manually.",
+        "error"
+      );
+      els.barcodeImageInput.value = "";
+      return;
+    }
+
+    await stopBarcodeScanner();
+    els.barcodeScanner.classList.remove("hidden");
+    setBarcodeStatus("Reading the barcode photo…", "loading");
+
+    const scanner = new window.Html5Qrcode("barcodeReader", {
+      formatsToSupport: supportedBarcodeFormats()
+    });
+    state.barcodeScanner = scanner;
+
+    try {
+      const decodedText = await scanner.scanFile(file, true);
+      await handleBarcodeDetected(decodedText);
+    } catch {
+      setBarcodeStatus(
+        "No EAN or UPC barcode was recognized. Try again with the full barcode sharp and well lit.",
+        "error"
+      );
+      await stopBarcodeScanner();
+    } finally {
+      els.barcodeImageInput.value = "";
+    }
+  }
+
   function updateScrapeAvailability() {
     const newRecipe = !state.editingId;
     els.importHelp.classList.toggle("hidden", !newRecipe);
     els.scrapeButton.classList.toggle("hidden", !newRecipe);
+
+    updateBarcodeAvailability();
+
     if (!newRecipe) {
       setScrapeStatus("");
       return;
     }
-    els.scrapeButton.disabled = state.scrapeInProgress || !metadataIsBlank() || !normalizeUrl(fields.orderUrl.value);
+
+    els.scrapeButton.disabled = state.scrapeInProgress
+      || !metadataIsBlank()
+      || !normalizeUrl(fields.orderUrl.value);
   }
 
   function openRecipeDialog(recipe = null) {
@@ -395,14 +635,17 @@
     fields.temp.value = recipe?.temp ?? 93;
     fields.rating.value = recipe?.rating ?? 4;
     fields.orderUrl.value = recipe?.orderUrl || "";
+    fields.barcode.value = "";
     fields.notes.value = recipe?.notes || "";
     fields.favorite.checked = Boolean(recipe?.favorite);
 
     setScrapeStatus("");
+    setBarcodeStatus("");
+    void stopBarcodeScanner();
     updateRatioPreview();
     updateScrapeAvailability();
     els.recipeDialog.showModal();
-    setTimeout(() => (recipe ? fields.name : fields.orderUrl).focus(), 80);
+    setTimeout(() => (recipe ? fields.name : els.barcodeScanButton).focus(), 80);
   }
 
   function closeRecipeDialog() {
@@ -654,6 +897,31 @@
   els.settingsForm.addEventListener("submit", saveSettings);
   els.deleteButton.addEventListener("click", deleteRecipe);
   els.scrapeButton.addEventListener("click", () => scrapeProductInfo(true));
+  els.barcodeScanButton.addEventListener("click", () => {
+    void startBarcodeScanner();
+  });
+  els.barcodeLookupButton.addEventListener("click", () => {
+    void lookupBarcode();
+  });
+  els.barcodePhotoButton.addEventListener("click", () => {
+    els.barcodeImageInput.click();
+  });
+  els.barcodeStopButton.addEventListener("click", () => {
+    void stopBarcodeScanner();
+    setBarcodeStatus("");
+  });
+  els.barcodeImageInput.addEventListener("change", event => {
+    void scanBarcodeImage(event.target.files?.[0]);
+  });
+  fields.barcode.addEventListener("input", () => {
+    fields.barcode.value = normalizeBarcode(fields.barcode.value);
+    updateBarcodeAvailability();
+  });
+  fields.barcode.addEventListener("keydown", event => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    void lookupBarcode();
+  });
   document.querySelector("#exportButton").addEventListener("click", exportData);
   els.importInput.addEventListener("change", event => importData(event.target.files?.[0]));
 
@@ -711,7 +979,9 @@
   els.recipeDialog.addEventListener("close", () => {
     state.editingId = null;
     state.scrapeInProgress = false;
+    state.barcodeInProgress = false;
     clearTimeout(state.scrapeTimer);
+    void stopBarcodeScanner();
   });
 
   setGreeting();
