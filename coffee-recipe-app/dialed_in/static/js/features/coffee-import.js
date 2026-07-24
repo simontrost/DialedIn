@@ -18,12 +18,12 @@ export function createCoffeeImport({
   }
 
   function updateAvailability() {
-    const newRecipe = !state.editingId;
-    importHelp.classList.toggle("hidden", !newRecipe);
-    scrapeButton.classList.toggle("hidden", !newRecipe);
+    const newBean = !state.editingBeanId;
+    importHelp.classList.toggle("hidden", !newBean);
+    scrapeButton.classList.toggle("hidden", !newBean);
     updateBarcodeAvailability();
 
-    if (!newRecipe) {
+    if (!newBean) {
       setStatus("");
       return;
     }
@@ -34,7 +34,7 @@ export function createCoffeeImport({
   }
 
   async function scrapeProductInfo(manual = false) {
-    if (state.editingId || state.scrapeInProgress) return;
+    if (state.editingBeanId || state.scrapeInProgress) return;
     const url = normalizeUrl(fields.orderUrl.value);
     if (!url) {
       if (manual) setStatus("Enter a valid http or https product link.", "error");
@@ -67,7 +67,7 @@ export function createCoffeeImport({
         setStatus("The page loaded, but no reliable coffee details were found. You can enter them manually.", "info");
       }
     } catch (error) {
-      setStatus(`${error.message} You can still fill in the recipe manually.`, "error");
+      setStatus(`${error.message} You can still fill in the bean manually.`, "error");
     } finally {
       state.scrapeInProgress = false;
       scrapeButton.textContent = "Fetch details";
@@ -79,7 +79,7 @@ export function createCoffeeImport({
     clearTimeout(state.scrapeTimer);
     updateAvailability();
     const url = normalizeUrl(fields.orderUrl.value);
-    if (state.editingId || !url || !metadataIsBlank() || state.lastScrapedUrl === url) return;
+    if (state.editingBeanId || !url || !metadataIsBlank() || state.lastScrapedUrl === url) return;
     state.scrapeTimer = setTimeout(() => scrapeProductInfo(false), 850);
   }
 

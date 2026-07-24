@@ -2,21 +2,29 @@ import { api } from "./core/api.js";
 import { applyServerState, state } from "./core/state.js";
 import { showToast } from "./core/toast.js";
 import { createNavigation } from "./components/navigation.js";
-import { createRecipeForm } from "./features/recipe-form.js";
+import { createBeanForm } from "./features/bean-form.js";
+import { createBrewRecipeForm } from "./features/brew-recipe-form.js";
+import { createDialInLogForm } from "./features/dial-in-log-form.js";
+import { createQuickAdd } from "./features/quick-add.js";
 import { createSettings } from "./features/settings.js";
 import { createOverviewPage } from "./pages/overview.js";
+import { createBeansPage } from "./pages/beans.js";
 import { createRecipesPage } from "./pages/recipes.js";
 import { createDialInPage } from "./pages/dial-in.js";
 
 let overviewPage;
+let beansPage;
 let recipesPage;
 let dialInPage;
 let navigation;
+let quickAdd;
 
 function renderAll() {
   overviewPage?.render();
+  beansPage?.render();
   recipesPage?.render();
   dialInPage?.render();
+  brewRecipeForm?.syncOptions();
 }
 
 async function loadState() {
@@ -29,20 +37,10 @@ async function loadState() {
   }
 }
 
-const recipeForm = createRecipeForm({
-  state,
-  api,
-  showToast,
-  onChanged: renderAll
-});
-
-const settings = createSettings({
-  state,
-  api,
-  showToast,
-  reloadState: loadState,
-  onChanged: renderAll
-});
+const beanForm = createBeanForm({ state, api, showToast, onChanged: renderAll });
+const brewRecipeForm = createBrewRecipeForm({ state, api, showToast, onChanged: renderAll });
+const dialInLogForm = createDialInLogForm({ state, api, showToast, onChanged: renderAll });
+const settings = createSettings({ state, api, showToast, reloadState: loadState, onChanged: renderAll });
 
 navigation = createNavigation({
   onPageChange(page) {
@@ -52,30 +50,54 @@ navigation = createNavigation({
   onOpenSettings: settings.open
 });
 
-const editRecipe = id => {
-  const recipe = state.recipes.find(item => item.id === id);
-  if (recipe) recipeForm.open(recipe);
-};
-
-const addRecipe = () => recipeForm.open();
+function editBean(beanId) {
+  const bean = state.beans.find(item => item.id === beanId);
+  if (bean) beanForm.open(bean);
+}
+function toggleBeanFavorite(beanId) {
+  const bean = state.beans.find(item => item.id === beanId);
+  if (bean) beanForm.toggleFavorite(bean).catch(error => showToast(error.message));
+}
+function addBean() { beanForm.open(); }
+function editRecipe(recipeId) {
+  const recipe = state.brewRecipes.find(item => item.id === recipeId);
+  if (recipe) brewRecipeForm.open(recipe);
+}
+function addRecipe(defaults = {}) { brewRecipeForm.open(null, defaults); }
+function addMeasurement(defaults = {}) { dialInLogForm.open(defaults); }
+function openDialIn(recipeId) {
+  dialInPage.selectRecipe(recipeId);
+  navigation.showPage("dial-in");
+}
 
 overviewPage = createOverviewPage({
   state,
-  onEdit: editRecipe,
-  onFavorite: recipeForm.toggleFavorite,
-  onAdd: addRecipe
+  onEditBean: editBean,
+  onToggleBeanFavorite: toggleBeanFavorite,
+  onAddBean: addBean,
+  onEditRecipe: editRecipe,
+  onAddRecipe: addRecipe
 });
-
+beansPage = createBeansPage({ state, onEdit: editBean, onFavorite: toggleBeanFavorite, onAdd: addBean });
 recipesPage = createRecipesPage({
   state,
   onEdit: editRecipe,
-  onFavorite: recipeForm.toggleFavorite,
-  onAdd: addRecipe
+  onFavorite: brewRecipeForm.toggleFavorite,
+  onAdd: addRecipe,
+  onOpenDialIn: openDialIn
+});
+dialInPage = createDialInPage({ state, api, showToast, onAddMeasurement: addMeasurement });
+quickAdd = createQuickAdd({
+  onAddBean: addBean,
+  onAddRecipe: () => addRecipe(),
+  onAddMeasurement: () => {
+    navigation.showPage("dial-in");
+    dialInPage.render();
+    addMeasurement();
+  }
 });
 
-dialInPage = createDialInPage({ state });
-
-document.querySelector("#mobileAddButton")?.addEventListener("click", addRecipe);
+document.querySelector("#mobileAddButton")?.addEventListener("click", quickAdd.open);
 
 const initialPage = location.hash.slice(1) || "overview";
 navigation.showPage(initialPage, { updateHash: !location.hash });

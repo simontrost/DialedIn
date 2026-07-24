@@ -1,86 +1,82 @@
 <section class="app-page hidden" id="page-dial-in" data-page="dial-in">
   <header class="page-header">
     <div>
-      <p class="eyebrow">Dial-in assistant</p>
-      <h1>Find the next grind setting</h1>
-      <p>Use one or two measured shots to estimate a sensible next step toward your target time.</p>
+      <p class="eyebrow">Long-term brew log</p>
+      <h1>Dial in over time</h1>
+      <p>Measurements remain stored across days and weeks. Add or remove brews, then calculate the next grind setting from the complete history.</p>
     </div>
-    <span class="beta-badge">Beta</span>
+    <span class="beta-badge">Persistent log</span>
   </header>
 
-  <div class="dial-in-layout">
-    <form class="dial-in-panel" id="dialInForm">
-      <div class="form-grid">
-        <label class="field full">
-          <span>Coffee</span>
-          <select id="dialInCoffee"></select>
-        </label>
-        <label class="field">
-          <span>Target time</span>
-          <input id="dialInTargetTime" type="number" min="1" max="120" step="1" value="28" required>
-        </label>
-        <label class="field">
-          <span>Maximum next step</span>
-          <input id="dialInMaxStep" type="number" min="0.1" max="20" step="0.1" value="2.5" required>
-        </label>
-      </div>
-
-      <section class="measurement-card">
-        <div class="measurement-heading">
-          <strong>Measurement 1</strong>
-          <small>Required</small>
-        </div>
-        <div class="measurement-grid">
-          <label class="metric-input">
-            <span>Grind</span>
-            <div><input id="dialInGrind1" type="number" step="0.1" required></div>
-          </label>
-          <label class="metric-input">
-            <span>Time</span>
-            <div><input id="dialInTime1" type="number" min="1" max="120" step="1" required><small>sec.</small></div>
-          </label>
-        </div>
-      </section>
-
-      <section class="measurement-card">
-        <div class="measurement-heading">
-          <strong>Measurement 2</strong>
-          <small>Recommended</small>
-        </div>
-        <div class="measurement-grid">
-          <label class="metric-input">
-            <span>Grind</span>
-            <div><input id="dialInGrind2" type="number" step="0.1"></div>
-          </label>
-          <label class="metric-input">
-            <span>Time</span>
-            <div><input id="dialInTime2" type="number" min="1" max="120" step="1"><small>sec.</small></div>
-          </label>
-        </div>
-      </section>
-
-      <label class="favorite-check full">
-        <input id="dialInReverseScale" type="checkbox" checked>
-        <span>Lower grinder numbers mean finer</span>
+  <section class="dial-selection-panel">
+    <div class="form-grid dial-selection-grid">
+      <label class="field">
+        <span>Bean</span>
+        <select id="dialInBeanSelect"></select>
       </label>
+      <label class="field">
+        <span>Recipe</span>
+        <select id="dialInRecipeSelect"></select>
+      </label>
+      <label class="field compact-field">
+        <span>Maximum next change</span>
+        <div class="input-with-unit"><input id="dialInMaxStep" type="number" min="0.1" max="20" step="0.1" value="2.5"><small>steps</small></div>
+      </label>
+    </div>
+    <div class="dial-selection-actions">
+      <button class="secondary-button" id="addMeasurementButton" type="button">＋ Add measurement</button>
+      <button class="primary-button" id="calculateGrindButton" type="button">Calculate grind</button>
+    </div>
+  </section>
 
-      <button class="primary-button dial-in-submit" type="submit">Calculate next setting</button>
-    </form>
+  <section class="dial-summary-grid">
+    <article class="dial-summary-card">
+      <small>Selected target</small>
+      <strong id="dialTargetSummary">–</strong>
+      <span id="dialRecipeSummary">Choose a recipe</span>
+    </article>
+    <article class="dial-summary-card">
+      <small>Stored measurements</small>
+      <strong id="dialMeasurementSummary">0</strong>
+      <span id="dialDateSpanSummary">No history yet</span>
+    </article>
+    <article class="dial-summary-card recommendation-card" id="recommendationCard">
+      <small>Recommended next grind</small>
+      <strong id="recommendedGrind">–</strong>
+      <span id="recommendationMeta">Calculate after adding measurements</span>
+    </article>
+  </section>
 
-    <aside class="dial-in-result" id="dialInResult" aria-live="polite">
-      <p class="eyebrow">Recommendation</p>
-      <strong class="result-value" id="dialInRecommended">–</strong>
-      <span class="result-label">Next grind setting</span>
-      <div class="confidence-row">
-        <span id="dialInConfidence" data-level="none">No calculation yet</span>
+  <section class="measurement-history">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">History</p>
+        <h2>Measurements</h2>
       </div>
-      <p id="dialInExplanation">Enter at least one measured shot. Two measurements provide a local trend instead of a fixed universal conversion.</p>
-      <dl class="result-details">
-        <div><dt>Raw estimate</dt><dd id="dialInRaw">–</dd></div>
-        <div><dt>Current setting</dt><dd id="dialInCurrent">–</dd></div>
-        <div><dt>Calculation</dt><dd id="dialInMode">–</dd></div>
-      </dl>
-      <p class="result-note">This is an aid, not a guarantee. Channeling, puck preparation, bean age and temperature can distort the time.</p>
-    </aside>
-  </div>
+      <span class="history-hint">Invalid shots stay visible but are excluded from the calculation.</span>
+    </div>
+    <div class="measurement-table-wrap">
+      <table class="measurement-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Grind</th>
+            <th>Dose</th>
+            <th>Yield</th>
+            <th>Time</th>
+            <th>Taste</th>
+            <th>Rating</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="measurementTableBody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state hidden" id="dialInEmptyState">
+      <div class="empty-cup" aria-hidden="true">◎</div>
+      <h3>No measurements for this recipe</h3>
+      <p>Add today's brew. Future measurements will continue the same history.</p>
+      <button class="primary-button" id="dialInEmptyAddButton" type="button">Add measurement</button>
+    </div>
+  </section>
 </section>

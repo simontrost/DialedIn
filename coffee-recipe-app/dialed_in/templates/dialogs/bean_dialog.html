@@ -1,0 +1,122 @@
+<dialog id="beanDialog">
+  <form id="beanForm">
+    <div class="dialog-header">
+      <div>
+        <p class="eyebrow">Bean library</p>
+        <h2 id="beanDialogTitle">New bean</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-bean-dialog aria-label="Close dialog">×</button>
+    </div>
+
+    <section class="import-panel">
+      <div class="import-panel-heading" id="importHelp">
+        <span class="import-icon" aria-hidden="true">↗</span>
+        <div>
+          <strong>Import bean details</strong>
+          <small>For a new bean, scan the bag or paste the product link. Imported values can be corrected before saving.</small>
+        </div>
+      </div>
+
+      <div class="barcode-import-row" id="barcodeImportRow">
+        <label class="field barcode-input-field">
+          <span>Barcode</span>
+          <input id="barcodeInput" type="text" inputmode="numeric" autocomplete="off" maxlength="18" placeholder="EAN / UPC" aria-describedby="barcodeStatus">
+        </label>
+        <button class="secondary-button barcode-scan-button" id="barcodeScanButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5 10 3h4l1.5 2H19a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h3.5Zm3.5 3.25A4.75 4.75 0 1 0 12 17.75a4.75 4.75 0 0 0 0-9.5Zm0 2A2.75 2.75 0 1 1 12 15.75a2.75 2.75 0 0 1 0-5.5Z"/></svg>
+          Scan barcode
+        </button>
+        <button class="secondary-button barcode-lookup-button" id="barcodeLookupButton" type="button">Look up</button>
+      </div>
+      <p class="scrape-status" id="barcodeStatus" role="status" aria-live="polite"></p>
+
+      <div class="import-divider" aria-hidden="true"><span>or use a product link</span></div>
+      <div class="url-import-row">
+        <label class="field import-url-field">
+          <span>Reorder link</span>
+          <input id="beanOrderUrlInput" type="url" inputmode="url" autocomplete="url" placeholder="https://roastery.example/coffee">
+        </label>
+        <button class="secondary-button scrape-button" id="scrapeButton" type="button">Fetch details</button>
+      </div>
+      <p class="scrape-status" id="scrapeStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <div class="form-grid">
+      <label class="field full">
+        <span>Coffee / bean *</span>
+        <input id="beanNameInput" required maxlength="80" placeholder="e.g. Espresso No. 3">
+      </label>
+      <label class="field">
+        <span>Roaster</span>
+        <input id="beanRoasterInput" maxlength="80" placeholder="Roastery name">
+      </label>
+      <label class="field">
+        <span>Origin country</span>
+        <input id="beanOriginCountryInput" list="originCountryOptions" maxlength="60" autocomplete="off" placeholder="Select or type any country">
+        <datalist id="originCountryOptions">
+          <option value="Brazil"></option><option value="Burundi"></option><option value="Colombia"></option>
+          <option value="Costa Rica"></option><option value="Ethiopia"></option><option value="Guatemala"></option>
+          <option value="Honduras"></option><option value="India"></option><option value="Indonesia"></option>
+          <option value="Kenya"></option><option value="Mexico"></option><option value="Nicaragua"></option>
+          <option value="Panama"></option><option value="Peru"></option><option value="Rwanda"></option>
+          <option value="Tanzania"></option><option value="Uganda"></option><option value="Vietnam"></option>
+          <option value="Yemen"></option><option value="Multiple origins"></option>
+        </datalist>
+      </label>
+      <label class="field">
+        <span>Region</span>
+        <input id="beanOriginRegionInput" maxlength="80" autocomplete="off" placeholder="Region or farm">
+      </label>
+      <label class="field">
+        <span>Bean composition</span>
+        <select id="beanBlendInput">
+          <option value="">Not specified</option>
+          <option value="100% Arabica">100% Arabica</option>
+          <option value="90% Arabica / 10% Robusta">90% Arabica / 10% Robusta</option>
+          <option value="80% Arabica / 20% Robusta">80% Arabica / 20% Robusta</option>
+          <option value="70% Arabica / 30% Robusta">70% Arabica / 30% Robusta</option>
+          <option value="60% Arabica / 40% Robusta">60% Arabica / 40% Robusta</option>
+          <option value="50% Arabica / 50% Robusta">50% Arabica / 50% Robusta</option>
+          <option value="30% Arabica / 70% Robusta">30% Arabica / 70% Robusta</option>
+          <option value="100% Robusta">100% Robusta</option>
+          <option value="Arabica / Robusta blend">Arabica / Robusta blend</option>
+          <option value="custom">Custom ratio</option>
+        </select>
+      </label>
+      <div class="custom-blend-fields full hidden" id="customBlendFields">
+        <label class="metric-input compact-metric">
+          <span>Arabica</span><div><input id="arabicaInput" type="number" min="0" max="100" step="1" value="50"><small>%</small></div>
+        </label>
+        <div class="blend-visual" aria-hidden="true">
+          <div class="blend-bar"><span id="arabicaBar"></span></div>
+          <small id="blendSum">50% Arabica · 50% Robusta</small>
+        </div>
+        <label class="metric-input compact-metric">
+          <span>Robusta</span><div><input id="robustaInput" type="number" min="0" max="100" step="1" value="50"><small>%</small></div>
+        </label>
+      </div>
+      <label class="field">
+        <span>Roast level</span>
+        <select id="beanRoastInput"><option value="light">Light</option><option value="medium" selected>Medium</option><option value="dark">Dark</option></select>
+      </label>
+      <label class="field">
+        <span>Status</span>
+        <select id="beanStatusInput"><option value="active">Active</option><option value="empty">Out of beans</option><option value="wishlist">Wishlist</option></select>
+      </label>
+      <label class="field full">
+        <span>General bean notes</span>
+        <textarea id="beanNotesInput" rows="4" maxlength="1000" placeholder="Processing, tasting notes, roast date …"></textarea>
+      </label>
+      <label class="favorite-check full">
+        <input id="beanFavoriteInput" type="checkbox"><span>Mark bean as favorite</span>
+      </label>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="danger-button hidden" id="deleteBeanButton" type="button">Delete bean</button>
+      <span class="action-spacer"></span>
+      <button class="secondary-button" type="button" data-close-bean-dialog>Cancel</button>
+      <button class="primary-button" type="submit">Save bean</button>
+    </div>
+  </form>
+</dialog>

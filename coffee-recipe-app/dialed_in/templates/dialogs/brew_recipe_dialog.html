@@ -1,0 +1,54 @@
+<dialog id="brewRecipeDialog">
+  <form id="brewRecipeForm">
+    <div class="dialog-header">
+      <div>
+        <p class="eyebrow">Brewing recipe</p>
+        <h2 id="brewRecipeDialogTitle">New recipe</h2>
+      </div>
+      <button class="dialog-close" type="button" data-close-brew-recipe-dialog aria-label="Close dialog">×</button>
+    </div>
+
+    <div class="form-grid">
+      <label class="field">
+        <span>Bean *</span>
+        <select id="brewRecipeBeanInput" required></select>
+      </label>
+      <label class="field">
+        <span>Method *</span>
+        <select id="brewRecipeMethodInput" required></select>
+      </label>
+      <label class="field full">
+        <span>Recipe name *</span>
+        <input id="brewRecipeNameInput" required maxlength="80" placeholder="e.g. Everyday V60">
+      </label>
+    </div>
+
+    <section class="method-description" id="methodDescription"></section>
+    <div class="dynamic-recipe-fields" id="dynamicRecipeFields"></div>
+
+    <section class="recipe-steps-section hidden" id="recipeStepsSection">
+      <div class="form-section-title">
+        <div><span>Recipe flow</span><small>Amounts are added per step; wait time follows that step.</small></div>
+        <button class="secondary-button small-button" id="addRecipeStepButton" type="button">＋ Add step</button>
+      </div>
+      <div class="recipe-step-list" id="recipeStepList"></div>
+    </section>
+
+    <div class="form-grid">
+      <label class="field full">
+        <span>Recipe notes</span>
+        <textarea id="brewRecipeNotesInput" rows="4" maxlength="1500" placeholder="Technique, expected flavour, equipment …"></textarea>
+      </label>
+      <label class="favorite-check full">
+        <input id="brewRecipeFavoriteInput" type="checkbox"><span>Mark recipe as favorite</span>
+      </label>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="danger-button hidden" id="deleteBrewRecipeButton" type="button">Delete recipe</button>
+      <span class="action-spacer"></span>
+      <button class="secondary-button" type="button" data-close-brew-recipe-dialog>Cancel</button>
+      <button class="primary-button" type="submit">Save recipe</button>
+    </div>
+  </form>
+</dialog>

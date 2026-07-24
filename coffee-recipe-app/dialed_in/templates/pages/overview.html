@@ -3,10 +3,10 @@
     <div>
       <p class="eyebrow" id="greeting">Shot happens</p>
       <h1>Your beans.<br><em>Perfectly dialed in.</em></h1>
-      <p class="hero-copy">Keep track of your coffees, recipes and the next adjustment for every shot.</p>
+      <p class="hero-copy">Keep bean details, method-specific recipes and every measured brew in one place.</p>
     </div>
-    <button class="primary-button hero-button" id="addRecipeButton" type="button">
-      <span aria-hidden="true">＋</span> New recipe
+    <button class="primary-button hero-button" id="overviewAddBeanButton" type="button">
+      <span aria-hidden="true">＋</span> New bean
     </button>
   </section>
 
@@ -25,32 +25,36 @@
   <section class="stats-grid" aria-label="Overview">
     <article class="stat-card">
       <span class="stat-icon bean">◆</span>
-      <div><strong id="recipeCount">0</strong><small>Coffees</small></div>
+      <div><strong id="beanCount">0</strong><small>Beans</small></div>
     </article>
     <article class="stat-card">
-      <span class="stat-icon ratio">1:2</span>
-      <div><strong id="averageRatio">–</strong><small>Avg. ratio</small></div>
+      <span class="stat-icon ratio">☕</span>
+      <div><strong id="brewRecipeCount">0</strong><small>Recipes</small></div>
     </article>
     <article class="stat-card">
-      <span class="stat-icon timer">◷</span>
-      <div><strong id="averageTime">–</strong><small>Avg. shot time</small></div>
+      <span class="stat-icon timer">◎</span>
+      <div><strong id="measurementCount">0</strong><small>Logged brews</small></div>
     </article>
   </section>
 
-  <section class="content-section overview-recipes">
-    <div class="section-heading">
+  <section class="content-section overview-beans">
+    <div class="section-heading dashboard-heading">
       <div>
-        <p class="eyebrow">Quick access</p>
-        <h2>Recently dialed</h2>
+        <p class="eyebrow">Bean dashboard</p>
+        <h2>Your current coffees</h2>
       </div>
-      <button class="secondary-button" type="button" data-page-link="recipes">View all recipes</button>
+      <label class="dashboard-method-picker">
+        <span>Recipe shown on each bean</span>
+        <select id="overviewMethodFilter" aria-label="Recipe type displayed on bean cards"></select>
+      </label>
     </div>
-    <div class="recipe-grid overview-grid" id="overviewRecipeGrid"></div>
+
+    <div class="bean-grid" id="overviewBeanGrid"></div>
     <div class="empty-state hidden" id="overviewEmptyState">
-      <div class="empty-cup" aria-hidden="true">☕</div>
-      <h3>No recipes yet</h3>
-      <p>Create your first coffee recipe to populate the dashboard.</p>
-      <button class="primary-button" id="overviewAddButton" type="button">Create first recipe</button>
+      <div class="empty-cup" aria-hidden="true">◆</div>
+      <h3>No beans yet</h3>
+      <p>Add a coffee first. Recipes are then stored separately for that bean.</p>
+      <button class="primary-button" id="overviewEmptyAddButton" type="button">Add first bean</button>
     </div>
   </section>
 </section>

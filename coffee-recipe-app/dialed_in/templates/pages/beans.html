@@ -1,0 +1,43 @@
+<section class="app-page hidden" id="page-beans" data-page="beans">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Bean library</p>
+      <h1>All beans</h1>
+      <p>Store product information here. Brewing parameters live in separate recipes.</p>
+    </div>
+    <button class="primary-button desktop-add" id="beansAddButton" type="button">＋ New bean</button>
+  </header>
+
+  <section class="content-section">
+    <div class="toolbar bean-toolbar">
+      <label class="search-field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="beanSearchInput" type="search" placeholder="Search bean, roaster or origin …" autocomplete="off">
+      </label>
+      <select id="beanRoastFilter" aria-label="Filter beans by roast level">
+        <option value="all">All roast levels</option>
+        <option value="light">Light</option>
+        <option value="medium">Medium</option>
+        <option value="dark">Dark</option>
+      </select>
+      <select id="beanStatusFilter" aria-label="Filter beans by status">
+        <option value="all">All statuses</option>
+        <option value="active">Active</option>
+        <option value="empty">Out of beans</option>
+        <option value="wishlist">Wishlist</option>
+      </select>
+      <label class="favorites-filter">
+        <input id="beanFavoritesFilter" type="checkbox">
+        <span>Favorites only</span>
+      </label>
+    </div>
+
+    <div class="bean-grid" id="beanGrid"></div>
+    <div class="empty-state hidden" id="beanEmptyState">
+      <div class="empty-cup" aria-hidden="true">◆</div>
+      <h3>No matching beans</h3>
+      <p>Add a bean or adjust the filters.</p>
+      <button class="primary-button" id="beanEmptyAddButton" type="button">Add bean</button>
+    </div>
+  </section>
+</section>

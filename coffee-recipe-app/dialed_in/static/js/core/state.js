@@ -4,10 +4,16 @@ export const defaultSettings = Object.freeze({
 });
 
 export const state = {
-  recipes: [],
+  beans: [],
+  brewRecipes: [],
+  dialInLogs: [],
+  brewingMethods: [],
   settings: { ...defaultSettings },
   activePage: "overview",
-  editingId: null,
+  editingBeanId: null,
+  editingBrewRecipeId: null,
+  selectedDialBeanId: "",
+  selectedDialRecipeId: "",
   scrapeTimer: null,
   lastScrapedUrl: "",
   scrapeInProgress: false,
@@ -17,6 +23,9 @@ export const state = {
 };
 
 export function applyServerState(payload = {}) {
-  state.recipes = Array.isArray(payload.recipes) ? payload.recipes : [];
+  state.beans = Array.isArray(payload.beans) ? payload.beans : [];
+  state.brewRecipes = Array.isArray(payload.brewRecipes) ? payload.brewRecipes : [];
+  state.dialInLogs = Array.isArray(payload.dialInLogs) ? payload.dialInLogs : [];
+  state.brewingMethods = Array.isArray(payload.brewingMethods) ? payload.brewingMethods : [];
   state.settings = { ...defaultSettings, ...(payload.settings || {}) };
 }

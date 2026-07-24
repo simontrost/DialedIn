@@ -29,14 +29,14 @@ export function createBarcodeScanner({
   }
 
   function updateAvailability() {
-    const newRecipe = !state.editingId;
+    const newBean = !state.editingBeanId;
     const barcode = normalizeBarcode(fields.barcode.value);
-    row.classList.toggle("hidden", !newRecipe);
-    barcodeStatus.classList.toggle("hidden", !newRecipe);
-    scanButton.disabled = !newRecipe || state.barcodeInProgress;
-    lookupButton.disabled = !newRecipe || state.barcodeInProgress || !barcode;
+    row.classList.toggle("hidden", !newBean);
+    barcodeStatus.classList.toggle("hidden", !newBean);
+    scanButton.disabled = !newBean || state.barcodeInProgress;
+    lookupButton.disabled = !newBean || state.barcodeInProgress || !barcode;
 
-    if (!newRecipe) {
+    if (!newBean) {
       setStatus("");
       void stop();
     }
@@ -67,7 +67,7 @@ export function createBarcodeScanner({
   }
 
   async function lookup(value = fields.barcode.value) {
-    if (state.editingId || state.barcodeInProgress) return;
+    if (state.editingBeanId || state.barcodeInProgress) return;
     const barcode = normalizeBarcode(value);
     if (!barcode) {
       setStatus("Scan a barcode or enter its digits first.", "error");
@@ -134,7 +134,7 @@ export function createBarcodeScanner({
   }
 
   async function start() {
-    if (state.editingId || state.barcodeInProgress) return;
+    if (state.editingBeanId || state.barcodeInProgress) return;
     if (!window.ZXingBrowser) {
       setStatus("The ZXing scanner library could not be loaded. Check the internet connection or enter the barcode manually.", "error");
       return;

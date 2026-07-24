@@ -1,4 +1,4 @@
-const validPages = new Set(["overview", "recipes", "dial-in"]);
+const validPages = new Set(["overview", "beans", "recipes", "dial-in"]);
 
 export function createNavigation({ onPageChange, onOpenSettings }) {
   const pageButtons = [...document.querySelectorAll("[data-page-link]")];
@@ -24,7 +24,6 @@ export function createNavigation({ onPageChange, onOpenSettings }) {
     });
   });
   settingsButtons.forEach(button => button.addEventListener("click", onOpenSettings));
-
   window.addEventListener("hashchange", () => showPage(location.hash.slice(1), { updateHash: false }));
 
   return { showPage };

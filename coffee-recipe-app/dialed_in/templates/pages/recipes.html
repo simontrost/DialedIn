@@ -2,43 +2,32 @@
   <header class="page-header">
     <div>
       <p class="eyebrow">Recipe book</p>
-      <h1>All coffee recipes</h1>
-      <p>Browse, filter and edit every saved espresso recipe.</p>
+      <h1>Method-specific recipes</h1>
+      <p>Select a bean and store independent recipes for espresso, V60, AeroPress, milk drinks and more.</p>
     </div>
     <button class="primary-button desktop-add" id="recipesAddButton" type="button">＋ New recipe</button>
   </header>
 
   <section class="content-section">
-    <div class="toolbar">
+    <div class="toolbar recipe-toolbar">
       <label class="search-field">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        <input id="searchInput" type="search" placeholder="Search coffee or roaster …" autocomplete="off">
+        <input id="recipeSearchInput" type="search" placeholder="Search recipe or bean …" autocomplete="off">
       </label>
-      <select id="roastFilter" aria-label="Filter by roast level">
-        <option value="all">All roast levels</option>
-        <option value="light">Light</option>
-        <option value="medium">Medium</option>
-        <option value="dark">Dark</option>
-      </select>
-      <select id="statusFilter" aria-label="Filter by status">
-        <option value="all">All statuses</option>
-        <option value="active">Active</option>
-        <option value="empty">Out of beans</option>
-        <option value="wishlist">Wishlist</option>
-      </select>
+      <select id="recipeBeanFilter" aria-label="Filter by bean"></select>
+      <select id="recipeMethodFilter" aria-label="Filter by brewing method"></select>
       <label class="favorites-filter">
-        <input id="favoritesFilter" type="checkbox">
+        <input id="recipeFavoritesFilter" type="checkbox">
         <span>Favorites only</span>
       </label>
     </div>
 
-    <div class="recipe-grid" id="recipeGrid"></div>
-
-    <div class="empty-state hidden" id="emptyState">
+    <div class="brew-recipe-grid" id="brewRecipeGrid"></div>
+    <div class="empty-state hidden" id="recipeEmptyState">
       <div class="empty-cup" aria-hidden="true">☕</div>
-      <h3>No matching coffee yet</h3>
-      <p>Create a recipe or adjust the filters.</p>
-      <button class="primary-button" id="emptyAddButton" type="button">Create recipe</button>
+      <h3>No matching recipes</h3>
+      <p>Create a method-specific recipe or adjust the filters.</p>
+      <button class="primary-button" id="recipeEmptyAddButton" type="button">Create recipe</button>
     </div>
   </section>
 </section>

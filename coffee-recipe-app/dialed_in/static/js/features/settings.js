@@ -33,20 +33,17 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
     document.body.appendChild(link);
     link.click();
     link.remove();
-    showToast("Exporting backup");
+    showToast("Exporting complete backup");
   }
 
   async function importData(file) {
     if (!file) return;
     try {
       const payload = JSON.parse(await file.text());
-      const result = await api("/api/import", {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
+      const result = await api("/api/import", { method: "POST", body: JSON.stringify(payload) });
       await reloadState();
       dialog.close();
-      showToast(`${result.imported} recipes imported`);
+      showToast(`${result.beans || 0} beans, ${result.recipes || 0} recipes and ${result.measurements || 0} measurements imported`);
     } catch (error) {
       alert(error.message || "The file could not be imported.");
     } finally {
@@ -56,8 +53,7 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
 
   form.addEventListener("submit", save);
   document.querySelectorAll("[data-close-settings]").forEach(button => button.addEventListener("click", () => dialog.close()));
-  document.querySelector("#exportButton").addEventListener("click", exportData);
-  importInput.addEventListener("change", event => importData(event.target.files?.[0]));
-
+  document.querySelector("#exportButton")?.addEventListener("click", exportData);
+  importInput?.addEventListener("change", event => importData(event.target.files?.[0]));
   return { open };
 }

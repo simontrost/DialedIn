@@ -1,108 +1,179 @@
-import { formatNumber } from "../core/utils.js";
+import { beanById, escapeHtml, formatDateTime, formatNumber, methodById, recipeById } from "../core/utils.js";
 
-export function createDialInPage({ state }) {
-  const form = document.querySelector("#dialInForm");
-  const coffee = document.querySelector("#dialInCoffee");
-  const targetTime = document.querySelector("#dialInTargetTime");
+const tasteLabels = {
+  very_sour: "Very sour", sour: "Sour", neutral: "Neutral", balanced: "Balanced",
+  bitter: "Bitter", very_bitter: "Very bitter", astringent: "Astringent", hollow: "Hollow"
+};
+
+export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
+  const beanSelect = document.querySelector("#dialInBeanSelect");
+  const recipeSelect = document.querySelector("#dialInRecipeSelect");
   const maxStep = document.querySelector("#dialInMaxStep");
-  const grind1 = document.querySelector("#dialInGrind1");
-  const time1 = document.querySelector("#dialInTime1");
-  const grind2 = document.querySelector("#dialInGrind2");
-  const time2 = document.querySelector("#dialInTime2");
-  const reverseScale = document.querySelector("#dialInReverseScale");
+  const addButton = document.querySelector("#addMeasurementButton");
+  const emptyAddButton = document.querySelector("#dialInEmptyAddButton");
+  const calculateButton = document.querySelector("#calculateGrindButton");
+  const tableBody = document.querySelector("#measurementTableBody");
+  const empty = document.querySelector("#dialInEmptyState");
+  const targetSummary = document.querySelector("#dialTargetSummary");
+  const recipeSummary = document.querySelector("#dialRecipeSummary");
+  const measurementSummary = document.querySelector("#dialMeasurementSummary");
+  const spanSummary = document.querySelector("#dialDateSpanSummary");
+  const recommended = document.querySelector("#recommendedGrind");
+  const recommendationMeta = document.querySelector("#recommendationMeta");
+  const recommendationCard = document.querySelector("#recommendationCard");
+  let recommendationRecipeId = "";
 
-  const recommended = document.querySelector("#dialInRecommended");
-  const confidence = document.querySelector("#dialInConfidence");
-  const explanation = document.querySelector("#dialInExplanation");
-  const raw = document.querySelector("#dialInRaw");
-  const current = document.querySelector("#dialInCurrent");
-  const mode = document.querySelector("#dialInMode");
-
-  function selectedRecipe() {
-    return state.recipes.find(recipe => recipe.id === coffee.value) || null;
+  function dialableRecipes(beanId) {
+    return state.brewRecipes.filter(recipe => recipe.beanId === beanId && methodById(state, recipe.method).supportsDialIn);
   }
 
-  function fillFromRecipe() {
-    const recipe = selectedRecipe();
-    if (!recipe) return;
-    if (recipe.grind !== null && recipe.grind !== undefined && recipe.grind !== "") grind1.value = recipe.grind;
-    if (recipe.time) time1.value = recipe.time;
-    if (recipe.time) targetTime.value = recipe.time;
+  function selectedRecipe() {
+    return recipeById(state, recipeSelect.value);
+  }
+
+  function selectedLogs() {
+    return state.dialInLogs
+      .filter(log => log.brewRecipeId === recipeSelect.value)
+      .sort((a, b) => new Date(b.brewedAt) - new Date(a.brewedAt));
+  }
+
+  function syncSelectors() {
+    const previousBean = state.selectedDialBeanId || beanSelect.value;
+    beanSelect.innerHTML = state.beans.length
+      ? state.beans.map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
+      : '<option value="">No beans available</option>';
+    const selectedBean = [...beanSelect.options].some(option => option.value === previousBean) ? previousBean : (state.beans[0]?.id || "");
+    beanSelect.value = selectedBean;
+    state.selectedDialBeanId = selectedBean;
+
+    const recipes = dialableRecipes(selectedBean);
+    const previousRecipe = state.selectedDialRecipeId || recipeSelect.value;
+    recipeSelect.innerHTML = recipes.length
+      ? recipes.map(recipe => {
+        const method = methodById(state, recipe.method);
+        return `<option value="${recipe.id}">${escapeHtml(method.icon)} ${escapeHtml(recipe.name)} · ${escapeHtml(method.name)}</option>`;
+      }).join("")
+      : '<option value="">No dial-in recipe for this bean</option>';
+    const selected = [...recipeSelect.options].some(option => option.value === previousRecipe) ? previousRecipe : (recipes[0]?.id || "");
+    recipeSelect.value = selected;
+    state.selectedDialRecipeId = selected;
+  }
+
+  function resetRecommendation() {
+    recommendationRecipeId = "";
+    recommended.textContent = "–";
+    recommendationMeta.textContent = "Calculate after adding measurements";
+    recommendationCard.dataset.confidence = "";
+  }
+
+  function renderTable(logs) {
+    tableBody.innerHTML = logs.map(log => `
+      <tr class="${log.valid ? "" : "invalid-measurement"}">
+        <td>${escapeHtml(formatDateTime(log.brewedAt))}${log.valid ? "" : '<small class="invalid-label">Excluded</small>'}</td>
+        <td><strong>${formatNumber(log.grind, 2)}</strong></td>
+        <td>${formatNumber(log.dose, 1)} g</td>
+        <td>${formatNumber(log.beverageYield, 1)} g</td>
+        <td>${formatNumber(log.time, 1)} s</td>
+        <td>${escapeHtml(tasteLabels[log.taste] || log.taste)}</td>
+        <td>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</td>
+        <td><button class="table-delete-button" type="button" data-delete-log="${log.id}" aria-label="Delete measurement">×</button></td>
+      </tr>`).join("");
   }
 
   function render() {
-    const selected = coffee.value;
-    coffee.innerHTML = state.recipes.length
-      ? state.recipes.map(recipe => `<option value="${recipe.id}">${recipe.name}</option>`).join("")
-      : '<option value="">No recipes available</option>';
-    if ([...coffee.options].some(option => option.value === selected)) coffee.value = selected;
-    else fillFromRecipe();
+    syncSelectors();
+    const recipe = selectedRecipe();
+    const method = recipe ? methodById(state, recipe.method) : null;
+    const logs = selectedLogs();
+    const validLogs = logs.filter(log => log.valid);
+    const disabled = !recipe;
+    addButton.disabled = disabled;
+    calculateButton.disabled = disabled || !validLogs.length;
+    emptyAddButton.disabled = disabled;
+
+    targetSummary.textContent = recipe?.values?.targetTime ? `${formatNumber(recipe.values.targetTime, 1)} s` : "–";
+    recipeSummary.textContent = recipe ? `${method.name} · target grind ${formatNumber(recipe.values?.grind, 2)}` : "Create a dial-in-capable recipe first";
+    measurementSummary.textContent = String(logs.length);
+    if (logs.length > 1) {
+      const oldest = logs[logs.length - 1].brewedAt;
+      const newest = logs[0].brewedAt;
+      const days = Math.max(0, Math.round((new Date(newest) - new Date(oldest)) / 86400000));
+      spanSummary.textContent = `${validLogs.length} used · ${days} day history`;
+    } else if (logs.length === 1) spanSummary.textContent = `${validLogs.length} used · first measurement`;
+    else spanSummary.textContent = "No history yet";
+    renderTable(logs);
+    empty.classList.toggle("hidden", logs.length > 0);
+    if (recommendationRecipeId && recommendationRecipeId !== recipe?.id) resetRecommendation();
   }
 
-  function directionStep(measuredTime, desiredTime, finerIsLower) {
-    const difference = desiredTime - measuredTime;
-    if (Math.abs(difference) <= 1) return 0;
-    const magnitude = Math.min(Number(maxStep.value) || 2.5, Math.max(0.5, Math.abs(difference) / 6));
-    const shouldGoFiner = difference > 0;
-    if (shouldGoFiner) return finerIsLower ? -magnitude : magnitude;
-    return finerIsLower ? magnitude : -magnitude;
+  function addMeasurement() {
+    const recipe = selectedRecipe();
+    if (!recipe) return showToast("Create or choose a recipe first");
+    onAddMeasurement({ beanId: recipe.beanId, recipeId: recipe.id });
   }
 
-  function calculate(event) {
-    event.preventDefault();
-    if (!form.reportValidity()) return;
-
-    const g1 = Number(grind1.value);
-    const t1 = Number(time1.value);
-    const g2 = grind2.value === "" ? null : Number(grind2.value);
-    const t2 = time2.value === "" ? null : Number(time2.value);
-    const target = Number(targetTime.value);
-    const stepLimit = Math.max(0.1, Number(maxStep.value) || 2.5);
-    const finerIsLower = reverseScale.checked;
-
-    let rawEstimate;
-    let next;
-    let level;
-    let calculationMode;
-    let message;
-    let currentSetting = g1;
-
-    if (g2 !== null && t2 !== null && t1 !== t2 && g1 !== g2) {
-      rawEstimate = g1 + ((target - t1) * (g2 - g1)) / (t2 - t1);
-      currentSetting = Math.abs(t2 - target) <= Math.abs(t1 - target) ? g2 : g1;
-      const delta = Math.max(-stepLimit, Math.min(stepLimit, rawEstimate - currentSetting));
-      next = currentSetting + delta;
-      const minTime = Math.min(t1, t2);
-      const maxTime = Math.max(t1, t2);
-      const interpolating = target >= minTime && target <= maxTime;
-      level = interpolating ? "medium" : "low";
-      calculationMode = interpolating ? "Interpolation" : "Extrapolation";
-      message = interpolating
-        ? "The target lies between both measured shots, so the estimate is based on a local trend."
-        : "The target lies outside the measured range. The raw estimate was limited to a safer next step.";
-    } else {
-      const step = directionStep(t1, target, finerIsLower);
-      rawEstimate = g1 + step;
-      next = rawEstimate;
-      level = "low";
-      calculationMode = "Rule-based first step";
-      message = Math.abs(target - t1) <= 1
-        ? "The shot is already inside the target window. Keep the grind setting and evaluate taste."
-        : "Only one usable measurement is available, so the assistant recommends a cautious first adjustment.";
+  async function calculate() {
+    const recipe = selectedRecipe();
+    if (!recipe) return;
+    calculateButton.disabled = true;
+    calculateButton.textContent = "Calculating …";
+    try {
+      const result = await api("/api/dial-in/recommendation", {
+        method: "POST",
+        body: JSON.stringify({ recipeId: recipe.id, maxStep: Number(maxStep.value) || 2.5 })
+      });
+      recommendationRecipeId = recipe.id;
+      recommended.textContent = formatNumber(result.recommendedGrind, 3);
+      const sign = result.change > 0 ? "+" : "";
+      recommendationMeta.textContent = `${result.confidence} confidence · ${result.mode.replaceAll("_", " ")} · ${sign}${formatNumber(result.change, 3)} from latest · ${result.message}`;
+      recommendationCard.dataset.confidence = result.confidence;
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      calculateButton.textContent = "Calculate grind";
+      calculateButton.disabled = !selectedLogs().some(log => log.valid);
     }
-
-    const roundedNext = Math.round(next * 10) / 10;
-    recommended.textContent = formatNumber(roundedNext, 1);
-    confidence.textContent = `${level[0].toUpperCase()}${level.slice(1)} confidence`;
-    confidence.dataset.level = level;
-    explanation.textContent = message;
-    raw.textContent = formatNumber(rawEstimate, 2);
-    current.textContent = formatNumber(currentSetting, 1);
-    mode.textContent = calculationMode;
   }
 
-  coffee.addEventListener("change", fillFromRecipe);
-  form.addEventListener("submit", calculate);
+  async function deleteLog(logId) {
+    if (!confirm("Delete this measurement permanently?")) return;
+    try {
+      await api(`/api/dial-in-logs/${logId}`, { method: "DELETE" });
+      state.dialInLogs = state.dialInLogs.filter(log => log.id !== logId);
+      resetRecommendation();
+      render();
+      showToast("Measurement deleted");
+    } catch (error) {
+      showToast(error.message);
+    }
+  }
 
-  return { render };
+  function selectRecipe(recipeId) {
+    const recipe = recipeById(state, recipeId);
+    if (!recipe) return;
+    state.selectedDialBeanId = recipe.beanId;
+    state.selectedDialRecipeId = recipe.id;
+    resetRecommendation();
+    render();
+  }
+
+  beanSelect.addEventListener("change", () => {
+    state.selectedDialBeanId = beanSelect.value;
+    state.selectedDialRecipeId = "";
+    resetRecommendation();
+    render();
+  });
+  recipeSelect.addEventListener("change", () => {
+    state.selectedDialRecipeId = recipeSelect.value;
+    resetRecommendation();
+    render();
+  });
+  addButton.addEventListener("click", addMeasurement);
+  emptyAddButton.addEventListener("click", addMeasurement);
+  calculateButton.addEventListener("click", calculate);
+  tableBody.addEventListener("click", event => {
+    const button = event.target.closest("[data-delete-log]");
+    if (button) deleteLog(button.dataset.deleteLog);
+  });
+  return { render, selectRecipe };
 }

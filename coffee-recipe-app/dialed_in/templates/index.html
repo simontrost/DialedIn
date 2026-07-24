@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#24170f">
-  <meta name="description" content="A local coffee recipe manager and espresso dial-in assistant.">
+  <meta name="description" content="A local coffee bean, recipe and dial-in log manager.">
   <title>Dialed In – Coffee Recipes</title>
 
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/dialogs.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/barcode-scanner.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/overview.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/beans.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/recipes.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dial-in.css') }}">
 </head>
@@ -26,6 +27,7 @@
 
     <main id="appMain">
       {% include 'pages/overview.html' %}
+      {% include 'pages/beans.html' %}
       {% include 'pages/recipes.html' %}
       {% include 'pages/dial_in.html' %}
     </main>
@@ -33,7 +35,10 @@
     {% include 'components/bottom_nav.html' %}
   </div>
 
-  {% include 'dialogs/recipe_dialog.html' %}
+  {% include 'dialogs/quick_add_dialog.html' %}
+  {% include 'dialogs/bean_dialog.html' %}
+  {% include 'dialogs/brew_recipe_dialog.html' %}
+  {% include 'dialogs/dial_in_log_dialog.html' %}
   {% include 'dialogs/settings_dialog.html' %}
   {% include 'dialogs/barcode_scanner.html' %}
 
