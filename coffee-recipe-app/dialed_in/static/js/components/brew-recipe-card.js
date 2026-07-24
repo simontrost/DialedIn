@@ -1,4 +1,4 @@
-import { beanById, escapeHtml, methodById, recipeMetricSummary } from "../core/utils.js";
+import { beanById, escapeHtml, methodById, methodIconMarkup, recipeMetricSummary, iconMarkup } from "../core/utils.js";
 
 export function brewRecipeCardHtml(recipe, state) {
   const bean = beanById(state, recipe.beanId);
@@ -7,11 +7,11 @@ export function brewRecipeCardHtml(recipe, state) {
   const stepCount = Array.isArray(recipe.steps) ? recipe.steps.length : 0;
   return `
     <article class="brew-recipe-card">
-      <div class="brew-recipe-icon" aria-hidden="true">${escapeHtml(method.icon)}</div>
+      <div class="brew-recipe-icon" aria-hidden="true">${methodIconMarkup(method)}</div>
       <div class="brew-recipe-body">
         <div class="card-top">
           <span class="method-chip">${escapeHtml(method.name)}</span>
-          <button class="favorite-button ${recipe.favorite ? "active" : ""}" type="button" data-toggle-recipe-favorite="${recipe.id}">${recipe.favorite ? "♥" : "♡"}</button>
+          <button class="favorite-button ${recipe.favorite ? "active" : ""}" type="button" data-toggle-recipe-favorite="${recipe.id}">${iconMarkup(recipe.favorite ? "heart-filled" : "heart", { group: "ui" })}</button>
         </div>
         <h3>${escapeHtml(recipe.name)}</h3>
         <p class="recipe-bean-name">${escapeHtml(bean?.name || "Missing bean")} · ${escapeHtml(bean?.roaster || "Roaster not set")}</p>

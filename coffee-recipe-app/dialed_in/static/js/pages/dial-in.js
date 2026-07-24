@@ -51,7 +51,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
     recipeSelect.innerHTML = recipes.length
       ? recipes.map(recipe => {
         const method = methodById(state, recipe.method);
-        return `<option value="${recipe.id}">${escapeHtml(method.icon)} ${escapeHtml(recipe.name)} · ${escapeHtml(method.name)}</option>`;
+        return `<option value="${recipe.id}">${escapeHtml(recipe.name)} · ${escapeHtml(method.name)}</option>`;
       }).join("")
       : '<option value="">No dial-in recipe for this bean</option>';
     const selected = [...recipeSelect.options].some(option => option.value === previousRecipe) ? previousRecipe : (recipes[0]?.id || "");

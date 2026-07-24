@@ -1,4 +1,4 @@
-import { beanById, escapeHtml, methodById } from "../core/utils.js";
+import { beanById, escapeHtml, methodById, methodIconMarkup } from "../core/utils.js";
 
 export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
   const dialog = document.querySelector("#brewRecipeDialog");
@@ -23,7 +23,7 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
       ? state.beans.map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
       : '<option value="">Add a bean first</option>';
     methodInput.innerHTML = state.brewingMethods
-      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.icon)} ${escapeHtml(method.name)}</option>`)
+      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.name)}</option>`)
       .join("");
 
     if ([...beanInput.options].some(option => option.value === beanId)) beanInput.value = beanId;
@@ -54,7 +54,7 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
 
   function renderMethodFields(values = {}) {
     const method = methodById(state, methodInput.value);
-    description.innerHTML = `<span aria-hidden="true">${escapeHtml(method.icon)}</span><div><strong>${escapeHtml(method.name)}</strong><p>${escapeHtml(method.description || "")}</p></div>`;
+    description.innerHTML = `<span class="method-icon-shell" aria-hidden="true">${methodIconMarkup(method)}</span><div><strong>${escapeHtml(method.name)}</strong><p>${escapeHtml(method.description || "")}</p></div>`;
     fieldsContainer.innerHTML = (method.fields || []).map(field => {
       const value = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : field.default;
       return fieldHtml(field, value);

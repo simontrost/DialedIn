@@ -24,7 +24,7 @@
       </label>
     </div>
     <div class="dial-selection-actions">
-      <button class="secondary-button" id="addMeasurementButton" type="button">＋ Add measurement</button>
+      <button class="secondary-button" id="addMeasurementButton" type="button"><span class="app-icon app-icon--sm" style="--app-icon:url('{{ url_for('static', filename='icons/ui/add.svg') }}')" aria-hidden="true"></span> Add measurement</button>
       <button class="primary-button" id="calculateGrindButton" type="button">Calculate grind</button>
     </div>
   </section>
@@ -73,7 +73,7 @@
       </table>
     </div>
     <div class="empty-state hidden" id="dialInEmptyState">
-      <div class="empty-cup" aria-hidden="true">◎</div>
+      <div class="empty-cup" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/measurements.svg') }}')" aria-hidden="true"></span></div>
       <h3>No measurements for this recipe</h3>
       <p>Add today's brew. Future measurements will continue the same history.</p>
       <button class="primary-button" id="dialInEmptyAddButton" type="button">Add measurement</button>

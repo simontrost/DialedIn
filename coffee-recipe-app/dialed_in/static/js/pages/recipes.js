@@ -15,7 +15,7 @@ export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDial
     beanFilter.innerHTML = '<option value="all">All beans</option>' + state.beans
       .map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}</option>`).join("");
     methodFilter.innerHTML = '<option value="all">All methods</option>' + state.brewingMethods
-      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.icon)} ${escapeHtml(method.name)}</option>`).join("");
+      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.name)}</option>`).join("");
     beanFilter.value = [...beanFilter.options].some(option => option.value === selectedBean) ? selectedBean : "all";
     methodFilter.value = [...methodFilter.options].some(option => option.value === selectedMethod) ? selectedMethod : "all";
   }

@@ -19,7 +19,7 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
   function syncMethodOptions() {
     const selected = methodFilter.value || "espresso";
     methodFilter.innerHTML = state.brewingMethods
-      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.icon)} ${escapeHtml(method.name)}</option>`)
+      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.name)}</option>`)
       .join("");
     methodFilter.value = [...methodFilter.options].some(option => option.value === selected) ? selected : (state.brewingMethods[0]?.id || "");
   }

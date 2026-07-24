@@ -3,6 +3,19 @@ export function escapeHtml(value = "") {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
   })[char]);
 }
+const ICON_NAME_PATTERN = /^[a-z0-9-]+$/;
+
+export function iconMarkup(name, { group = "ui", className = "", label = "" } = {}) {
+  const safeName = ICON_NAME_PATTERN.test(String(name || "")) ? String(name) : "custom-method";
+  const safeGroup = ["methods", "navigation", "ui"].includes(group) ? group : "ui";
+  const classes = ["app-icon", className].filter(Boolean).join(" ");
+  const aria = label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"';
+  return `<span class="${classes}" style="--app-icon:url('/static/icons/${safeGroup}/${safeName}.svg')" ${aria}></span>`;
+}
+
+export function methodIconMarkup(method, className = "") {
+  return iconMarkup(method?.icon || "custom-method", { group: "methods", className });
+}
 
 export function normalizeUrl(value = "") {
   let trimmed = String(value).trim();
@@ -42,7 +55,7 @@ export function methodById(state, methodId) {
   return state.brewingMethods.find(method => method.id === methodId) || {
     id: methodId,
     name: methodId || "Unknown method",
-    icon: "☕",
+    icon: "custom-method",
     fields: [],
     supportsSteps: false,
     supportsDialIn: true

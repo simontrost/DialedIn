@@ -62,7 +62,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "espresso": {
         "id": "espresso",
         "name": "Espresso",
-        "icon": "☕",
+        "icon": "espresso",
         "description": "Pressure extraction with a defined dose, beverage yield, time, temperature and pressure.",
         "supportsDialIn": True,
         "supportsSteps": False,
@@ -72,7 +72,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "americano": {
         "id": "americano",
         "name": "Americano",
-        "icon": "◒",
+        "icon": "americano",
         "description": "An espresso recipe extended with hot water and a selectable serving order.",
         "supportsDialIn": True,
         "supportsSteps": False,
@@ -91,7 +91,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "flat_white": {
         "id": "flat_white",
         "name": "Flat White",
-        "icon": "◓",
+        "icon": "flat-white",
         "description": "A compact milk drink based on espresso and finely textured steamed milk.",
         "supportsDialIn": True,
         "supportsSteps": False,
@@ -111,7 +111,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "cappuccino": {
         "id": "cappuccino",
         "name": "Cappuccino",
-        "icon": "◉",
+        "icon": "cappuccino",
         "description": "Espresso with steamed milk and a more pronounced microfoam layer than a flat white.",
         "supportsDialIn": True,
         "supportsSteps": False,
@@ -126,7 +126,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "latte": {
         "id": "latte",
         "name": "Caffè Latte",
-        "icon": "◐",
+        "icon": "cafe-latte",
         "description": "Espresso with a larger amount of steamed milk and a thin microfoam layer.",
         "supportsDialIn": True,
         "supportsSteps": False,
@@ -141,7 +141,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "v60": {
         "id": "v60",
         "name": "V60",
-        "icon": "▽",
+        "icon": "v60",
         "description": "Cone pour-over with bloom and one or more controlled pours.",
         "supportsDialIn": True,
         "supportsSteps": True,
@@ -164,7 +164,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "pour_over": {
         "id": "pour_over",
         "name": "Pour Over",
-        "icon": "⌄",
+        "icon": "pour-over",
         "description": "A generic manual pour-over recipe for drippers that are not tied to a V60 or Chemex preset.",
         "supportsDialIn": True,
         "supportsSteps": True,
@@ -188,7 +188,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "chemex": {
         "id": "chemex",
         "name": "Chemex",
-        "icon": "◇",
+        "icon": "chemex",
         "description": "Large-format pour-over with a bloom and staged pours through a thick paper filter.",
         "supportsDialIn": True,
         "supportsSteps": True,
@@ -210,7 +210,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "aeropress": {
         "id": "aeropress",
         "name": "AeroPress",
-        "icon": "⇣",
+        "icon": "aeropress",
         "description": "Immersion and pressure brewing with configurable orientation, steep and press stages.",
         "supportsDialIn": True,
         "supportsSteps": True,
@@ -233,7 +233,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "french_press": {
         "id": "french_press",
         "name": "French Press",
-        "icon": "▥",
+        "icon": "french-press",
         "description": "Full-immersion brew with a defined steep time and plunge.",
         "supportsDialIn": True,
         "supportsSteps": True,
@@ -254,7 +254,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "moka": {
         "id": "moka",
         "name": "Moka Pot",
-        "icon": "♨",
+        "icon": "moka-pot",
         "description": "Stovetop brewing with boiler water, basket dose and controlled heat.",
         "supportsDialIn": True,
         "supportsSteps": False,
@@ -272,7 +272,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "cold_brew": {
         "id": "cold_brew",
         "name": "Cold Brew",
-        "icon": "❄",
+        "icon": "cold-brew",
         "description": "Long cold extraction with an optional concentrate dilution ratio.",
         "supportsDialIn": False,
         "supportsSteps": True,
@@ -294,7 +294,7 @@ BREWING_METHODS: dict[str, dict[str, Any]] = {
     "custom": {
         "id": "custom",
         "name": "Custom method",
-        "icon": "＋",
+        "icon": "custom-method",
         "description": "A flexible recipe with common variables and a custom sequence.",
         "supportsDialIn": True,
         "supportsSteps": True,

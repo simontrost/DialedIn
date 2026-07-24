@@ -1,4 +1,4 @@
-import { escapeHtml, methodById, originLabel, recipeMetricSummary, statusLabel } from "../core/utils.js";
+import { escapeHtml, iconMarkup, methodById, methodIconMarkup, originLabel, recipeMetricSummary, statusLabel } from "../core/utils.js";
 
 export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = false } = {}) {
   const recipe = showRecipe
@@ -9,7 +9,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
   const recipeBlock = showRecipe ? `
     <div class="bean-recipe-preview ${recipe ? "" : "missing"}">
       <div class="bean-recipe-heading">
-        <span class="method-chip">${escapeHtml(method.icon)} ${escapeHtml(method.name)}</span>
+        <span class="method-chip">${methodIconMarkup(method)} ${escapeHtml(method.name)}</span>
         ${recipe ? `<button type="button" data-edit-recipe="${recipe.id}">Edit recipe</button>` : `<button type="button" data-add-recipe-for-bean="${bean.id}" data-method="${escapeHtml(dashboardMethod)}">Add recipe</button>`}
       </div>
       ${recipe ? `
@@ -24,7 +24,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
       <div class="bean-card-body">
         <div class="card-top">
           <span class="card-status" data-status="${escapeHtml(bean.status)}">${escapeHtml(statusLabel(bean.status))}</span>
-          <button class="favorite-button ${bean.favorite ? "active" : ""}" type="button" data-toggle-bean-favorite="${bean.id}" aria-label="Toggle favorite">${bean.favorite ? "♥" : "♡"}</button>
+          <button class="favorite-button ${bean.favorite ? "active" : ""}" type="button" data-toggle-bean-favorite="${bean.id}" aria-label="Toggle favorite">${iconMarkup(bean.favorite ? "heart-filled" : "heart", { group: "ui" })}</button>
         </div>
         <h3>${escapeHtml(bean.name)}</h3>
         <p class="bean-roaster">${escapeHtml(bean.roaster || "Roaster not set")}</p>

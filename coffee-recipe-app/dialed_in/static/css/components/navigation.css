@@ -17,6 +17,7 @@
   .topbar{padding:15px 2px}.brand-mark{width:43px;height:43px;border-radius:14px}.brand strong{font-size:1.08rem}.brand small{font-size:.6rem}.icon-button{width:42px;height:42px}.desktop-nav{display:none}
   .bottom-nav { position:fixed; z-index:50; left:0; right:0; bottom:0; display:grid; grid-template-columns:1fr 1fr 64px 1fr 1fr; align-items:start; height:calc(68px + var(--safe-bottom)); border:1px solid rgba(255,255,255,.6); border-bottom:0; border-radius:23px 23px 0 0; padding:0 8px var(--safe-bottom); background:rgba(36,23,15,.97); backdrop-filter:blur(16px); box-shadow:0 -10px 36px rgba(28,18,13,.22); }
   .bottom-nav button { height:54px; border:0; color:rgba(255,255,255,.55); background:transparent; display:grid; place-items:center; align-content:center; gap:3px; }
-  .bottom-nav button span{font-size:1.18rem}.bottom-nav button small{font-size:.58rem}.bottom-nav button.active{color:var(--crema-400)}
-  .bottom-nav .nav-add { width:56px; height:56px; margin-top:-30px; border-radius:50%; color:var(--espresso-950); background:var(--crema-400); box-shadow:0 12px 24px rgba(0,0,0,.24); font-size:1.7rem; }
+  .bottom-nav button>.app-icon{width:1.24rem;height:1.24rem}.bottom-nav button small{font-size:.58rem}.bottom-nav button.active{color:var(--crema-400)}
+  .bottom-nav .nav-add { width:56px; height:56px; margin-top:-30px; border-radius:50%; color:var(--espresso-950); background:var(--crema-400); box-shadow:0 12px 24px rgba(0,0,0,.24); }
+  .bottom-nav .nav-add .app-icon{width:1.55rem;height:1.55rem}
 }

@@ -6,33 +6,33 @@
       <p class="hero-copy">Keep bean details, method-specific recipes and every measured brew in one place.</p>
     </div>
     <button class="primary-button hero-button" id="overviewAddBeanButton" type="button">
-      <span aria-hidden="true">＋</span> New bean
+      <span class="app-icon app-icon--sm" style="--app-icon:url('{{ url_for('static', filename='icons/ui/add.svg') }}')" aria-hidden="true"></span> New bean
     </button>
   </section>
 
   <section class="equipment-strip" aria-label="Current equipment">
     <div class="equipment-item">
-      <span class="equipment-icon" aria-hidden="true">☕</span>
+      <span class="equipment-icon" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/espresso-machine.svg') }}')" aria-hidden="true"></span></span>
       <span><small>Espresso machine</small><strong id="machineLabel">Espresso machine</strong></span>
     </div>
     <div class="equipment-divider"></div>
     <div class="equipment-item">
-      <span class="equipment-icon grinder" aria-hidden="true">◉</span>
+      <span class="equipment-icon grinder" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/grinder.svg') }}')" aria-hidden="true"></span></span>
       <span><small>Grinder</small><strong id="grinderLabel">Grinder</strong></span>
     </div>
   </section>
 
   <section class="stats-grid" aria-label="Overview">
     <article class="stat-card">
-      <span class="stat-icon bean">◆</span>
+      <span class="stat-icon bean" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/beans.svg') }}')" aria-hidden="true"></span></span>
       <div><strong id="beanCount">0</strong><small>Beans</small></div>
     </article>
     <article class="stat-card">
-      <span class="stat-icon ratio">☕</span>
+      <span class="stat-icon ratio" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/recipes.svg') }}')" aria-hidden="true"></span></span>
       <div><strong id="brewRecipeCount">0</strong><small>Recipes</small></div>
     </article>
     <article class="stat-card">
-      <span class="stat-icon timer">◎</span>
+      <span class="stat-icon timer" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/measurements.svg') }}')" aria-hidden="true"></span></span>
       <div><strong id="measurementCount">0</strong><small>Logged brews</small></div>
     </article>
   </section>
@@ -51,7 +51,7 @@
 
     <div class="bean-grid" id="overviewBeanGrid"></div>
     <div class="empty-state hidden" id="overviewEmptyState">
-      <div class="empty-cup" aria-hidden="true">◆</div>
+      <div class="empty-cup" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/beans.svg') }}')" aria-hidden="true"></span></div>
       <h3>No beans yet</h3>
       <p>Add a coffee first. Recipes are then stored separately for that bean.</p>
       <button class="primary-button" id="overviewEmptyAddButton" type="button">Add first bean</button>

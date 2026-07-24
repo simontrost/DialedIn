@@ -9,17 +9,17 @@
     </div>
     <div class="quick-add-grid">
       <button type="button" data-quick-add="bean">
-        <span aria-hidden="true">◆</span>
+        <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/beans.svg') }}')" aria-hidden="true"></span>
         <strong>New bean</strong>
         <small>Roaster, origin, blend and product details</small>
       </button>
       <button type="button" data-quick-add="recipe">
-        <span aria-hidden="true">☕</span>
+        <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/recipes.svg') }}')" aria-hidden="true"></span>
         <strong>New recipe</strong>
         <small>Choose a bean and brewing method</small>
       </button>
       <button type="button" data-quick-add="measurement">
-        <span aria-hidden="true">◎</span>
+        <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/measurements.svg') }}')" aria-hidden="true"></span>
         <strong>New measurement</strong>
         <small>Add a brew to the persistent dial-in history</small>
       </button>

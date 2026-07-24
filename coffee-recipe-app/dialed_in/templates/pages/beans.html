@@ -5,7 +5,7 @@
       <h1>All beans</h1>
       <p>Store product information here. Brewing parameters live in separate recipes.</p>
     </div>
-    <button class="primary-button desktop-add" id="beansAddButton" type="button">＋ New bean</button>
+    <button class="primary-button desktop-add" id="beansAddButton" type="button"><span class="app-icon app-icon--sm" style="--app-icon:url('{{ url_for('static', filename='icons/ui/add.svg') }}')" aria-hidden="true"></span> New bean</button>
   </header>
 
   <section class="content-section">
@@ -34,7 +34,7 @@
 
     <div class="bean-grid" id="beanGrid"></div>
     <div class="empty-state hidden" id="beanEmptyState">
-      <div class="empty-cup" aria-hidden="true">◆</div>
+      <div class="empty-cup" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/beans.svg') }}')" aria-hidden="true"></span></div>
       <h3>No matching beans</h3>
       <p>Add a bean or adjust the filters.</p>
       <button class="primary-button" id="beanEmptyAddButton" type="button">Add bean</button>

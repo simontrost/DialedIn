@@ -1,15 +1,21 @@
 <nav class="bottom-nav" aria-label="Mobile navigation">
   <button class="active" type="button" data-page-link="overview">
-    <span aria-hidden="true">⌂</span><small>Overview</small>
+    <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/overview.svg') }}')" aria-hidden="true"></span>
+    <small>Overview</small>
   </button>
   <button type="button" data-page-link="beans">
-    <span aria-hidden="true">◆</span><small>Beans</small>
+    <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/beans.svg') }}')" aria-hidden="true"></span>
+    <small>Beans</small>
   </button>
-  <button class="nav-add" id="mobileAddButton" type="button" aria-label="Add new item">＋</button>
+  <button class="nav-add" id="mobileAddButton" type="button" aria-label="Add new item">
+    <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/add.svg') }}')" aria-hidden="true"></span>
+  </button>
   <button type="button" data-page-link="recipes">
-    <span aria-hidden="true">☕</span><small>Recipes</small>
+    <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/recipes.svg') }}')" aria-hidden="true"></span>
+    <small>Recipes</small>
   </button>
   <button type="button" data-page-link="dial-in">
-    <span aria-hidden="true">◎</span><small>Dial In</small>
+    <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/dial-in.svg') }}')" aria-hidden="true"></span>
+    <small>Dial In</small>
   </button>
 </nav>

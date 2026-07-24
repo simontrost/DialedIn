@@ -5,7 +5,7 @@
       <h1>Method-specific recipes</h1>
       <p>Select a bean and store independent recipes for espresso, V60, AeroPress, milk drinks and more.</p>
     </div>
-    <button class="primary-button desktop-add" id="recipesAddButton" type="button">＋ New recipe</button>
+    <button class="primary-button desktop-add" id="recipesAddButton" type="button"><span class="app-icon app-icon--sm" style="--app-icon:url('{{ url_for('static', filename='icons/ui/add.svg') }}')" aria-hidden="true"></span> New recipe</button>
   </header>
 
   <section class="content-section">
@@ -24,7 +24,7 @@
 
     <div class="brew-recipe-grid" id="brewRecipeGrid"></div>
     <div class="empty-state hidden" id="recipeEmptyState">
-      <div class="empty-cup" aria-hidden="true">☕</div>
+      <div class="empty-cup" aria-hidden="true"><span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/recipes.svg') }}')" aria-hidden="true"></span></div>
       <h3>No matching recipes</h3>
       <p>Create a method-specific recipe or adjust the filters.</p>
       <button class="primary-button" id="recipeEmptyAddButton" type="button">Create recipe</button>
