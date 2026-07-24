@@ -1,0 +1,56 @@
+<section class="app-page" id="page-overview" data-page="overview">
+  <section class="hero">
+    <div>
+      <p class="eyebrow" id="greeting">Shot happens</p>
+      <h1>Your beans.<br><em>Perfectly dialed in.</em></h1>
+      <p class="hero-copy">Keep track of your coffees, recipes and the next adjustment for every shot.</p>
+    </div>
+    <button class="primary-button hero-button" id="addRecipeButton" type="button">
+      <span aria-hidden="true">＋</span> New recipe
+    </button>
+  </section>
+
+  <section class="equipment-strip" aria-label="Current equipment">
+    <div class="equipment-item">
+      <span class="equipment-icon" aria-hidden="true">☕</span>
+      <span><small>Espresso machine</small><strong id="machineLabel">Espresso machine</strong></span>
+    </div>
+    <div class="equipment-divider"></div>
+    <div class="equipment-item">
+      <span class="equipment-icon grinder" aria-hidden="true">◉</span>
+      <span><small>Grinder</small><strong id="grinderLabel">Grinder</strong></span>
+    </div>
+  </section>
+
+  <section class="stats-grid" aria-label="Overview">
+    <article class="stat-card">
+      <span class="stat-icon bean">◆</span>
+      <div><strong id="recipeCount">0</strong><small>Coffees</small></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon ratio">1:2</span>
+      <div><strong id="averageRatio">–</strong><small>Avg. ratio</small></div>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon timer">◷</span>
+      <div><strong id="averageTime">–</strong><small>Avg. shot time</small></div>
+    </article>
+  </section>
+
+  <section class="content-section overview-recipes">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Quick access</p>
+        <h2>Recently dialed</h2>
+      </div>
+      <button class="secondary-button" type="button" data-page-link="recipes">View all recipes</button>
+    </div>
+    <div class="recipe-grid overview-grid" id="overviewRecipeGrid"></div>
+    <div class="empty-state hidden" id="overviewEmptyState">
+      <div class="empty-cup" aria-hidden="true">☕</div>
+      <h3>No recipes yet</h3>
+      <p>Create your first coffee recipe to populate the dashboard.</p>
+      <button class="primary-button" id="overviewAddButton" type="button">Create first recipe</button>
+    </div>
+  </section>
+</section>

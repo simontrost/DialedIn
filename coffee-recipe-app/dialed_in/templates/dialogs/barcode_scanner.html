@@ -1,0 +1,30 @@
+<dialog aria-labelledby="barcodeScannerTitle" class="barcode-scanner-overlay hidden" id="barcodeScanner">
+<header class="barcode-scanner-header">
+<button aria-label="Close barcode scanner" class="scanner-icon-button" id="barcodeStopButton" type="button">×</button>
+<div>
+<strong id="barcodeScannerTitle">Barcode scanner</strong>
+<small>EAN / UPC</small>
+</div>
+<span aria-hidden="true" class="scanner-header-spacer"></span>
+</header>
+<div class="barcode-camera-stage">
+<video autoplay="" id="barcodeReader" muted="" playsinline=""></video>
+<div aria-hidden="true" class="barcode-viewfinder">
+<span class="viewfinder-corner corner-top-left"></span>
+<span class="viewfinder-corner corner-top-right"></span>
+<span class="viewfinder-corner corner-bottom-left"></span>
+<span class="viewfinder-corner corner-bottom-right"></span>
+<span class="barcode-scan-line"></span>
+</div>
+<div aria-hidden="true" class="barcode-camera-shade shade-top"></div>
+<div aria-hidden="true" class="barcode-camera-shade shade-bottom"></div>
+<div aria-hidden="true" class="barcode-camera-shade shade-left"></div>
+<div aria-hidden="true" class="barcode-camera-shade shade-right"></div>
+</div>
+<footer class="barcode-scanner-footer">
+<p aria-live="polite" id="barcodeScannerStatus" role="status">
+        Hold the barcode inside the frame.
+      </p>
+<button class="scanner-cancel-button" id="barcodeCancelButton" type="button">Cancel</button>
+</footer>
+</dialog>

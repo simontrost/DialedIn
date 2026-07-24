@@ -1,0 +1,44 @@
+<section class="app-page hidden" id="page-recipes" data-page="recipes">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Recipe book</p>
+      <h1>All coffee recipes</h1>
+      <p>Browse, filter and edit every saved espresso recipe.</p>
+    </div>
+    <button class="primary-button desktop-add" id="recipesAddButton" type="button">＋ New recipe</button>
+  </header>
+
+  <section class="content-section">
+    <div class="toolbar">
+      <label class="search-field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="searchInput" type="search" placeholder="Search coffee or roaster …" autocomplete="off">
+      </label>
+      <select id="roastFilter" aria-label="Filter by roast level">
+        <option value="all">All roast levels</option>
+        <option value="light">Light</option>
+        <option value="medium">Medium</option>
+        <option value="dark">Dark</option>
+      </select>
+      <select id="statusFilter" aria-label="Filter by status">
+        <option value="all">All statuses</option>
+        <option value="active">Active</option>
+        <option value="empty">Out of beans</option>
+        <option value="wishlist">Wishlist</option>
+      </select>
+      <label class="favorites-filter">
+        <input id="favoritesFilter" type="checkbox">
+        <span>Favorites only</span>
+      </label>
+    </div>
+
+    <div class="recipe-grid" id="recipeGrid"></div>
+
+    <div class="empty-state hidden" id="emptyState">
+      <div class="empty-cup" aria-hidden="true">☕</div>
+      <h3>No matching coffee yet</h3>
+      <p>Create a recipe or adjust the filters.</p>
+      <button class="primary-button" id="emptyAddButton" type="button">Create recipe</button>
+    </div>
+  </section>
+</section>
