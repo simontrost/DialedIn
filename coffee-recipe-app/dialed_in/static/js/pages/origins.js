@@ -64,6 +64,17 @@ function normalizeText(value) {
     .replace(/\s+/g, " ");
 }
 
+function parseCountryMetadata(value) {
+  const match = String(value || "").trim().match(/^(.*?)\s*\[([^\]]+)\]\s*$/);
+  if (!match) return { country: String(value || "").trim(), component: "", share: "" };
+  const shareMatch = match[2].match(/(\d+(?:[.,]\d+)?)\s*%/);
+  return {
+    country: match[1].trim(),
+    component: match[2].replace(/(\d+(?:[.,]\d+)?)\s*%/, "").trim(),
+    share: shareMatch ? shareMatch[1].replace(",", ".") : ""
+  };
+}
+
 function countryKey(value) {
   const normalized = normalizeText(value);
   return COUNTRY_ALIASES.get(normalized) || normalized;
@@ -145,8 +156,11 @@ function parseOriginEntries(bean) {
   if (!maxLen) return [];
   const entries = [];
   for (let index = 0; index < maxLen; index += 1) {
+    const metadata = parseCountryMetadata(countries[index] || countries[0] || "");
     entries.push({
-      country: countries[index] || countries[0] || "",
+      country: metadata.country,
+      component: metadata.component,
+      share: metadata.share,
       region: regions[index] || ""
     });
   }
@@ -177,6 +191,10 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
 
   function applyTransform() {
     scene.setAttribute("transform", `translate(${transform.x} ${transform.y}) scale(${transform.scale})`);
+    const inverseScale = 1 / transform.scale;
+    markersLayer.querySelectorAll(".origin-marker").forEach(marker => {
+      marker.setAttribute("transform", `translate(${marker.dataset.x} ${marker.dataset.y}) scale(${inverseScale})`);
+    });
   }
 
   function setTransform(next) {
@@ -268,7 +286,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
             items: []
           });
         }
-        grouped.get(key).items.push({ bean, region: origin.region, countryLabel: origin.country });
+        grouped.get(key).items.push({ bean, region: origin.region, countryLabel: origin.country, component: origin.component, share: origin.share });
       }
     }
     return [...grouped.values()];
@@ -287,14 +305,18 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "origin-bean-row";
-        const region = item.region || bean.originRegion || bean.origin_region || "";
+        const region = item.region || "";
         const roaster = bean.roaster || "Unknown roaster";
+        const componentText = [item.component, item.share ? `${item.share}%` : ""].filter(Boolean).join(" · ");
         button.innerHTML = `
           <span>
             <strong>${escapeHtml(bean.name || "Unnamed bean")}</strong>
             <small>${escapeHtml([roaster, region].filter(Boolean).join(" · "))}</small>
           </span>
-          <span class="origin-bean-status">${escapeHtml(displayStatus(bean.status))}</span>
+          <span class="origin-bean-meta">
+            ${componentText ? `<span class="origin-component-badge">${escapeHtml(componentText)}</span>` : ""}
+            <span class="origin-bean-status">${escapeHtml(displayStatus(bean.status))}</span>
+          </span>
         `;
         button.addEventListener("click", () => onEditBean(bean.id));
         beanList.append(button);
@@ -313,7 +335,9 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
       const [x, y] = project(centroid(group.feature.geometry));
       const marker = document.createElementNS(SVG_NS, "g");
       marker.setAttribute("class", "origin-marker");
-      marker.setAttribute("transform", `translate(${x} ${y})`);
+      marker.dataset.x = String(x);
+      marker.dataset.y = String(y);
+      marker.setAttribute("transform", `translate(${x} ${y}) scale(${1 / transform.scale})`);
       marker.setAttribute("role", "button");
       marker.setAttribute("tabindex", "0");
       marker.setAttribute("aria-label", `${group.label}, ${group.items.length} bean entries`);
@@ -361,6 +385,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
       `${beanCount} ${beanCount === 1 ? "bean placed" : "bean entries placed"}`;
 
     empty.classList.toggle("hidden", activeGroups.length > 0);
+    applyTransform();
   }
 
   async function render() {
