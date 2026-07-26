@@ -6,3 +6,20 @@
 .dashboard-method-picker{display:grid;gap:6px;min-width:230px}.dashboard-method-picker span{color:var(--muted);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.dashboard-method-picker select{height:46px;border:1px solid var(--line);border-radius:14px;padding:0 36px 0 13px;color:var(--ink);background:#fff}
 @media(max-width:900px){.hero{min-height:330px}}
 @media(max-width:700px){.hero{min-height:355px;padding:30px 24px;align-items:flex-end;border-radius:24px}.hero::after{top:50px;right:20px;width:110px;height:110px}.hero h1{font-size:clamp(2.75rem,14vw,4.1rem)}.hero-copy{margin-top:18px;font-size:.92rem}.hero-button{display:none}.equipment-strip{width:calc(100% - 18px);margin-top:-20px;grid-template-columns:1fr;gap:12px;padding:15px;border-radius:18px}.equipment-divider{width:100%;height:1px;margin:0}.equipment-item strong{font-size:.82rem}.stats-grid{gap:8px;margin:24px 0 40px}.stat-card{min-width:0;min-height:86px;display:block;padding:13px 10px;text-align:center;border-radius:17px}.stat-icon{width:36px;height:36px;margin:0 auto 8px;border-radius:12px}.stat-card strong{font-size:1rem}.stat-card small{font-size:.68rem}.dashboard-method-picker{width:100%;min-width:0}}
+
+/* Custom method picker: native iOS selects cannot render method SVGs. */
+.method-select{position:relative}
+.method-select-trigger{width:100%;height:48px;display:grid;grid-template-columns:28px minmax(0,1fr) 18px;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:0 13px;color:var(--ink);background:#fff;text-align:left;box-shadow:0 5px 18px rgba(67,42,25,.05)}
+.method-select-trigger:focus-visible{outline:0;border-color:rgba(201,135,74,.82);box-shadow:0 0 0 4px rgba(201,135,74,.13)}
+.method-select-current-icon{width:24px;height:24px;color:var(--espresso-700)}
+.method-select-current-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.method-select-chevron{width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .18s ease}
+.method-select.is-open .method-select-chevron{transform:translateY(3px) rotate(225deg)}
+.method-select-menu{position:absolute;z-index:45;top:calc(100% + 7px);right:0;width:max(100%,260px);max-height:min(420px,60dvh);overflow:auto;border:1px solid var(--line);border-radius:16px;padding:7px;background:#fffaf5;box-shadow:0 20px 55px rgba(31,18,10,.2)}
+.method-select-option{width:100%;min-height:47px;display:grid;grid-template-columns:28px minmax(0,1fr) 18px;align-items:center;gap:10px;border:0;border-radius:11px;padding:7px 10px;color:var(--ink);background:transparent;text-align:left}
+.method-select-option:hover,.method-select-option:focus-visible{outline:0;background:var(--cream-100)}
+.method-select-option[aria-selected="true"]{color:var(--espresso-800);background:rgba(221,165,111,.19);font-weight:800}
+.method-select-option .app-icon{width:23px;height:23px;color:var(--espresso-700)}
+.method-select-check{font-size:1rem;text-align:center;opacity:0}
+.method-select-option[aria-selected="true"] .method-select-check{opacity:1}
+@media(max-width:700px){.method-select-menu{position:fixed;z-index:90;left:16px;right:16px;top:auto;bottom:calc(64px + var(--safe-bottom));width:auto;max-height:min(470px,62dvh);border-radius:20px;padding:9px}.method-select-option{min-height:51px}}

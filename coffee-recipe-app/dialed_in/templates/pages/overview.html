@@ -43,10 +43,20 @@
         <p class="eyebrow">Bean dashboard</p>
         <h2>Your current coffees</h2>
       </div>
-      <label class="dashboard-method-picker">
+      <div class="dashboard-method-picker">
         <span>Recipe shown on each bean</span>
-        <select id="overviewMethodFilter" aria-label="Recipe type displayed on bean cards"></select>
-      </label>
+        <div class="method-select" id="overviewMethodPicker">
+          <button class="method-select-trigger" id="overviewMethodTrigger" type="button"
+            aria-haspopup="listbox" aria-expanded="false" aria-controls="overviewMethodMenu">
+            <span class="method-select-current-icon app-icon" id="overviewMethodIcon" aria-hidden="true"></span>
+            <span class="method-select-current-label" id="overviewMethodLabel">Espresso</span>
+            <span class="method-select-chevron" aria-hidden="true"></span>
+          </button>
+          <div class="method-select-menu hidden" id="overviewMethodMenu" role="listbox"
+            aria-label="Recipe type displayed on bean cards"></div>
+          <select class="visually-hidden" id="overviewMethodFilter" tabindex="-1" aria-hidden="true"></select>
+        </div>
+      </div>
     </div>
 
     <div class="bean-grid" id="overviewBeanGrid"></div>
