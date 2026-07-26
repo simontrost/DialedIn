@@ -166,12 +166,14 @@ export function createOriginEditorEnhancer() {
 
   const form = dialog.querySelector("form") || dialog;
   const countryInput = findFirst([
+    "#beanOriginCountryInput",
     "#beanOriginCountry",
     "#originCountry",
     "input[name='originCountry']",
     "input[name='origin_country']"
   ], dialog);
   const regionInput = findFirst([
+    "#beanOriginRegionInput",
     "#beanOriginRegion",
     "#originRegion",
     "input[name='originRegion']",

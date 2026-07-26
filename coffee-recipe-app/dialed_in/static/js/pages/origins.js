@@ -247,7 +247,8 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   function beansForFilter() {
     const selected = filter.value;
     if (selected === "all") return state.beans;
-    return state.beans.filter(bean => statusKey(bean.status) === selected);
+    const expectedStatus = selected === "out-of-beans" ? "empty" : selected;
+    return state.beans.filter(bean => statusKey(bean.status) === expectedStatus);
   }
 
   function groupBeans() {
