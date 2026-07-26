@@ -1,0 +1,72 @@
+<section class="app-page hidden" id="page-origins" data-page="origins">
+  <header class="origin-page-header">
+    <div>
+      <p class="eyebrow">Coffee atlas</p>
+      <h1>Your origins</h1>
+      <p>Explore where the beans in your collection come from. Drag to move and pinch or scroll to zoom.</p>
+    </div>
+    <div class="origin-header-actions">
+      <label class="origin-filter">
+        <span>Show</span>
+        <select id="originStatusFilter" aria-label="Filter beans shown on the map">
+          <option value="active">Active beans</option>
+          <option value="all">All beans</option>
+          <option value="out-of-beans">Out of beans</option>
+          <option value="wishlist">Wishlist</option>
+        </select>
+      </label>
+      <button class="secondary-button small-button button-with-icon" id="originResetViewButton" type="button">
+        <span class="app-icon app-icon--sm"
+          style="--app-icon:url('{{ url_for('static', filename='icons/navigation/origin-map.svg') }}')"
+          aria-hidden="true"></span>
+        Reset view
+      </button>
+    </div>
+  </header>
+
+  <section class="origin-map-card">
+    <div class="origin-map-toolbar">
+      <div>
+        <strong id="originCountryCount">0 origins</strong>
+        <span id="originBeanCount">0 beans placed</span>
+      </div>
+      <div class="origin-zoom-controls" aria-label="Map zoom controls">
+        <button id="originZoomOutButton" type="button" aria-label="Zoom out">−</button>
+        <button id="originZoomInButton" type="button" aria-label="Zoom in">+</button>
+      </div>
+    </div>
+
+    <div class="origin-map-viewport" id="originMapViewport">
+      <svg id="originMap" viewBox="0 0 1000 520" role="img"
+        aria-label="Interactive world map showing the origins of your coffee beans">
+        <defs>
+          <filter id="originMarkerShadow" x="-100%" y="-100%" width="300%" height="300%">
+            <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1c120d" flood-opacity=".28"/>
+          </filter>
+        </defs>
+        <g id="originMapScene">
+          <g id="originCountries"></g>
+          <g id="originMarkers"></g>
+        </g>
+      </svg>
+      <div class="origin-map-loading" id="originMapLoading">Preparing your coffee map…</div>
+      <div class="origin-map-empty hidden" id="originMapEmpty">
+        <span class="app-icon app-icon--xl"
+          style="--app-icon:url('{{ url_for('static', filename='icons/navigation/origin-map.svg') }}')"
+          aria-hidden="true"></span>
+        <h2>No mappable origins yet</h2>
+        <p>Add an origin country to a bean and it will appear here automatically.</p>
+      </div>
+    </div>
+
+    <p class="origin-map-hint">Tap a marker to see the beans from that country.</p>
+  </section>
+
+  <aside class="origin-sheet hidden" id="originSheet" aria-live="polite">
+    <button class="origin-sheet-close" id="originSheetClose" type="button" aria-label="Close origin details">×</button>
+    <p class="eyebrow">Selected origin</p>
+    <h2 id="originSheetTitle">Country</h2>
+    <p id="originSheetSubtitle"></p>
+    <div class="origin-bean-list" id="originBeanList"></div>
+  </aside>
+</section>

@@ -11,11 +11,13 @@ import { createOverviewPage } from "./pages/overview.js";
 import { createBeansPage } from "./pages/beans.js";
 import { createRecipesPage } from "./pages/recipes.js";
 import { createDialInPage } from "./pages/dial-in.js";
+import { createOriginsPage } from "./pages/origins.js";
 
 let overviewPage;
 let beansPage;
 let recipesPage;
 let dialInPage;
+let originsPage;
 let navigation;
 let quickAdd;
 
@@ -24,6 +26,7 @@ function renderAll() {
   beansPage?.render();
   recipesPage?.render();
   dialInPage?.render();
+  originsPage?.render();
   brewRecipeForm?.syncOptions();
 }
 
@@ -46,6 +49,7 @@ navigation = createNavigation({
   onPageChange(page) {
     state.activePage = page;
     if (page === "dial-in") dialInPage?.render();
+    if (page === "origins") originsPage?.activate();
   },
   onOpenSettings: settings.open
 });
@@ -87,6 +91,8 @@ recipesPage = createRecipesPage({
   onOpenDialIn: openDialIn
 });
 dialInPage = createDialInPage({ state, api, showToast, onAddMeasurement: addMeasurement });
+originsPage = createOriginsPage({ state, onEditBean: editBean, showToast });
+
 quickAdd = createQuickAdd({
   onAddBean: addBean,
   onAddRecipe: () => addRecipe(),
@@ -96,7 +102,6 @@ quickAdd = createQuickAdd({
     addMeasurement();
   }
 });
-
 document.querySelector("#mobileAddButton")?.addEventListener("click", quickAdd.open);
 
 const initialPage = location.hash.slice(1) || "overview";

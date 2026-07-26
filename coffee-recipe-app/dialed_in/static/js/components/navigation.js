@@ -1,4 +1,4 @@
-const validPages = new Set(["overview", "beans", "recipes", "dial-in"]);
+const validPages = new Set(["overview", "beans", "recipes", "dial-in", "origins"]);
 
 export function createNavigation({ onPageChange, onOpenSettings }) {
   const pageButtons = [...document.querySelectorAll("[data-page-link]")];

@@ -20,7 +20,17 @@
     <button type="button" data-page-link="dial-in">Dial In</button>
   </nav>
 
-  <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
-    <span class="app-icon app-icon--md" style="--app-icon:url('{{ url_for('static', filename='icons/navigation/settings.svg') }}')" aria-hidden="true"></span>
-  </button>
+  <div class="topbar-actions">
+    <button class="icon-button origin-map-button" type="button" data-page-link="origins"
+      aria-label="Open coffee origin map" title="Coffee origin map">
+      <span class="app-icon app-icon--md"
+        style="--app-icon:url('{{ url_for('static', filename='icons/navigation/origin-map.svg') }}')"
+        aria-hidden="true"></span>
+    </button>
+    <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
+      <span class="app-icon app-icon--md"
+        style="--app-icon:url('{{ url_for('static', filename='icons/navigation/settings.svg') }}')"
+        aria-hidden="true"></span>
+    </button>
+  </div>
 </header>
