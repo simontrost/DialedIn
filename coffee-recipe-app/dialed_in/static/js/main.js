@@ -7,6 +7,7 @@ import { createBrewRecipeForm } from "./features/brew-recipe-form.js";
 import { createDialInLogForm } from "./features/dial-in-log-form.js";
 import { createQuickAdd } from "./features/quick-add.js";
 import { createSettings } from "./features/settings.js";
+import { createOriginEditorEnhancer } from "./features/origin-editor.js";
 import { createOverviewPage } from "./pages/overview.js";
 import { createBeansPage } from "./pages/beans.js";
 import { createRecipesPage } from "./pages/recipes.js";
@@ -44,6 +45,8 @@ const beanForm = createBeanForm({ state, api, showToast, onChanged: renderAll })
 const brewRecipeForm = createBrewRecipeForm({ state, api, showToast, onChanged: renderAll });
 const dialInLogForm = createDialInLogForm({ state, api, showToast, onChanged: renderAll });
 const settings = createSettings({ state, api, showToast, reloadState: loadState, onChanged: renderAll });
+
+createOriginEditorEnhancer();
 
 navigation = createNavigation({
   onPageChange(page) {

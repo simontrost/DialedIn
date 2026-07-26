@@ -1,6 +1,9 @@
 const SVG_NS = "http://www.w3.org/2000/svg";
 const WIDTH = 1000;
 const HEIGHT = 520;
+const DEFAULT_VIEW = { x: -210, y: -68, scale: 1.52 };
+const MIN_SCALE = 1.18;
+const MAX_SCALE = 10;
 
 const COUNTRY_ALIASES = new Map(Object.entries({
   "äthiopien": "ethiopia", "aethiopien": "ethiopia", "ethiopia": "ethiopia",
@@ -22,10 +25,21 @@ const COUNTRY_ALIASES = new Map(Object.entries({
   "burundi": "burundi",
   "tansania": "tanzania", "tanzania": "tanzania",
   "uganda": "uganda",
-  "kongo": "dem. rep. congo", "dr kongo": "dem. rep. congo",
+  "kongo": "dem. rep. congo",
+  "dr kongo": "dem. rep. congo",
+  "d r kongo": "dem. rep. congo",
+  "dr congo": "dem. rep. congo",
+  "d r congo": "dem. rep. congo",
+  "dem rep congo": "dem. rep. congo",
+  "dem rep kongo": "dem. rep. congo",
   "demokratische republik kongo": "dem. rep. congo",
+  "democratic republic of congo": "dem. rep. congo",
   "democratic republic of the congo": "dem. rep. congo",
-  "drc": "dem. rep. congo", "dem. rep. congo": "dem. rep. congo",
+  "congo kinshasa": "dem. rep. congo",
+  "drc": "dem. rep. congo",
+  "rd congo": "dem. rep. congo",
+  "rd kongo": "dem. rep. congo",
+  "dem. rep. congo": "dem. rep. congo",
   "papua-neuguinea": "papua new guinea", "papua new guinea": "papua new guinea",
   "el salvador": "el salvador",
   "nicaragua": "nicaragua",
@@ -35,7 +49,8 @@ const COUNTRY_ALIASES = new Map(Object.entries({
   "china": "china", "taiwan": "taiwan",
   "thailand": "thailand", "laos": "laos", "myanmar": "myanmar",
   "philippinen": "philippines", "philippines": "philippines",
-  "venezuela": "venezuela", "kuba": "cuba", "cuba": "cuba"
+  "venezuela": "venezuela", "kuba": "cuba", "cuba": "cuba",
+  "yemen": "yemen"
 }));
 
 function normalizeText(value) {
@@ -56,6 +71,13 @@ function countryKey(value) {
 
 function statusKey(value) {
   return normalizeText(value).replace(/\s+/g, "-");
+}
+
+function splitList(value) {
+  return String(value || "")
+    .split(/\s*[;,]\s*/)
+    .map(item => item.trim())
+    .filter(Boolean);
 }
 
 function project([lon, lat]) {
@@ -94,7 +116,6 @@ function centroid(geometry) {
   const points = geometryPoints(geometry);
   if (!points.length) return [0, 0];
 
-  // Longitude averaging needs special handling for countries crossing the dateline.
   const shifted = points.map(([lon, lat]) => [lon < -100 ? lon + 360 : lon, lat]);
   const minLon = Math.min(...shifted.map(point => point[0]));
   const maxLon = Math.max(...shifted.map(point => point[0]));
@@ -111,6 +132,25 @@ function displayStatus(status) {
   if (key === "out-of-beans") return "Out of beans";
   if (key === "wishlist") return "Wishlist";
   return "Active";
+}
+
+function viewToString(view) {
+  return `${view.x}|${view.y}|${view.scale}`;
+}
+
+function parseOriginEntries(bean) {
+  const countries = splitList(bean.originCountry || bean.origin_country || "");
+  const regions = splitList(bean.originRegion || bean.origin_region || "");
+  const maxLen = Math.max(countries.length, regions.length);
+  if (!maxLen) return [];
+  const entries = [];
+  for (let index = 0; index < maxLen; index += 1) {
+    entries.push({
+      country: countries[index] || countries[0] || "",
+      region: regions[index] || ""
+    });
+  }
+  return entries.filter(entry => entry.country);
 }
 
 export function createOriginsPage({ state, onEditBean, showToast }) {
@@ -131,7 +171,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   let featureByKey = new Map();
   let loadPromise;
   let activeGroups = [];
-  let transform = { x: 0, y: 0, scale: 1 };
+  let transform = { ...DEFAULT_VIEW };
   let pointerStart = null;
   let pinchStart = null;
 
@@ -140,7 +180,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   }
 
   function setTransform(next) {
-    const scale = Math.min(5, Math.max(1, next.scale));
+    const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, next.scale));
     const maxX = WIDTH * (scale - 1);
     const maxY = HEIGHT * (scale - 1);
     transform = {
@@ -153,7 +193,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
 
   function zoomBy(factor, centerX = WIDTH / 2, centerY = HEIGHT / 2) {
     const oldScale = transform.scale;
-    const nextScale = Math.min(5, Math.max(1, oldScale * factor));
+    const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, oldScale * factor));
     const ratio = nextScale / oldScale;
     setTransform({
       scale: nextScale,
@@ -163,7 +203,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   }
 
   function resetView() {
-    setTransform({ x: 0, y: 0, scale: 1 });
+    setTransform({ ...DEFAULT_VIEW });
   }
 
   async function ensureMap() {
@@ -182,6 +222,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
           ]));
           drawCountries();
           loading.classList.add("hidden");
+          applyTransform();
         })
         .catch(error => {
           loading.textContent = "The local map data could not be loaded.";
@@ -212,38 +253,40 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   function groupBeans() {
     const grouped = new Map();
     for (const bean of beansForFilter()) {
-      const rawCountry = bean.originCountry || bean.origin_country || "";
-      const key = countryKey(rawCountry);
-      const feature = featureByKey.get(key);
-      if (!key || !feature) continue;
+      for (const origin of parseOriginEntries(bean)) {
+        const key = countryKey(origin.country);
+        const feature = featureByKey.get(key);
+        if (!key || !feature) continue;
 
-      if (!grouped.has(key)) {
-        grouped.set(key, {
-          key,
-          label: rawCountry || feature.properties.name,
-          mapLabel: feature.properties.name,
-          feature,
-          beans: []
-        });
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            key,
+            label: origin.country || feature.properties.name,
+            mapLabel: feature.properties.name,
+            feature,
+            items: []
+          });
+        }
+        grouped.get(key).items.push({ bean, region: origin.region, countryLabel: origin.country });
       }
-      grouped.get(key).beans.push(bean);
     }
     return [...grouped.values()];
   }
 
   function openGroup(group) {
     sheetTitle.textContent = group.label || group.mapLabel;
-    sheetSubtitle.textContent = `${group.beans.length} ${group.beans.length === 1 ? "bean" : "beans"} from this origin`;
+    sheetSubtitle.textContent = `${group.items.length} ${group.items.length === 1 ? "bean entry" : "bean entries"} from this origin`;
     beanList.replaceChildren();
 
-    group.beans
+    group.items
       .slice()
-      .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")))
-      .forEach(bean => {
+      .sort((a, b) => String(a.bean.name || "").localeCompare(String(b.bean.name || "")))
+      .forEach(item => {
+        const bean = item.bean;
         const button = document.createElement("button");
         button.type = "button";
         button.className = "origin-bean-row";
-        const region = bean.originRegion || bean.origin_region || "";
+        const region = item.region || bean.originRegion || bean.origin_region || "";
         const roaster = bean.roaster || "Unknown roaster";
         button.innerHTML = `
           <span>
@@ -272,23 +315,23 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
       marker.setAttribute("transform", `translate(${x} ${y})`);
       marker.setAttribute("role", "button");
       marker.setAttribute("tabindex", "0");
-      marker.setAttribute("aria-label", `${group.label}, ${group.beans.length} beans`);
+      marker.setAttribute("aria-label", `${group.label}, ${group.items.length} bean entries`);
 
       const halo = document.createElementNS(SVG_NS, "circle");
       halo.setAttribute("class", "origin-marker-halo");
-      halo.setAttribute("r", group.beans.length > 1 ? "20" : "17");
+      halo.setAttribute("r", group.items.length > 1 ? "20" : "17");
 
       const circle = document.createElementNS(SVG_NS, "circle");
       circle.setAttribute("class", "origin-marker-dot");
-      circle.setAttribute("r", group.beans.length > 1 ? "14" : "11");
+      circle.setAttribute("r", group.items.length > 1 ? "14" : "11");
 
       marker.append(halo, circle);
-      if (group.beans.length > 1) {
+      if (group.items.length > 1) {
         const text = document.createElementNS(SVG_NS, "text");
         text.setAttribute("class", "origin-marker-count");
         text.setAttribute("text-anchor", "middle");
         text.setAttribute("dy", ".35em");
-        text.textContent = group.beans.length;
+        text.textContent = group.items.length;
         marker.append(text);
       } else {
         const pin = document.createElementNS(SVG_NS, "path");
@@ -312,9 +355,9 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
 
     document.querySelector("#originCountryCount").textContent =
       `${activeGroups.length} ${activeGroups.length === 1 ? "origin" : "origins"}`;
-    const beanCount = activeGroups.reduce((sum, group) => sum + group.beans.length, 0);
+    const beanCount = activeGroups.reduce((sum, group) => sum + group.items.length, 0);
     document.querySelector("#originBeanCount").textContent =
-      `${beanCount} ${beanCount === 1 ? "bean" : "beans"} placed`;
+      `${beanCount} ${beanCount === 1 ? "bean placed" : "bean entries placed"}`;
 
     empty.classList.toggle("hidden", activeGroups.length > 0);
   }
@@ -326,6 +369,10 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
 
   async function activate() {
     await render();
+    const current = viewToString(transform);
+    if (current === viewToString({ x: 0, y: 0, scale: 1 })) {
+      resetView();
+    }
     requestAnimationFrame(() => map.focus?.({ preventScroll: true }));
   }
 
@@ -334,8 +381,8 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
     void render();
   });
   document.querySelector("#originResetViewButton").addEventListener("click", resetView);
-  document.querySelector("#originZoomInButton").addEventListener("click", () => zoomBy(1.35));
-  document.querySelector("#originZoomOutButton").addEventListener("click", () => zoomBy(1 / 1.35));
+  document.querySelector("#originZoomInButton").addEventListener("click", () => zoomBy(1.45));
+  document.querySelector("#originZoomOutButton").addEventListener("click", () => zoomBy(1 / 1.45));
   document.querySelector("#originSheetClose").addEventListener("click", () => sheet.classList.add("hidden"));
 
   map.addEventListener("wheel", event => {
@@ -343,7 +390,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
     const rect = map.getBoundingClientRect();
     const centerX = ((event.clientX - rect.left) / rect.width) * WIDTH;
     const centerY = ((event.clientY - rect.top) / rect.height) * HEIGHT;
-    zoomBy(event.deltaY < 0 ? 1.18 : 1 / 1.18, centerX, centerY);
+    zoomBy(event.deltaY < 0 ? 1.22 : 1 / 1.22, centerX, centerY);
   }, { passive: false });
 
   viewport.addEventListener("pointerdown", event => {
@@ -376,7 +423,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
       const rect = map.getBoundingClientRect();
       const centerX = ((((a.x + b.x) / 2) - rect.left) / rect.width) * WIDTH;
       const centerY = ((((a.y + b.y) / 2) - rect.top) / rect.height) * HEIGHT;
-      const nextScale = Math.min(5, Math.max(1, pinchStart.scale * (distance / pinchStart.distance)));
+      const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, pinchStart.scale * (distance / pinchStart.distance)));
       const ratio = nextScale / transform.scale;
       setTransform({
         scale: nextScale,
@@ -413,6 +460,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   viewport.addEventListener("pointerup", releasePointer);
   viewport.addEventListener("pointercancel", releasePointer);
 
+  resetView();
   return { render, activate };
 }
 
