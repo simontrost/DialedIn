@@ -6,6 +6,11 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
   const title = document.querySelector("#brewRecipeDialogTitle");
   const beanInput = document.querySelector("#brewRecipeBeanInput");
   const methodInput = document.querySelector("#brewRecipeMethodInput");
+  const methodPicker = document.querySelector("#brewRecipeMethodPicker");
+  const methodTrigger = document.querySelector("#brewRecipeMethodTrigger");
+  const methodMenu = document.querySelector("#brewRecipeMethodMenu");
+  const methodIcon = document.querySelector("#brewRecipeMethodIcon");
+  const methodLabel = document.querySelector("#brewRecipeMethodLabel");
   const nameInput = document.querySelector("#brewRecipeNameInput");
   const description = document.querySelector("#methodDescription");
   const fieldsContainer = document.querySelector("#dynamicRecipeFields");
@@ -18,6 +23,44 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
 
   let draftSteps = [];
 
+  function methodIconUrl(method) {
+    const icon = method?.icon || method?.id || "custom-method";
+    return `/static/icons/methods/${encodeURIComponent(icon)}.svg`;
+  }
+
+  function closeMethodMenu() {
+    methodPicker.classList.remove("is-open");
+    methodMenu.classList.add("hidden");
+    methodTrigger.setAttribute("aria-expanded", "false");
+  }
+
+  function syncMethodPicker() {
+    const selected = methodById(state, methodInput.value);
+    methodMenu.innerHTML = state.brewingMethods.map(method => {
+      const active = method.id === methodInput.value;
+      return `<button class="method-select-option" type="button" role="option" aria-selected="${active}" data-method-value="${escapeHtml(method.id)}">
+        <span class="app-icon" style="--app-icon:url('${methodIconUrl(method)}')" aria-hidden="true"></span>
+        <span>${escapeHtml(method.name)}</span>
+        <span class="method-select-check" aria-hidden="true">✓</span>
+      </button>`;
+    }).join("");
+    if (selected) {
+      methodLabel.textContent = selected.name;
+      methodIcon.style.setProperty("--app-icon", `url('${methodIconUrl(selected)}')`);
+    }
+  }
+
+  function applyMethodSelection(methodId, { resetFields = true } = {}) {
+    if (![...methodInput.options].some(option => option.value === methodId)) return;
+    methodInput.value = methodId;
+    syncMethodPicker();
+    if (!resetFields) return;
+    const method = methodById(state, methodId);
+    draftSteps = method.defaultSteps?.map(step => ({ ...step })) || [];
+    if (!state.editingBrewRecipeId) nameInput.value = defaultRecipeName(method.id);
+    renderMethodFields({});
+  }
+
   function fillSelects({ beanId = beanInput.value, methodId = methodInput.value } = {}) {
     beanInput.innerHTML = state.beans.length
       ? state.beans.map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
@@ -28,6 +71,7 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
 
     if ([...beanInput.options].some(option => option.value === beanId)) beanInput.value = beanId;
     if ([...methodInput.options].some(option => option.value === methodId)) methodInput.value = methodId;
+    syncMethodPicker();
   }
 
   function fieldHtml(field, value) {
@@ -173,11 +217,28 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     }
   }
 
-  methodInput.addEventListener("change", () => {
-    const method = methodById(state, methodInput.value);
-    draftSteps = method.defaultSteps?.map(step => ({ ...step })) || [];
-    if (!state.editingBrewRecipeId) nameInput.value = defaultRecipeName(method.id);
-    renderMethodFields({});
+  methodTrigger.addEventListener("click", () => {
+    const willOpen = methodMenu.classList.contains("hidden");
+    if (willOpen) {
+      methodPicker.classList.add("is-open");
+      methodMenu.classList.remove("hidden");
+      methodTrigger.setAttribute("aria-expanded", "true");
+      methodMenu.querySelector('[aria-selected="true"]')?.focus();
+    } else {
+      closeMethodMenu();
+    }
+  });
+  methodMenu.addEventListener("click", event => {
+    const option = event.target.closest("[data-method-value]");
+    if (!option) return;
+    closeMethodMenu();
+    applyMethodSelection(option.dataset.methodValue);
+  });
+  document.addEventListener("click", event => {
+    if (!methodPicker.contains(event.target)) closeMethodMenu();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeMethodMenu();
   });
   beanInput.addEventListener("change", () => {
     if (!state.editingBrewRecipeId) nameInput.value = defaultRecipeName(methodInput.value);

@@ -48,3 +48,10 @@ dialog form,.quick-add-content { padding:26px; }
 
 .dial-log-selection{margin-bottom:12px}
 @media(max-width:700px){.dial-log-selection{grid-template-columns:1fr}}
+
+/* Icon method picker used by the recipe dialog. */
+.brew-method-field{position:relative}
+.brew-method-select .method-select-menu{left:0;right:auto;width:100%;min-width:280px}
+@media(max-width:700px){
+  .brew-method-select .method-select-menu{position:fixed;z-index:120;left:16px;right:16px;top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:auto;max-height:min(520px,68dvh)}
+}

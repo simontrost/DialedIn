@@ -29,3 +29,9 @@
   .measurement-mobile-details dd{margin:4px 0 0;font-size:.8rem;font-weight:700}
   .measurement-mobile-card.invalid-measurement{opacity:.58}
 }
+
+/* Keep the maximum-step control as one clean input shell on iOS. */
+.compact-field .input-with-unit>input{height:auto;padding:0;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;-webkit-appearance:none;appearance:none}
+.compact-field .input-with-unit>input:focus{outline:0;box-shadow:none!important}
+.compact-field .input-with-unit:focus-within{border-color:rgba(201,135,74,.82);box-shadow:0 0 0 4px rgba(201,135,74,.12)}
+.recommendation-card #recommendationMeta{font-weight:700;text-transform:capitalize}

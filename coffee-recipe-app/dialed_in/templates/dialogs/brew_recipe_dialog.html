@@ -13,10 +13,20 @@
         <span>Bean *</span>
         <select id="brewRecipeBeanInput" required></select>
       </label>
-      <label class="field">
+      <div class="field brew-method-field">
         <span>Method *</span>
-        <select id="brewRecipeMethodInput" required></select>
-      </label>
+        <select class="hidden" id="brewRecipeMethodInput" required aria-hidden="true" tabindex="-1"></select>
+        <div class="method-select brew-method-select" id="brewRecipeMethodPicker">
+          <button class="method-select-trigger" id="brewRecipeMethodTrigger" type="button"
+            aria-haspopup="listbox" aria-expanded="false" aria-controls="brewRecipeMethodMenu">
+            <span class="method-select-current-icon app-icon" id="brewRecipeMethodIcon" aria-hidden="true"></span>
+            <span class="method-select-current-label" id="brewRecipeMethodLabel">Espresso</span>
+            <span class="method-select-chevron" aria-hidden="true"></span>
+          </button>
+          <div class="method-select-menu hidden" id="brewRecipeMethodMenu" role="listbox"
+            aria-label="Brewing method"></div>
+        </div>
+      </div>
       <label class="field full">
         <span>Recipe name *</span>
         <input id="brewRecipeNameInput" required maxlength="80" placeholder="e.g. Everyday V60">

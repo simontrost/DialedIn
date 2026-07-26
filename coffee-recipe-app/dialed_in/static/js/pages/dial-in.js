@@ -147,8 +147,8 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
       });
       recommendationRecipeId = recipe.id;
       recommended.textContent = formatNumber(result.recommendedGrind, 3);
-      const sign = result.change > 0 ? "+" : "";
-      recommendationMeta.textContent = `${result.confidence} confidence · ${result.mode.replaceAll("_", " ")} · ${sign}${formatNumber(result.change, 3)} from latest · ${result.message}`;
+      const confidence = String(result.confidence || "low");
+      recommendationMeta.textContent = `${confidence.charAt(0).toUpperCase()}${confidence.slice(1)} confidence`;
       recommendationCard.dataset.confidence = result.confidence;
     } catch (error) {
       showToast(error.message);
