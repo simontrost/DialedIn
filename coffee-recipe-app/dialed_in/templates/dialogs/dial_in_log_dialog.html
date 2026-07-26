@@ -8,7 +8,17 @@
       <button class="dialog-close" type="button" data-close-dial-log-dialog aria-label="Close dialog">×</button>
     </div>
 
-    <div class="selected-log-context" id="selectedLogContext">Choose a bean and recipe on the Dial In page first.</div>
+    <div class="form-grid dial-log-selection">
+      <label class="field">
+        <span>Bean</span>
+        <select id="logBeanInput" required></select>
+      </label>
+      <label class="field">
+        <span>Recipe</span>
+        <select id="logRecipeInput" required></select>
+      </label>
+    </div>
+    <div class="selected-log-context" id="selectedLogContext">Choose a bean and recipe.</div>
     <div class="form-grid">
       <label class="field full">
         <span>Brewed at</span>

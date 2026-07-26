@@ -11,7 +11,6 @@ function methodIconUrl(method) {
 export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, onAddBean, onEditRecipe, onAddRecipe }) {
   const grid = document.querySelector("#overviewBeanGrid");
   const empty = document.querySelector("#overviewEmptyState");
-  const methodFilter = document.querySelector("#overviewMethodFilter");
   const methodPicker = document.querySelector("#overviewMethodPicker");
   const methodTrigger = document.querySelector("#overviewMethodTrigger");
   const methodMenu = document.querySelector("#overviewMethodMenu");
@@ -22,6 +21,7 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
   const measurementCount = document.querySelector("#measurementCount");
   const machineLabel = document.querySelector("#machineLabel");
   const grinderLabel = document.querySelector("#grinderLabel");
+  let selectedMethodId = "espresso";
 
   function setGreeting() {
     const hour = new Date().getHours();
@@ -29,7 +29,7 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
   }
 
   function selectedMethod() {
-    return state.brewingMethods.find(method => method.id === methodFilter.value) || state.brewingMethods[0];
+    return state.brewingMethods.find(method => method.id === selectedMethodId) || state.brewingMethods[0];
   }
 
   function closeMethodMenu() {
@@ -41,21 +41,17 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
   function updateMethodTrigger() {
     const method = selectedMethod();
     if (!method) return;
+    selectedMethodId = method.id;
     methodLabel.textContent = method.name;
     methodIcon.style.setProperty("--app-icon", `url('${methodIconUrl(method)}')`);
   }
 
   function syncMethodOptions() {
-    const selected = methodFilter.value || "espresso";
-    methodFilter.innerHTML = state.brewingMethods
-      .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.name)}</option>`)
-      .join("");
-    methodFilter.value = [...methodFilter.options].some(option => option.value === selected)
-      ? selected
-      : (state.brewingMethods[0]?.id || "");
-
+    if (!state.brewingMethods.some(method => method.id === selectedMethodId)) {
+      selectedMethodId = state.brewingMethods[0]?.id || "";
+    }
     methodMenu.innerHTML = state.brewingMethods.map(method => {
-      const active = method.id === methodFilter.value;
+      const active = method.id === selectedMethodId;
       return `<button class="method-select-option" type="button" role="option" aria-selected="${active}" data-method-value="${escapeHtml(method.id)}">
         <span class="app-icon" style="--app-icon:url('${methodIconUrl(method)}')" aria-hidden="true"></span>
         <span>${escapeHtml(method.name)}</span>
@@ -71,7 +67,7 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
       .filter(bean => bean.status !== "wishlist")
       .sort((a, b) => Number(b.favorite) - Number(a.favorite) || new Date(b.updatedAt) - new Date(a.updatedAt));
     grid.innerHTML = beans.map(bean => beanCardHtml(bean, state, {
-      dashboardMethod: methodFilter.value,
+      dashboardMethod: selectedMethodId,
       showRecipe: true
     })).join("");
     empty.classList.toggle("hidden", beans.length > 0);
@@ -108,7 +104,7 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
   methodMenu?.addEventListener("click", event => {
     const option = event.target.closest("[data-method-value]");
     if (!option) return;
-    methodFilter.value = option.dataset.methodValue;
+    selectedMethodId = option.dataset.methodValue;
     closeMethodMenu();
     render();
   });

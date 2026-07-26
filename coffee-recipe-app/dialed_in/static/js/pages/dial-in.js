@@ -13,6 +13,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
   const emptyAddButton = document.querySelector("#dialInEmptyAddButton");
   const calculateButton = document.querySelector("#calculateGrindButton");
   const tableBody = document.querySelector("#measurementTableBody");
+  const mobileList = document.querySelector("#measurementMobileList");
   const empty = document.querySelector("#dialInEmptyState");
   const targetSummary = document.querySelector("#dialTargetSummary");
   const recipeSummary = document.querySelector("#dialRecipeSummary");
@@ -78,6 +79,28 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
         <td>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</td>
         <td><button class="table-delete-button" type="button" data-delete-log="${log.id}" aria-label="Delete measurement">×</button></td>
       </tr>`).join("");
+
+    mobileList.innerHTML = logs.map(log => `
+      <article class="measurement-mobile-card ${log.valid ? "" : "invalid-measurement"}">
+        <div class="measurement-mobile-summary">
+          <div class="measurement-mobile-date">
+            <strong>${escapeHtml(formatDateTime(log.brewedAt))}</strong>
+            ${log.valid ? "" : '<small class="invalid-label">Excluded</small>'}
+          </div>
+          <div class="measurement-mobile-primary"><span>Grind</span><strong>${formatNumber(log.grind, 2)}</strong></div>
+          <div class="measurement-mobile-primary"><span>Time</span><strong>${formatNumber(log.time, 1)} s</strong></div>
+          <button class="table-delete-button" type="button" data-delete-log="${log.id}" aria-label="Delete measurement">×</button>
+        </div>
+        <details class="measurement-mobile-details">
+          <summary>Show all details</summary>
+          <dl>
+            <div><dt>Dose</dt><dd>${formatNumber(log.dose, 1)} g</dd></div>
+            <div><dt>Yield</dt><dd>${formatNumber(log.beverageYield, 1)} g</dd></div>
+            <div><dt>Taste</dt><dd>${escapeHtml(tasteLabels[log.taste] || log.taste)}</dd></div>
+            <div><dt>Rating</dt><dd>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</dd></div>
+          </dl>
+        </details>
+      </article>`).join("");
   }
 
   function render() {
@@ -171,9 +194,11 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
   addButton.addEventListener("click", addMeasurement);
   emptyAddButton.addEventListener("click", addMeasurement);
   calculateButton.addEventListener("click", calculate);
-  tableBody.addEventListener("click", event => {
+  function handleDeleteClick(event) {
     const button = event.target.closest("[data-delete-log]");
     if (button) deleteLog(button.dataset.deleteLog);
-  });
+  }
+  tableBody.addEventListener("click", handleDeleteClick);
+  mobileList.addEventListener("click", handleDeleteClick);
   return { render, selectRecipe };
 }

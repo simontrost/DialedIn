@@ -1,8 +1,10 @@
-import { beanById, methodById, recipeById, toLocalDateTimeInput } from "../core/utils.js";
+import { beanById, escapeHtml, methodById, recipeById, toLocalDateTimeInput } from "../core/utils.js";
 
 export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const dialog = document.querySelector("#dialInLogDialog");
   const form = document.querySelector("#dialInLogForm");
+  const beanInput = document.querySelector("#logBeanInput");
+  const recipeInput = document.querySelector("#logRecipeInput");
   const context = document.querySelector("#selectedLogContext");
   const brewedAt = document.querySelector("#logBrewedAtInput");
   const grind = document.querySelector("#logGrindInput");
@@ -13,29 +15,73 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const rating = document.querySelector("#logRatingInput");
   const notes = document.querySelector("#logNotesInput");
   const valid = document.querySelector("#logValidInput");
-  let currentBeanId = "";
-  let currentRecipeId = "";
 
-  function open({ beanId = state.selectedDialBeanId, recipeId = state.selectedDialRecipeId } = {}) {
-    const recipe = recipeById(state, recipeId);
-    const bean = beanById(state, beanId || recipe?.beanId);
+  function dialableRecipes(beanId) {
+    return state.brewRecipes.filter(recipe => recipe.beanId === beanId && methodById(state, recipe.method)?.supportsDialIn);
+  }
+
+  function syncBeanOptions(preferredBeanId = "") {
+    beanInput.innerHTML = state.beans.length
+      ? state.beans.map(bean => `<option value="${escapeHtml(bean.id)}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
+      : '<option value="">No beans available</option>';
+    beanInput.value = [...beanInput.options].some(option => option.value === preferredBeanId)
+      ? preferredBeanId
+      : (state.beans[0]?.id || "");
+  }
+
+  function syncRecipeOptions(preferredRecipeId = "") {
+    const recipes = dialableRecipes(beanInput.value);
+    recipeInput.innerHTML = recipes.length
+      ? recipes.map(recipe => {
+        const method = methodById(state, recipe.method);
+        return `<option value="${escapeHtml(recipe.id)}">${escapeHtml(recipe.name)} · ${escapeHtml(method?.name || recipe.method)}</option>`;
+      }).join("")
+      : '<option value="">No dial-in recipe for this bean</option>';
+    recipeInput.value = [...recipeInput.options].some(option => option.value === preferredRecipeId)
+      ? preferredRecipeId
+      : (recipes[0]?.id || "");
+    recipeInput.disabled = !recipes.length;
+  }
+
+  function applyRecipeDefaults({ overwrite = true } = {}) {
+    const recipe = recipeById(state, recipeInput.value);
+    const bean = beanById(state, beanInput.value || recipe?.beanId);
     if (!recipe || !bean) {
-      showToast("Choose a bean and recipe first");
+      context.textContent = "Choose a bean with a dial-in-capable recipe.";
+      return;
+    }
+    const method = methodById(state, recipe.method);
+    context.textContent = `${bean.name} · ${method?.name || recipe.method} · ${recipe.name}`;
+    if (overwrite || grind.value === "") grind.value = recipe.values?.grind ?? "";
+    if (overwrite || time.value === "") time.value = recipe.values?.targetTime ?? "";
+    if (overwrite || dose.value === "") dose.value = recipe.values?.dose ?? "";
+    if (overwrite || beverageYield.value === "") {
+      beverageYield.value = recipe.values?.beverageYield ?? recipe.values?.waterAmount ?? "";
+    }
+  }
+
+  function open({ beanId = "", recipeId = "" } = {}) {
+    const preferredRecipe = recipeById(state, recipeId);
+    const preferredBeanId = beanId || preferredRecipe?.beanId || state.selectedDialBeanId || "";
+    const preferredRecipeId = recipeId || (preferredBeanId === state.selectedDialBeanId ? state.selectedDialRecipeId : "") || "";
+
+    syncBeanOptions(preferredBeanId);
+    syncRecipeOptions(preferredRecipeId);
+    if (!recipeInput.value) {
+      showToast("Create a dial-in-capable recipe first");
       return false;
     }
-    currentBeanId = bean.id;
-    currentRecipeId = recipe.id;
-    const method = methodById(state, recipe.method);
-    context.textContent = `${bean.name} · ${method.name} · ${recipe.name}`;
+
     brewedAt.value = toLocalDateTimeInput();
-    grind.value = recipe.values?.grind ?? "";
-    time.value = recipe.values?.targetTime ?? "";
-    dose.value = recipe.values?.dose ?? "";
-    beverageYield.value = recipe.values?.beverageYield ?? recipe.values?.waterAmount ?? "";
+    grind.value = "";
+    time.value = "";
+    dose.value = "";
+    beverageYield.value = "";
     taste.value = "neutral";
     rating.value = "";
     notes.value = "";
     valid.checked = true;
+    applyRecipeDefaults();
     dialog.showModal();
     return true;
   }
@@ -43,12 +89,18 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   async function save(event) {
     event.preventDefault();
     if (!form.reportValidity()) return;
+    const recipe = recipeById(state, recipeInput.value);
+    const bean = beanById(state, beanInput.value);
+    if (!recipe || !bean) {
+      showToast("Choose a bean and recipe");
+      return;
+    }
     try {
       const saved = await api("/api/dial-in-logs", {
         method: "POST",
         body: JSON.stringify({
-          beanId: currentBeanId,
-          brewRecipeId: currentRecipeId,
+          beanId: bean.id,
+          brewRecipeId: recipe.id,
           brewedAt: new Date(brewedAt.value).toISOString(),
           grind: Number(grind.value),
           time: Number(time.value),
@@ -61,6 +113,8 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
         })
       });
       state.dialInLogs.unshift(saved);
+      state.selectedDialBeanId = bean.id;
+      state.selectedDialRecipeId = recipe.id;
       dialog.close();
       onChanged(saved);
       showToast("Measurement saved");
@@ -69,6 +123,11 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
     }
   }
 
+  beanInput.addEventListener("change", () => {
+    syncRecipeOptions();
+    applyRecipeDefaults();
+  });
+  recipeInput.addEventListener("change", () => applyRecipeDefaults());
   form.addEventListener("submit", save);
   document.querySelectorAll("[data-close-dial-log-dialog]").forEach(button => button.addEventListener("click", () => dialog.close()));
   return { open };
