@@ -307,7 +307,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
         button.className = "origin-bean-row";
         const region = item.region || "";
         const roaster = bean.roaster || "Unknown roaster";
-        const componentText = [item.component, item.share ? `${item.share}%` : ""].filter(Boolean).join(" · ");
+        const componentText = item.component || "";
         button.innerHTML = `
           <span>
             <strong>${escapeHtml(bean.name || "Unnamed bean")}</strong>

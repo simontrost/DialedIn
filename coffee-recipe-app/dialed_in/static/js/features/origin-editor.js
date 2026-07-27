@@ -69,20 +69,16 @@ function splitList(value) {
 
 function parseCountryMetadata(value) {
   const match = String(value || "").trim().match(/^(.*?)\s*\[([^\]]+)\]\s*$/);
-  if (!match) return { country: String(value || "").trim(), component: "", share: "" };
-  const metadata = match[2].trim();
-  const shareMatch = metadata.match(/(\d+(?:[.,]\d+)?)\s*%/);
-  const component = metadata.replace(/(\d+(?:[.,]\d+)?)\s*%/, "").trim();
-  return {
-    country: match[1].trim(),
-    component,
-    share: shareMatch ? shareMatch[1].replace(",", ".") : ""
-  };
+  if (!match) return { country: String(value || "").trim(), component: "" };
+  const component = match[2]
+    .replace(/(\d+(?:[.,]\d+)?)\s*%/g, "")
+    .replace(/[·|/]+$/g, "")
+    .trim();
+  return { country: match[1].trim(), component };
 }
 
-function formatCountryMetadata(country, component, share) {
-  const details = [component, share ? `${share}%` : ""].filter(Boolean).join(" ");
-  return details ? `${country} [${details}]` : country;
+function formatCountryMetadata(country, component) {
+  return component ? `${country} [${component}]` : country;
 }
 
 function detectOption(country) {
@@ -144,22 +140,21 @@ function ensureStyles() {
     .origin-editor-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .origin-editor-title{display:block;font-size:.78rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted,#7d6d63)}
     .origin-editor-subtitle{display:block;margin-top:3px;font-size:.72rem;color:var(--muted,#7d6d63)}
-    .origin-editor-list{display:grid;gap:10px}
-    .origin-editor-row{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr) minmax(0,.9fr) auto;gap:10px;align-items:start;padding:14px;border:1px solid var(--line,#ddd2c7);border-radius:18px;background:rgba(255,255,255,.68)}
-    .origin-editor-row label{display:block;margin:0 0 6px;font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#7d6d63)}
-    .origin-editor-row select,.origin-editor-row input{width:100%;min-height:50px;border:1px solid var(--line,#ddd2c7);border-radius:16px;padding:0 15px;color:var(--ink,#2f231d);background:#fff;font:inherit}
+    .origin-editor-list{display:grid;gap:12px}
+    .origin-editor-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) auto;gap:12px;align-items:end;padding:14px;border:1px solid var(--line,#ddd2c7);border-radius:18px;background:rgba(255,255,255,.58)}
+    .origin-editor-field{min-width:0}
+    .origin-editor-row label{display:block;margin:0 0 7px;font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#7d6d63)}
+    .origin-editor-control{box-sizing:border-box;width:100%;height:50px;margin:0;border:1px solid var(--line,#ddd2c7);border-radius:16px;padding:0 14px;color:var(--ink,#2f231d);background:#fff;font:inherit;box-shadow:none;outline:none}
+    select.origin-editor-control{appearance:auto}
+    .origin-editor-control:focus{border-color:var(--crema-500,#d89a5b);box-shadow:0 0 0 3px rgba(216,154,91,.13)}
     .origin-editor-country-stack{display:grid;gap:8px}
-    .origin-editor-component-grid{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:8px}
-    .origin-editor-share-wrap{position:relative}
-    .origin-editor-share-wrap::after{content:"%";position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted,#7d6d63);font-weight:700}
-    .origin-editor-share{padding-right:31px !important}
-    .origin-editor-row button{width:36px;height:36px;align-self:end;border:1px solid var(--line,#ddd2c7);border-radius:50%;background:#fff;color:var(--espresso-700,#5f4335);font-size:1.15rem;line-height:1}
+    .origin-editor-remove{width:38px;height:38px;margin-bottom:6px;border:1px solid var(--line,#ddd2c7);border-radius:50%;background:#fff;color:var(--espresso-700,#5f4335);font-size:1.15rem;line-height:1;box-shadow:none}
     .origin-editor-add{display:inline-flex;align-items:center;gap:8px;justify-content:center;min-height:42px;padding:0 14px;border:1px dashed rgba(95,67,53,.36);border-radius:999px;background:rgba(255,255,255,.58);color:var(--espresso-700,#5f4335);font-weight:700}
     .origin-editor-add span{font-size:1.15rem;line-height:1}
     .origin-editor-hidden-field{display:none !important}
     @media(max-width:700px){
-      .origin-editor-row{grid-template-columns:1fr;gap:12px}
-      .origin-editor-row button{justify-self:end}
+      .origin-editor-row{grid-template-columns:1fr;gap:12px;align-items:start}
+      .origin-editor-remove{justify-self:end;margin:0}
     }
   `;
   document.head.append(style);
@@ -179,6 +174,7 @@ function getFieldContainer(input) {
 
 function createSelect(selectedLabel) {
   const select = document.createElement("select");
+  select.className = "origin-editor-control origin-editor-country";
   for (const optionLabel of KNOWN_ORIGIN_OPTIONS) {
     const option = document.createElement("option");
     option.value = optionLabel;
@@ -244,10 +240,9 @@ export function createOriginEditorEnhancer() {
       const custom = row.querySelector(".origin-editor-custom");
       const region = row.querySelector(".origin-editor-region");
       const component = row.querySelector(".origin-editor-component");
-      const share = row.querySelector(".origin-editor-share");
       const country = select.value === "Custom" ? custom.value.trim() : select.value.trim();
       return {
-        country: formatCountryMetadata(country, component.value, share.value.trim()),
+        country: formatCountryMetadata(country, component.value),
         region: region.value.trim()
       };
     }).filter(entry => entry.country || entry.region);
@@ -262,8 +257,7 @@ export function createOriginEditorEnhancer() {
     const custom = row.querySelector(".origin-editor-custom");
     const region = row.querySelector(".origin-editor-region");
     const component = row.querySelector(".origin-editor-component");
-    const share = row.querySelector(".origin-editor-share");
-    const remove = row.querySelector("button");
+    const remove = row.querySelector(".origin-editor-remove");
 
     function toggleCustom() {
       const useCustom = select.value === "Custom";
@@ -277,10 +271,6 @@ export function createOriginEditorEnhancer() {
     custom.addEventListener("input", serialiseRows);
     region.addEventListener("input", serialiseRows);
     component.addEventListener("change", serialiseRows);
-    share.addEventListener("input", () => {
-      if (share.value !== "") share.value = String(Math.min(100, Math.max(0, Number(share.value) || 0)));
-      serialiseRows();
-    });
     remove.addEventListener("click", () => {
       row.remove();
       if (!list.children.length) addRow();
@@ -293,7 +283,7 @@ export function createOriginEditorEnhancer() {
   function updateRemoveButtons() {
     const rows = [...list.querySelectorAll(".origin-editor-row")];
     rows.forEach((row, index) => {
-      const button = row.querySelector("button");
+      const button = row.querySelector(".origin-editor-remove");
       button.hidden = rows.length === 1;
       button.title = `Remove origin ${index + 1}`;
       button.setAttribute("aria-label", `Remove origin ${index + 1}`);
@@ -306,29 +296,26 @@ export function createOriginEditorEnhancer() {
     const row = document.createElement("div");
     row.className = "origin-editor-row";
     row.innerHTML = `
-      <div>
+      <div class="origin-editor-field">
         <label>Origin country</label>
         <div class="origin-editor-country-stack"></div>
       </div>
-      <div>
+      <div class="origin-editor-field">
         <label>Region</label>
-        <input type="text" class="origin-editor-region" placeholder="Optional region" value="${escapeHtml(entry.region || "")}">
+        <input type="text" class="origin-editor-control origin-editor-region" placeholder="Optional region" value="${escapeHtml(entry.region || "")}">
       </div>
-      <div>
+      <div class="origin-editor-field">
         <label>Bean component</label>
-        <div class="origin-editor-component-grid">
-          <select class="origin-editor-component"></select>
-          <span class="origin-editor-share-wrap"><input type="number" min="0" max="100" step="1" inputmode="decimal" class="origin-editor-share" placeholder="Share" value="${escapeHtml(metadata.share || "")}"></span>
-        </div>
+        <select class="origin-editor-control origin-editor-component"></select>
       </div>
-      <button type="button" aria-label="Remove origin">−</button>
+      <button type="button" class="origin-editor-remove" aria-label="Remove origin">−</button>
     `;
 
     const stack = row.querySelector(".origin-editor-country-stack");
     const select = createSelect(selectedOption);
     const custom = document.createElement("input");
     custom.type = "text";
-    custom.className = "origin-editor-custom";
+    custom.className = "origin-editor-control origin-editor-custom";
     custom.placeholder = "Custom origin country";
     custom.value = selectedOption === "Custom" ? metadata.country : "";
     custom.hidden = selectedOption !== "Custom";
