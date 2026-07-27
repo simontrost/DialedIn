@@ -3,7 +3,7 @@
 A mobile web app for your espresso machine and grinder. All data remains inside your home network and is stored centrally in a SQLite database.
 
 <p align="center">
-  <img src="DialedIn_Logo.png" alt="Dialed In Logo" width="400">
+  <img src="assets/DialedIn_Logo.png" alt="Dialed In Logo" width="400">
 </p>
 
 ## Features

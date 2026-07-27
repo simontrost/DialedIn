@@ -1,7 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-<path d="M9 10h27L28 30H17L9 10Z"/>
-  <path d="M13 14h19M16 20h14M18 26h10"/>
-  <path d="M17 30v5h11v-5"/>
-  <path d="M11 38h23"/>
-  <path d="M36 14h2a5 5 0 0 1 0 10h-4"/>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.7 4.2H16.3L13 11.8H9L5.7 4.2Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.2 6H14.6" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.9 8H13.9" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 10H13.8" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 11.8H13V16H9V11.8Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 11H14.6667C15.2855 11 15.879 11.2107 16.3166 11.5858C16.7542 11.9609 17 12.4696 17 13C17 13.5304 16.7542 14.0391 16.3166 14.4142C15.879 14.7893 15.2855 15 14.6667 15H13.8333" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7 18L16 18" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
