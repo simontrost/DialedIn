@@ -6,6 +6,18 @@ VALID_ROASTS = {"light", "medium", "dark"}
 VALID_STATUSES = {"active", "empty", "wishlist"}
 
 
+COUNTRY_ALIASES = {
+    "dr kongo": "Democratic Republic of the Congo",
+    "dr congo": "Democratic Republic of the Congo",
+    "democratic republic of congo": "Democratic Republic of the Congo",
+    "kongo-kinshasa": "Democratic Republic of the Congo",
+}
+
+
+def _normalize_country(value: str) -> str:
+    return COUNTRY_ALIASES.get(value.lower(), value)
+
+
 def _text(payload: dict[str, Any], key: str, maximum: int, default: str = "") -> str:
     value = payload.get(key, default)
     if value is None:
@@ -31,8 +43,8 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": name,
         "roaster": _text(payload, "roaster", 80),
-        "originCountry": _text(payload, "originCountry", 60),
-        "originRegion": _text(payload, "originRegion", 80),
+        "originCountry": _normalize_country(_text(payload, "originCountry", 100)),
+        "originRegion": _text(payload, "originRegion", 100),
         "blend": _text(payload, "blend", 80),
         "roast": roast,
         "status": status,
