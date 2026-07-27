@@ -1,18 +1,38 @@
 {
-  "name": "Dialed In – Espresso Recipe Book",
+  "id": "/",
+  "name": "Dialed In – Coffee Recipe Book",
   "short_name": "Dialed In",
-  "description": "A local espresso recipe manager with centralized storage on a Raspberry Pi.",
-  "start_url": "./",
+  "description": "A local coffee app that helps you keep track of your beans and recipes.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#fffaf4",
   "theme_color": "#24170f",
   "lang": "en",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
