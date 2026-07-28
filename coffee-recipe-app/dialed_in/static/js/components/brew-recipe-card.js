@@ -20,7 +20,7 @@ export function brewRecipeCardHtml(recipe, state) {
         ${recipe.notes ? `<p class="notes-preview">${escapeHtml(recipe.notes)}</p>` : ""}
       </div>
       <footer class="brew-recipe-footer">
-        <button class="edit-button" type="button" data-edit-recipe="${recipe.id}">Edit recipe</button>
+        <button class="edit-button icon-only-button" type="button" data-edit-recipe="${recipe.id}" aria-label="Edit recipe" title="Edit recipe">${iconMarkup("edit", { group: "ui" })}</button>
         ${method.supportsDialIn ? `<button class="secondary-button" type="button" data-open-dial-in="${recipe.id}">Dial in</button>` : ""}
       </footer>
     </article>`;

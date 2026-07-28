@@ -17,11 +17,16 @@
 .bean-card-footer,.brew-recipe-footer { display:flex; align-items:center; gap:8px; padding:15px 20px 18px; border-top:1px solid var(--line); }
 .bean-card-footer button,.bean-card-footer a,.brew-recipe-footer button { min-height:40px; border-radius:999px; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; font-size:.78rem; font-weight:800; }
 .edit-button { flex:1; border:0; color:#fff; background:var(--espresso-800); }
+.edit-button .app-icon { width:1.15rem; height:1.15rem; }
+.icon-only-button { justify-content:center; }
+.inline-edit-button { min-width:36px; height:36px; border:1px solid rgba(201,135,74,.26); border-radius:999px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; color:var(--crema-500); background:rgba(255,250,244,.9); }
+.inline-edit-button .app-icon { width:1rem; height:1rem; }
 .order-link { border:1px solid var(--line); color:var(--espresso-700); background:#fff; }
 .bean-recipe-preview { border:1px solid rgba(201,135,74,.28); border-radius:16px; padding:13px; background:linear-gradient(145deg,rgba(248,239,228,.7),rgba(255,255,255,.9)); }
 .bean-recipe-preview.missing { border-style:dashed; }
 .bean-recipe-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
 .bean-recipe-heading button { border:0; padding:0; color:var(--crema-500); background:transparent; font-size:.72rem; font-weight:900; }
+.bean-recipe-heading .inline-edit-button { min-width:36px; height:36px; padding:0 10px; border:1px solid rgba(201,135,74,.26); background:rgba(255,250,244,.9); }
 .bean-recipe-preview>strong { display:block; margin-bottom:10px; }
 .bean-recipe-preview>p { margin:4px 0 0; color:var(--muted); font-size:.78rem; line-height:1.45; }
 .preview-metrics,.recipe-card-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
