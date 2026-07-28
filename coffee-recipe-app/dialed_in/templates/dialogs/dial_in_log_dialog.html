@@ -2,8 +2,8 @@
   <form id="dialInLogForm">
     <div class="dialog-header">
       <div>
-        <p class="eyebrow">Brew measurement</p>
-        <h2>Add to dial-in history</h2>
+        <p class="eyebrow" id="dialInLogEyebrow">Brew measurement</p>
+        <h2 id="dialInLogTitle">Add to dial-in history</h2>
       </div>
       <button class="dialog-close" type="button" data-close-dial-log-dialog aria-label="Close dialog">×</button>
     </div>
@@ -40,10 +40,13 @@
         <span>Taste</span>
         <select id="logTasteInput">
           <option value="neutral">Not judged / neutral</option>
-          <option value="very_sour">Very sour</option><option value="sour">Sour</option>
-          <option value="balanced">Balanced</option><option value="bitter">Bitter</option>
-          <option value="very_bitter">Very bitter</option><option value="astringent">Astringent</option>
-          <option value="hollow">Hollow / weak</option>
+          <option value="very_bitter">Very bitter</option>
+          <option value="bitter">Bitter</option>
+          <option value="little_bitter">Little bitter</option>
+          <option value="balanced">Balanced</option>
+          <option value="little_sour">Little sour</option>
+          <option value="sour">Sour</option>
+          <option value="very_sour">Very sour</option>
         </select>
       </label>
       <label class="metric-input">
@@ -62,7 +65,7 @@
     <div class="dialog-actions">
       <span class="action-spacer"></span>
       <button class="secondary-button" type="button" data-close-dial-log-dialog>Cancel</button>
-      <button class="primary-button" type="submit">Save measurement</button>
+      <button class="primary-button" id="saveDialInLogButton" type="submit">Save measurement</button>
     </div>
   </form>
 </dialog>

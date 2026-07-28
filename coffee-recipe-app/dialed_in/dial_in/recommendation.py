@@ -86,13 +86,36 @@ def _bracketing_prediction(points: list[dict[str, float]], target: float) -> flo
 
 
 def _taste_adjustment(taste: str, finer_direction: float, time_error: float) -> float:
-    if abs(time_error) > 3:
+    # Taste severity deliberately changes the size of the correction. Sour
+    # shots move finer, bitter shots move coarser. When taste and brew time
+    # strongly disagree, taste still contributes but cannot dominate the
+    # time-based estimate.
+    taste_strength = {
+        "little_sour": 0.25,
+        "sour": 0.5,
+        "very_sour": 0.75,
+        "hollow": 0.5,       # Legacy value: under-extracted / weak.
+        "little_bitter": -0.25,
+        "bitter": -0.5,
+        "very_bitter": -0.75,
+        "astringent": -0.5,  # Legacy value: usually over-extracted.
+    }.get(taste, 0.0)
+    if taste_strength == 0:
         return 0.0
-    if taste in {"sour", "very_sour", "hollow"}:
-        return 0.25 * finer_direction
-    if taste in {"bitter", "very_bitter", "astringent"}:
-        return -0.25 * finer_direction
-    return 0.0
+
+    adjustment = taste_strength * finer_direction
+    if abs(time_error) <= 3:
+        return adjustment
+
+    time_direction = finer_direction if time_error > 0 else -finer_direction
+    agrees_with_time = adjustment * time_direction > 0
+    if agrees_with_time:
+        return adjustment
+
+    # A conflicting taste signal remains useful, but is intentionally reduced
+    # when the shot time is already far away from the target.
+    conflict_scale = 0.6 if abs(time_error) <= 8 else 0.35
+    return adjustment * conflict_scale
 
 
 def calculate_recommendation(

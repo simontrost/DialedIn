@@ -42,3 +42,21 @@
 .dial-target-edit-button:focus-visible{outline:3px solid rgba(201,135,74,.22);outline-offset:2px}
 .dial-target-edit-button:disabled{opacity:.38;cursor:not-allowed}
 .dial-target-edit-button .app-icon{width:1.05rem;height:1.05rem}
+
+/* Measurement editing and calculated ratio. */
+.measurement-table{min-width:970px}
+.measurement-actions-cell{width:86px;padding-left:8px!important;padding-right:10px!important}
+.measurement-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px;white-space:nowrap}
+.table-edit-button,.table-delete-button{display:grid;place-items:center;width:32px;height:32px;padding:0;border-radius:50%;cursor:pointer;transition:transform .15s ease,border-color .15s ease,background .15s ease}
+.table-edit-button{border:1px solid var(--line);color:var(--espresso-800);background:var(--cream-50)}
+.table-edit-button:hover{transform:translateY(-1px);border-color:rgba(201,135,74,.58);background:var(--cream-100)}
+.table-delete-button{border:0;color:var(--danger);background:#fff1ee;font-size:1.15rem}
+.table-delete-button:hover{transform:translateY(-1px);background:#ffe7e2}
+.table-edit-button:focus-visible,.table-delete-button:focus-visible{outline:3px solid rgba(201,135,74,.22);outline-offset:2px}
+.table-edit-button .app-icon{width:.95rem;height:.95rem}
+
+@media(max-width:600px){
+  .measurement-mobile-summary{grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px}
+  .measurement-mobile-summary>.measurement-row-actions{gap:5px}
+  .measurement-mobile-summary .table-edit-button,.measurement-mobile-summary .table-delete-button{width:31px;height:31px}
+}

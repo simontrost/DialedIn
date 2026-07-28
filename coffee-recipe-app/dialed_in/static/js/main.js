@@ -43,7 +43,15 @@ async function loadState() {
 
 const beanForm = createBeanForm({ state, api, showToast, onChanged: renderAll });
 const brewRecipeForm = createBrewRecipeForm({ state, api, showToast, onChanged: renderAll });
-const dialInLogForm = createDialInLogForm({ state, api, showToast, onChanged: renderAll });
+const dialInLogForm = createDialInLogForm({
+  state,
+  api,
+  showToast,
+  onChanged() {
+    dialInPage?.invalidateRecommendation();
+    renderAll();
+  }
+});
 const settings = createSettings({ state, api, showToast, reloadState: loadState, onChanged: renderAll });
 
 createOriginEditorEnhancer();
@@ -72,6 +80,10 @@ function editRecipe(recipeId, options = {}) {
 }
 function addRecipe(defaults = {}) { brewRecipeForm.open(null, defaults); }
 function addMeasurement(defaults = {}) { dialInLogForm.open(defaults); }
+function editMeasurement(logId) {
+  const log = state.dialInLogs.find(item => item.id === logId);
+  if (log) dialInLogForm.open({ log });
+}
 function openDialIn(recipeId) {
   dialInPage.selectRecipe(recipeId);
   navigation.showPage("dial-in");
@@ -93,7 +105,14 @@ recipesPage = createRecipesPage({
   onAdd: addRecipe,
   onOpenDialIn: openDialIn
 });
-dialInPage = createDialInPage({ state, api, showToast, onAddMeasurement: addMeasurement, onEditRecipe: editRecipe });
+dialInPage = createDialInPage({
+  state,
+  api,
+  showToast,
+  onAddMeasurement: addMeasurement,
+  onEditMeasurement: editMeasurement,
+  onEditRecipe: editRecipe
+});
 originsPage = createOriginsPage({ state, onEditBean: editBean, showToast });
 
 quickAdd = createQuickAdd({

@@ -3,7 +3,7 @@ from __future__ import annotations
 from flask import Blueprint, jsonify, request
 
 from ..database import db_connection
-from .service import create_log, delete_log, list_logs, recommend
+from .service import create_log, delete_log, list_logs, recommend, update_log
 
 
 dial_in_blueprint = Blueprint("dial_in", __name__)
@@ -28,6 +28,18 @@ def post_log():
         with db_connection() as db:
             log = create_log(db, request.get_json(silent=True) or {})
         return jsonify(log), 201
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+
+
+@dial_in_blueprint.put("/api/dial-in-logs/<log_id>")
+def put_log(log_id: str):
+    try:
+        with db_connection() as db:
+            log = update_log(db, log_id, request.get_json(silent=True) or {})
+        if not log:
+            return jsonify({"error": "Measurement not found."}), 404
+        return jsonify(log)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 

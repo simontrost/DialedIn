@@ -1,11 +1,40 @@
-import { beanById, escapeHtml, formatDateTime, formatNumber, methodById, recipeById } from "../core/utils.js";
+import {
+  escapeHtml,
+  formatDateTime,
+  formatNumber,
+  iconMarkup,
+  methodById,
+  recipeById
+} from "../core/utils.js";
 
 const tasteLabels = {
-  very_sour: "Very sour", sour: "Sour", neutral: "Neutral", balanced: "Balanced",
-  bitter: "Bitter", very_bitter: "Very bitter", astringent: "Astringent", hollow: "Hollow"
+  neutral: "Not judged / neutral",
+  very_bitter: "Very bitter",
+  bitter: "Bitter",
+  little_bitter: "Little bitter",
+  balanced: "Balanced",
+  little_sour: "Little sour",
+  sour: "Sour",
+  very_sour: "Very sour",
+  astringent: "Astringent",
+  hollow: "Hollow / weak"
 };
 
-export function createDialInPage({ state, api, showToast, onAddMeasurement, onEditRecipe }) {
+function formatRatio(log) {
+  const dose = Number(log.dose);
+  const beverageYield = Number(log.beverageYield);
+  if (!Number.isFinite(dose) || dose <= 0 || !Number.isFinite(beverageYield)) return "–";
+  return `1:${formatNumber(beverageYield / dose, 2)}`;
+}
+
+export function createDialInPage({
+  state,
+  api,
+  showToast,
+  onAddMeasurement,
+  onEditMeasurement,
+  onEditRecipe
+}) {
   const beanSelect = document.querySelector("#dialInBeanSelect");
   const recipeSelect = document.querySelector("#dialInRecipeSelect");
   const maxStep = document.querySelector("#dialInMaxStep");
@@ -42,7 +71,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
   function syncSelectors() {
     const previousBean = state.selectedDialBeanId || beanSelect.value;
     beanSelect.innerHTML = state.beans.length
-      ? state.beans.map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
+      ? state.beans.map(bean => `<option value="${escapeHtml(bean.id)}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
       : '<option value="">No beans available</option>';
     const selectedBean = [...beanSelect.options].some(option => option.value === previousBean) ? previousBean : (state.beans[0]?.id || "");
     beanSelect.value = selectedBean;
@@ -53,7 +82,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
     recipeSelect.innerHTML = recipes.length
       ? recipes.map(recipe => {
         const method = methodById(state, recipe.method);
-        return `<option value="${recipe.id}">${escapeHtml(recipe.name)} · ${escapeHtml(method.name)}</option>`;
+        return `<option value="${escapeHtml(recipe.id)}">${escapeHtml(recipe.name)} · ${escapeHtml(method.name)}</option>`;
       }).join("")
       : '<option value="">No dial-in recipe for this bean</option>';
     const selected = [...recipeSelect.options].some(option => option.value === previousRecipe) ? previousRecipe : (recipes[0]?.id || "");
@@ -68,6 +97,16 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
     recommendationCard.dataset.confidence = "";
   }
 
+  function rowActions(logId) {
+    return `
+      <div class="measurement-row-actions">
+        <button class="table-edit-button" type="button" data-edit-log="${escapeHtml(logId)}" aria-label="Edit measurement" title="Edit measurement">
+          ${iconMarkup("edit", { className: "app-icon--sm" })}
+        </button>
+        <button class="table-delete-button" type="button" data-delete-log="${escapeHtml(logId)}" aria-label="Delete measurement" title="Delete measurement">×</button>
+      </div>`;
+  }
+
   function renderTable(logs) {
     tableBody.innerHTML = logs.map(log => `
       <tr class="${log.valid ? "" : "invalid-measurement"}">
@@ -75,10 +114,11 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
         <td><strong>${formatNumber(log.grind, 2)}</strong></td>
         <td>${formatNumber(log.dose, 1)} g</td>
         <td>${formatNumber(log.beverageYield, 1)} g</td>
+        <td>${formatRatio(log)}</td>
         <td>${formatNumber(log.time, 1)} s</td>
         <td>${escapeHtml(tasteLabels[log.taste] || log.taste)}</td>
         <td>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</td>
-        <td><button class="table-delete-button" type="button" data-delete-log="${log.id}" aria-label="Delete measurement">×</button></td>
+        <td class="measurement-actions-cell">${rowActions(log.id)}</td>
       </tr>`).join("");
 
     mobileList.innerHTML = logs.map(log => `
@@ -90,13 +130,14 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
           </div>
           <div class="measurement-mobile-primary"><span>Grind</span><strong>${formatNumber(log.grind, 2)}</strong></div>
           <div class="measurement-mobile-primary"><span>Time</span><strong>${formatNumber(log.time, 1)} s</strong></div>
-          <button class="table-delete-button" type="button" data-delete-log="${log.id}" aria-label="Delete measurement">×</button>
+          ${rowActions(log.id)}
         </div>
         <details class="measurement-mobile-details">
           <summary>Show all details</summary>
           <dl>
             <div><dt>Dose</dt><dd>${formatNumber(log.dose, 1)} g</dd></div>
             <div><dt>Yield</dt><dd>${formatNumber(log.beverageYield, 1)} g</dd></div>
+            <div><dt>Ratio</dt><dd>${formatRatio(log)}</dd></div>
             <div><dt>Taste</dt><dd>${escapeHtml(tasteLabels[log.taste] || log.taste)}</dd></div>
             <div><dt>Rating</dt><dd>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</dd></div>
           </dl>
@@ -135,6 +176,12 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
     const recipe = selectedRecipe();
     if (!recipe) return showToast("Create or choose a recipe first");
     onAddMeasurement({ beanId: recipe.beanId, recipeId: recipe.id });
+  }
+
+  function editMeasurement(logId) {
+    const log = state.dialInLogs.find(item => item.id === logId);
+    if (!log) return showToast("Measurement not found");
+    onEditMeasurement(log.id);
   }
 
   function editTargetTime() {
@@ -188,6 +235,16 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
     render();
   }
 
+  function handleLogAction(event) {
+    const editButton = event.target.closest("[data-edit-log]");
+    if (editButton) {
+      editMeasurement(editButton.dataset.editLog);
+      return;
+    }
+    const deleteButton = event.target.closest("[data-delete-log]");
+    if (deleteButton) deleteLog(deleteButton.dataset.deleteLog);
+  }
+
   beanSelect.addEventListener("change", () => {
     state.selectedDialBeanId = beanSelect.value;
     state.selectedDialRecipeId = "";
@@ -203,11 +260,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement, onEd
   emptyAddButton.addEventListener("click", addMeasurement);
   calculateButton.addEventListener("click", calculate);
   editTargetButton.addEventListener("click", editTargetTime);
-  function handleDeleteClick(event) {
-    const button = event.target.closest("[data-delete-log]");
-    if (button) deleteLog(button.dataset.deleteLog);
-  }
-  tableBody.addEventListener("click", handleDeleteClick);
-  mobileList.addEventListener("click", handleDeleteClick);
-  return { render, selectRecipe };
+  tableBody.addEventListener("click", handleLogAction);
+  mobileList.addEventListener("click", handleLogAction);
+  return { render, selectRecipe, invalidateRecommendation: resetRecommendation };
 }

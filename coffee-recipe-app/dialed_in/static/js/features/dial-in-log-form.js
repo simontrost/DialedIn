@@ -1,8 +1,16 @@
 import { beanById, escapeHtml, methodById, recipeById, toLocalDateTimeInput } from "../core/utils.js";
 
+const legacyTasteLabels = {
+  astringent: "Astringent (legacy)",
+  hollow: "Hollow / weak (legacy)"
+};
+
 export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const dialog = document.querySelector("#dialInLogDialog");
   const form = document.querySelector("#dialInLogForm");
+  const eyebrow = document.querySelector("#dialInLogEyebrow");
+  const title = document.querySelector("#dialInLogTitle");
+  const submitButton = document.querySelector("#saveDialInLogButton");
   const beanInput = document.querySelector("#logBeanInput");
   const recipeInput = document.querySelector("#logRecipeInput");
   const context = document.querySelector("#selectedLogContext");
@@ -15,6 +23,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const rating = document.querySelector("#logRatingInput");
   const notes = document.querySelector("#logNotesInput");
   const valid = document.querySelector("#logValidInput");
+  let editingLogId = "";
 
   function dialableRecipes(beanId) {
     return state.brewRecipes.filter(recipe => recipe.beanId === beanId && methodById(state, recipe.method)?.supportsDialIn);
@@ -43,15 +52,22 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
     recipeInput.disabled = !recipes.length;
   }
 
-  function applyRecipeDefaults({ overwrite = true } = {}) {
+  function updateContext() {
     const recipe = recipeById(state, recipeInput.value);
     const bean = beanById(state, beanInput.value || recipe?.beanId);
     if (!recipe || !bean) {
       context.textContent = "Choose a bean with a dial-in-capable recipe.";
-      return;
+      return null;
     }
     const method = methodById(state, recipe.method);
     context.textContent = `${bean.name} · ${method?.name || recipe.method} · ${recipe.name}`;
+    return { recipe, bean };
+  }
+
+  function applyRecipeDefaults({ overwrite = true } = {}) {
+    const selected = updateContext();
+    if (!selected) return;
+    const { recipe } = selected;
     if (overwrite || grind.value === "") grind.value = recipe.values?.grind ?? "";
     if (overwrite || time.value === "") time.value = recipe.values?.targetTime ?? "";
     if (overwrite || dose.value === "") dose.value = recipe.values?.dose ?? "";
@@ -60,10 +76,33 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
     }
   }
 
-  function open({ beanId = "", recipeId = "" } = {}) {
-    const preferredRecipe = recipeById(state, recipeId);
-    const preferredBeanId = beanId || preferredRecipe?.beanId || state.selectedDialBeanId || "";
-    const preferredRecipeId = recipeId || (preferredBeanId === state.selectedDialBeanId ? state.selectedDialRecipeId : "") || "";
+  function setTasteValue(value = "neutral") {
+    taste.querySelectorAll("option[data-legacy-taste]").forEach(option => option.remove());
+    const hasValue = [...taste.options].some(option => option.value === value);
+    if (!hasValue && legacyTasteLabels[value]) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = legacyTasteLabels[value];
+      option.dataset.legacyTaste = "true";
+      taste.append(option);
+    }
+    taste.value = [...taste.options].some(option => option.value === value) ? value : "neutral";
+  }
+
+  function setDialogMode(isEditing) {
+    eyebrow.textContent = isEditing ? "Stored measurement" : "Brew measurement";
+    title.textContent = isEditing ? "Edit measurement" : "Add to dial-in history";
+    submitButton.textContent = isEditing ? "Save changes" : "Save measurement";
+  }
+
+  function open({ beanId = "", recipeId = "", log = null, logId = "" } = {}) {
+    const existingLog = log || state.dialInLogs.find(item => item.id === logId) || null;
+    editingLogId = existingLog?.id || "";
+    setDialogMode(Boolean(existingLog));
+
+    const preferredRecipe = recipeById(state, existingLog?.brewRecipeId || recipeId);
+    const preferredBeanId = existingLog?.beanId || beanId || preferredRecipe?.beanId || state.selectedDialBeanId || "";
+    const preferredRecipeId = existingLog?.brewRecipeId || recipeId || (preferredBeanId === state.selectedDialBeanId ? state.selectedDialRecipeId : "") || "";
 
     syncBeanOptions(preferredBeanId);
     syncRecipeOptions(preferredRecipeId);
@@ -72,16 +111,30 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
       return false;
     }
 
-    brewedAt.value = toLocalDateTimeInput();
-    grind.value = "";
-    time.value = "";
-    dose.value = "";
-    beverageYield.value = "";
-    taste.value = "neutral";
-    rating.value = "";
-    notes.value = "";
-    valid.checked = true;
-    applyRecipeDefaults();
+    if (existingLog) {
+      brewedAt.value = toLocalDateTimeInput(existingLog.brewedAt);
+      grind.value = existingLog.grind ?? "";
+      time.value = existingLog.time ?? "";
+      dose.value = existingLog.dose ?? "";
+      beverageYield.value = existingLog.beverageYield ?? "";
+      setTasteValue(existingLog.taste || "neutral");
+      rating.value = existingLog.rating ?? "";
+      notes.value = existingLog.notes || "";
+      valid.checked = existingLog.valid !== false;
+      updateContext();
+    } else {
+      brewedAt.value = toLocalDateTimeInput();
+      grind.value = "";
+      time.value = "";
+      dose.value = "";
+      beverageYield.value = "";
+      setTasteValue("neutral");
+      rating.value = "";
+      notes.value = "";
+      valid.checked = true;
+      applyRecipeDefaults();
+    }
+
     dialog.showModal();
     return true;
   }
@@ -95,9 +148,12 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
       showToast("Choose a bean and recipe");
       return;
     }
+
+    const wasEditing = Boolean(editingLogId);
+    const endpoint = wasEditing ? `/api/dial-in-logs/${editingLogId}` : "/api/dial-in-logs";
     try {
-      const saved = await api("/api/dial-in-logs", {
-        method: "POST",
+      const saved = await api(endpoint, {
+        method: wasEditing ? "PUT" : "POST",
         body: JSON.stringify({
           beanId: bean.id,
           brewRecipeId: recipe.id,
@@ -112,12 +168,19 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
           valid: valid.checked
         })
       });
-      state.dialInLogs.unshift(saved);
+
+      if (wasEditing) {
+        const index = state.dialInLogs.findIndex(item => item.id === saved.id);
+        if (index >= 0) state.dialInLogs[index] = saved;
+        else state.dialInLogs.unshift(saved);
+      } else {
+        state.dialInLogs.unshift(saved);
+      }
       state.selectedDialBeanId = bean.id;
       state.selectedDialRecipeId = recipe.id;
       dialog.close();
-      onChanged(saved);
-      showToast("Measurement saved");
+      onChanged(saved, { edited: wasEditing });
+      showToast(wasEditing ? "Measurement updated" : "Measurement saved");
     } catch (error) {
       alert(error.message);
     }
@@ -125,10 +188,15 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
 
   beanInput.addEventListener("change", () => {
     syncRecipeOptions();
-    applyRecipeDefaults();
+    if (editingLogId) updateContext();
+    else applyRecipeDefaults();
   });
-  recipeInput.addEventListener("change", () => applyRecipeDefaults());
+  recipeInput.addEventListener("change", () => {
+    if (editingLogId) updateContext();
+    else applyRecipeDefaults();
+  });
   form.addEventListener("submit", save);
+  dialog.addEventListener("close", () => { editingLogId = ""; });
   document.querySelectorAll("[data-close-dial-log-dialog]").forEach(button => button.addEventListener("click", () => dialog.close()));
   return { open };
 }

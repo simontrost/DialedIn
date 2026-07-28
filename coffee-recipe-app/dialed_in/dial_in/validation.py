@@ -3,13 +3,17 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
+# A seven-step extraction-taste scale plus an unjudged default. The two legacy
+# values remain accepted so existing measurements can still be loaded/edited.
 VALID_TASTES = {
-    "very_sour",
-    "sour",
-    "neutral",
-    "balanced",
-    "bitter",
     "very_bitter",
+    "bitter",
+    "little_bitter",
+    "balanced",
+    "little_sour",
+    "sour",
+    "very_sour",
+    "neutral",
     "astringent",
     "hollow",
 }

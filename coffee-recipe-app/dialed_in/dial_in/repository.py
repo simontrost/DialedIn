@@ -60,6 +60,24 @@ def insert(db: sqlite3.Connection, log: dict[str, Any]) -> None:
     )
 
 
+def update(db: sqlite3.Connection, log: dict[str, Any]) -> bool:
+    result = db.execute(
+        """
+        UPDATE dial_in_logs SET
+            bean_id = ?, brew_recipe_id = ?, grind = ?, dose = ?,
+            beverage_yield = ?, time_seconds = ?, taste = ?, rating = ?,
+            valid = ?, notes = ?, brewed_at = ?
+        WHERE id = ?
+        """,
+        (
+            log["beanId"], log["brewRecipeId"], log["grind"], log["dose"],
+            log["beverageYield"], log["time"], log["taste"], log["rating"],
+            int(log["valid"]), log["notes"], log["brewedAt"], log["id"],
+        ),
+    )
+    return result.rowcount > 0
+
+
 def delete_by_id(db: sqlite3.Connection, log_id: str) -> bool:
     result = db.execute("DELETE FROM dial_in_logs WHERE id = ?", (log_id,))
     return result.rowcount > 0

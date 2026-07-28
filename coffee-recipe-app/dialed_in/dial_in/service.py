@@ -21,8 +21,7 @@ def list_logs_for_recipe(db: sqlite3.Connection, recipe_id: str) -> list[dict[st
     return [repository.row_to_log(row) for row in repository.find_by_recipe(db, recipe_id)]
 
 
-def create_log(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any]:
-    clean = validate_log(payload)
+def _validate_relations(db: sqlite3.Connection, clean: dict[str, Any]) -> None:
     bean = find_bean_by_id(db, clean["beanId"])
     recipe_row = find_recipe_by_id(db, clean["brewRecipeId"])
     if not bean or not recipe_row:
@@ -30,6 +29,11 @@ def create_log(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any
     recipe = row_to_recipe(recipe_row)
     if recipe["beanId"] != clean["beanId"]:
         raise ValueError("The selected recipe does not belong to this bean.")
+
+
+def create_log(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any]:
+    clean = validate_log(payload)
+    _validate_relations(db, clean)
     timestamp = utc_now()
     log = {
         "id": str(uuid.uuid4()),
@@ -37,6 +41,26 @@ def create_log(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any
         "createdAt": timestamp,
     }
     repository.insert(db, log)
+    return log
+
+
+def update_log(
+    db: sqlite3.Connection,
+    log_id: str,
+    payload: dict[str, Any],
+) -> dict[str, Any] | None:
+    existing = repository.find_by_id(db, log_id)
+    if not existing:
+        return None
+
+    clean = validate_log(payload)
+    _validate_relations(db, clean)
+    log = {
+        "id": log_id,
+        **clean,
+        "createdAt": existing["created_at"],
+    }
+    repository.update(db, log)
     return log
 
 
