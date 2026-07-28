@@ -11,7 +11,8 @@ export const FLAVOR_NOTE_CATEGORIES = Object.freeze([
       ["Caramel", "caramel"],
       ["Vanilla", "vanilla"],
       ["Honey", "honey"],
-      ["Brown Sugar", "brown-sugar"]
+      ["Brown Sugar", "brown-sugar"],
+      ["Marzipan", "marzipan"]
     ]
   },
   {
@@ -39,7 +40,9 @@ export const FLAVOR_NOTE_CATEGORIES = Object.freeze([
       ["Lemon", "lemon"],
       ["Grapefruit", "grapefruit"],
       ["Pineapple", "pineapple"],
-      ["Tropical Fruit", "tropical-fruit"]
+      ["Tropical Fruit", "tropical-fruit"],
+      ["Dates", "dates"],
+      ["Dried Fruit", "dried-fruit"]
     ]
   },
   {
