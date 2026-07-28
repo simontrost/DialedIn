@@ -131,30 +131,30 @@
   color-scheme: dark;
   --espresso-950: #1b110c;
   --espresso-900: #21150f;
-  --espresso-800: #e3bd97;
-  --espresso-700: #d8ad84;
+  --espresso-800: #ead1b7;
+  --espresso-700: #d9b18b;
   --espresso-600: #bd8f68;
   --crema-500: #d59659;
   --crema-400: #e7b77f;
-  --cream-50: #1d1511;
-  --cream-100: #291d17;
-  --cream-200: #3a2920;
+  --cream-50: #21140f;
+  --cream-100: #2d1c14;
+  --cream-200: #3a271d;
   --sage-500: #96ad88;
   --danger: #df756b;
   --ink: #f4e8dc;
-  --muted: #bca99a;
-  --line: rgba(238, 208, 181, .14);
-  --shadow: 0 18px 54px rgba(0, 0, 0, .3);
+  --muted: #c7b09d;
+  --line: rgba(238, 208, 181, .20);
+  --shadow: 0 18px 54px rgba(0, 0, 0, .34);
 }
 
 :root[data-theme="dark"] {
-  background: #120c09;
+  background: #100805;
 }
 
 :root[data-theme="dark"] body {
   background:
-    radial-gradient(circle at 90% 2%, rgba(201, 135, 74, .13), transparent 30rem),
-    linear-gradient(180deg, #17100c 0%, #110b08 100%);
+    radial-gradient(circle at 88% 0%, rgba(217, 177, 139, .11), transparent 31rem),
+    linear-gradient(180deg, #160c08 0%, #100805 100%);
 }
 
 :root[data-theme="dark"] ::selection {
@@ -167,38 +167,58 @@
   color: #8f7b6d;
 }
 
-/* General surfaces and controls. */
+/* General surfaces use several brown depths rather than one flat tone. */
 :root[data-theme="dark"] .page-header,
 :root[data-theme="dark"] .origin-page-header,
 :root[data-theme="dark"] .dial-selection-panel,
-:root[data-theme="dark"] .dial-summary-card:not(.recommendation-card),
 :root[data-theme="dark"] .measurement-table-wrap,
 :root[data-theme="dark"] .measurement-mobile-card,
-:root[data-theme="dark"] .stat-card,
-:root[data-theme="dark"] .equipment-strip,
+:root[data-theme="dark"] .empty-state {
+  background: #24150f;
+  border-color: rgba(238, 208, 181, .18);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .22);
+}
+
+:root[data-theme="dark"] .dial-summary-card:not(.recommendation-card),
 :root[data-theme="dark"] .bean-card,
-:root[data-theme="dark"] .brew-recipe-card,
+:root[data-theme="dark"] .brew-recipe-card {
+  background: #2d1c14;
+  border-color: rgba(238, 208, 181, .19);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .2);
+}
+
+:root[data-theme="dark"] .stat-card {
+  background: linear-gradient(145deg, #35231a, #2a1912);
+  border-color: rgba(238, 208, 181, .2);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .2);
+}
+
 :root[data-theme="dark"] .search-field,
 :root[data-theme="dark"] .toolbar select,
-:root[data-theme="dark"] .favorites-filter,
-:root[data-theme="dark"] .desktop-nav,
-:root[data-theme="dark"] .empty-state {
-  background: rgba(38, 26, 20, .9);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, .2);
+:root[data-theme="dark"] .favorites-filter {
+  background: #2d1c14;
+  border-color: rgba(238, 208, 181, .18);
+}
+
+:root[data-theme="dark"] .desktop-nav {
+  background: rgba(35, 20, 14, .94);
+  border-color: rgba(238, 208, 181, .2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .16);
 }
 
 :root[data-theme="dark"] .icon-button:not(.active),
 :root[data-theme="dark"] .dialog-close,
 :root[data-theme="dark"] .secondary-button,
 :root[data-theme="dark"] .order-link,
-:root[data-theme="dark"] .origin-sheet-close,
+:root[data-theme="dark"] .origin-sheet-close {
+  color: #efd9c3;
+  background: #35231a;
+  border-color: rgba(238, 208, 181, .2);
+}
+
 :root[data-theme="dark"] .origin-bean-row,
 :root[data-theme="dark"] .quick-add-grid button,
 :root[data-theme="dark"] .recipe-step-row,
-:root[data-theme="dark"] .method-description > .method-icon-shell,
-:root[data-theme="dark"] .dial-target-edit-button,
-:root[data-theme="dark"] .method-select-trigger,
-:root[data-theme="dark"] .dashboard-method-picker select,
 :root[data-theme="dark"] .origin-filter select,
 :root[data-theme="dark"] .field input,
 :root[data-theme="dark"] .field select,
@@ -206,13 +226,23 @@
 :root[data-theme="dark"] .metric-input div,
 :root[data-theme="dark"] .input-with-unit {
   color: var(--ink);
-  background: #241914;
+  background: #342219;
+  border-color: rgba(238, 208, 181, .18);
+}
+
+:root[data-theme="dark"] .method-select-trigger,
+:root[data-theme="dark"] .dashboard-method-picker select,
+:root[data-theme="dark"] .dial-target-edit-button {
+  color: #2b190f;
+  background: #ead1b7;
+  border-color: rgba(255, 244, 232, .38);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
 }
 
 :root[data-theme="dark"] select,
 :root[data-theme="dark"] option {
   color: var(--ink);
-  background-color: #241914;
+  background-color: #342219;
 }
 
 :root[data-theme="dark"] .icon-button:not(.active):hover,
@@ -220,13 +250,17 @@
 :root[data-theme="dark"] .secondary-button:hover,
 :root[data-theme="dark"] .order-link:hover,
 :root[data-theme="dark"] .origin-sheet-close:hover {
-  background: #30211a;
+  background: #432d22;
 }
 
 :root[data-theme="dark"] .icon-button.active,
 :root[data-theme="dark"] .desktop-nav button.active {
-  color: #25170f;
-  background: var(--espresso-800);
+  color: #2b190f;
+  background: #ead1b7;
+}
+
+:root[data-theme="dark"] .desktop-nav button:not(.active) {
+  color: #d7bda7;
 }
 
 :root[data-theme="dark"] .primary-button,
@@ -236,12 +270,12 @@
 }
 
 :root[data-theme="dark"] .edit-button {
-  color: #25170f;
-  background: var(--espresso-800);
+  color: #2b190f;
+  background: #ead1b7;
 }
 
 :root[data-theme="dark"] .edit-button:hover {
-  background: #edcca9;
+  background: #f3ddc5;
 }
 
 :root[data-theme="dark"] .bean-card,
@@ -254,13 +288,59 @@
   box-shadow: 0 18px 42px rgba(0, 0, 0, .29);
 }
 
+:root[data-theme="dark"] .stat-icon,
+:root[data-theme="dark"] .brew-recipe-icon,
+:root[data-theme="dark"] .method-description > .method-icon-shell,
+:root[data-theme="dark"] .favorite-button {
+  color: #2b190f;
+  background: #ead1b7;
+}
+
+:root[data-theme="dark"] .favorite-button.active {
+  color: #9f463c;
+}
+
+:root[data-theme="dark"] .bean-card-footer,
+:root[data-theme="dark"] .brew-recipe-footer {
+  background: rgba(24, 13, 9, .38);
+  border-top-color: rgba(238, 208, 181, .16);
+}
+
+:root[data-theme="dark"] .coffee-tags span,
+:root[data-theme="dark"] .method-chip,
+:root[data-theme="dark"] .preview-metrics span,
+:root[data-theme="dark"] .recipe-card-metrics span,
+:root[data-theme="dark"] .measurement-mobile-details dl div,
+:root[data-theme="dark"] .selected-log-context {
+  color: #f1dcc7;
+  background: #3a271d;
+  border-color: rgba(238, 208, 181, .18);
+}
+
+:root[data-theme="dark"] .coffee-tags b,
+:root[data-theme="dark"] .preview-metrics small,
+:root[data-theme="dark"] .recipe-card-metrics small {
+  color: #cdb39d;
+}
+
+:root[data-theme="dark"] .bean-card[data-roast="light"] .bean-card-accent { background: #e1b576; }
+:root[data-theme="dark"] .bean-card[data-roast="medium"] .bean-card-accent { background: #c98950; }
+:root[data-theme="dark"] .bean-card[data-roast="dark"] .bean-card-accent { background: #a87859; }
+
 :root[data-theme="dark"] .bean-recipe-preview {
-  background: linear-gradient(145deg, rgba(51, 35, 27, .92), rgba(31, 21, 16, .94));
+  border-color: rgba(234, 209, 183, .28);
+  background: linear-gradient(145deg, #3a271d, #24150f);
 }
 
 :root[data-theme="dark"] .method-select-menu {
-  background: #211712;
+  background: #281810;
+  border-color: rgba(238, 208, 181, .2);
   box-shadow: 0 22px 58px rgba(0, 0, 0, .42);
+}
+
+:root[data-theme="dark"] .method-select-option:hover,
+:root[data-theme="dark"] .method-select-option:focus-visible {
+  background: #3b281e;
 }
 
 :root[data-theme="dark"] .method-select-option[aria-selected="true"] {
@@ -270,7 +350,8 @@
 
 :root[data-theme="dark"] dialog {
   color: var(--ink);
-  background: #1b120e;
+  border: 1px solid rgba(238, 208, 181, .16);
+  background: #1c100b;
   box-shadow: 0 34px 100px rgba(0, 0, 0, .55);
 }
 
@@ -279,7 +360,8 @@
 }
 
 :root[data-theme="dark"] .import-panel {
-  background: linear-gradient(135deg, rgba(49, 33, 25, .96), rgba(29, 20, 15, .96));
+  border-color: rgba(238, 208, 181, .2);
+  background: linear-gradient(135deg, #332219, #24150f);
 }
 
 :root[data-theme="dark"] .backup-panel {
@@ -309,28 +391,72 @@
   background: rgba(169, 71, 62, .28);
 }
 
-/* Keep the main overview hero deliberately deep and coffee-coloured. */
+/* The overview hero stays dark, while the equipment strip becomes a light accent. */
 :root[data-theme="dark"] .hero {
-  color: #fff4e8;
+  color: #fff3e7;
+  border-color: rgba(238, 208, 181, .18);
   background:
-    radial-gradient(circle at 82% 28%, rgba(231, 183, 127, .22) 0 2px, transparent 3px),
-    radial-gradient(circle at 86% 35%, rgba(231, 183, 127, .17) 0 3px, transparent 4px),
-    linear-gradient(135deg, #100a07, #352117);
+    radial-gradient(circle at 82% 28%, rgba(234, 209, 183, .2) 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 35%, rgba(234, 209, 183, .14) 0 3px, transparent 4px),
+    linear-gradient(135deg, #21120c, #482d1f);
+}
+
+:root[data-theme="dark"] .hero::before {
+  border-color: rgba(234, 209, 183, .075);
 }
 
 :root[data-theme="dark"] .hero::after {
-  color: #fff4e8;
+  color: #ead1b7;
+  opacity: .1;
+}
+
+:root[data-theme="dark"] .hero h1 em {
+  color: #ead1b7;
+}
+
+:root[data-theme="dark"] .hero-copy {
+  color: rgba(255, 243, 231, .72);
+}
+
+:root[data-theme="dark"] .hero-button {
+  color: #2b190f;
+  background: #ead1b7;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .25);
+}
+
+:root[data-theme="dark"] .hero-button:hover {
+  background: #f3ddc5;
 }
 
 :root[data-theme="dark"] .equipment-strip {
-  border-color: rgba(231, 183, 127, .15);
+  color: #2b190f;
+  border-color: rgba(255, 244, 232, .45);
+  background: linear-gradient(135deg, #f0dcc7, #d9b28d);
   backdrop-filter: blur(16px);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, .28);
+}
+
+:root[data-theme="dark"] .equipment-item small {
+  color: rgba(43, 25, 15, .66);
+}
+
+:root[data-theme="dark"] .equipment-icon {
+  color: #ead1b7;
+  background: #3a2418;
+}
+
+:root[data-theme="dark"] .equipment-icon.grinder {
+  color: #ead1b7;
+}
+
+:root[data-theme="dark"] .equipment-divider {
+  background: rgba(43, 25, 15, .18);
 }
 
 /* In dark mode the recommendation becomes the inverted crema highlight card. */
 :root[data-theme="dark"] .recommendation-card {
   color: #24150d;
-  background: linear-gradient(145deg, #ecc9a5, #c9874a);
+  background: linear-gradient(145deg, #f0d7bd, #d5a16f);
 }
 
 :root[data-theme="dark"] .recommendation-card small,
@@ -349,6 +475,70 @@
 :root[data-theme="dark"] .recommendation-card[data-confidence="medium"] {
   box-shadow: inset 0 0 0 2px rgba(70, 42, 22, .24);
 }
+
+:root[data-theme="dark"] .measurement-table th {
+  color: #2b190f;
+  background: #ead1b7;
+  border-bottom-color: rgba(43, 25, 15, .16);
+}
+
+:root[data-theme="dark"] .measurement-table td {
+  background: #2d1c14;
+}
+
+:root[data-theme="dark"] .measurement-table tbody tr:nth-child(even) td {
+  background: #332118;
+}
+
+:root[data-theme="dark"] .measurement-mobile-details summary {
+  color: #ead1b7;
+}
+
+:root[data-theme="dark"] .table-edit-button {
+  color: #2b190f;
+  background: #ead1b7;
+  border-color: rgba(255, 244, 232, .35);
+}
+
+:root[data-theme="dark"] .table-edit-button:hover,
+:root[data-theme="dark"] .dial-target-edit-button:hover:not(:disabled) {
+  background: #f3ddc5;
+}
+
+:root[data-theme="dark"] .form-section,
+:root[data-theme="dark"] .recipe-steps-section,
+:root[data-theme="dark"] .method-description,
+:root[data-theme="dark"] .theme-setting {
+  background: #2a1a13;
+  border-color: rgba(238, 208, 181, .2);
+}
+
+:root[data-theme="dark"] .import-panel-body {
+  border-top-color: rgba(238, 208, 181, .18);
+}
+
+:root[data-theme="dark"] .primary-button,
+:root[data-theme="dark"] .beta-badge,
+:root[data-theme="dark"] .import-icon,
+:root[data-theme="dark"] .origin-component-badge {
+  color: #2b190f;
+  background: #ead1b7;
+}
+
+:root[data-theme="dark"] .primary-button:hover {
+  background: #f3ddc5;
+}
+
+:root[data-theme="dark"] .method-select-current-icon,
+:root[data-theme="dark"] .method-select-trigger .app-icon {
+  color: #4a2d1d;
+}
+
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .step-count {
+  color: #e5ad73;
+}
+
 
 /* Origin map uses a dark parchment treatment rather than a grey map. */
 :root[data-theme="dark"] .origin-map-card {
