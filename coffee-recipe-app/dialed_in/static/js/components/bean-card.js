@@ -1,4 +1,5 @@
 import { escapeHtml, iconMarkup, methodById, methodIconMarkup, originLabel, recipeMetricSummary, statusLabel } from "../core/utils.js";
+import { flavorNotePillMarkup } from "../data/flavor-notes.js";
 
 export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = false } = {}) {
   const recipe = showRecipe
@@ -6,6 +7,11 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
     : null;
   const method = methodById(state, dashboardMethod);
   const metrics = recipeMetricSummary(recipe, method);
+  const flavorNotes = Array.isArray(bean.flavorNotes) ? bean.flavorNotes : [];
+  const flavorNotesBlock = flavorNotes.length ? `
+    <div class="bean-flavor-notes" aria-label="Flavor notes">
+      ${flavorNotes.map(note => flavorNotePillMarkup(note)).join("")}
+    </div>` : "";
   const recipeBlock = showRecipe ? `
     <div class="bean-recipe-preview ${recipe ? "" : "missing"}">
       <div class="bean-recipe-heading">
@@ -33,6 +39,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
           <span><b>Blend</b>${escapeHtml(bean.blend || "Not specified")}</span>
           <span><b>Roast</b>${escapeHtml(bean.roast)}</span>
         </div>
+        ${flavorNotesBlock}
         ${recipeBlock}
       </div>
       <footer class="bean-card-footer">

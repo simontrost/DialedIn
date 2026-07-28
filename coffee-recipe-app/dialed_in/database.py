@@ -50,6 +50,20 @@ def _ensure_legacy_recipe_columns(db: sqlite3.Connection) -> None:
             db.execute(f"ALTER TABLE recipes ADD COLUMN {name} {definition}")
 
 
+def _bean_columns(db: sqlite3.Connection) -> set[str]:
+    return {row["name"] for row in db.execute("PRAGMA table_info(beans)").fetchall()}
+
+
+def _ensure_bean_columns(db: sqlite3.Connection) -> None:
+    additions = {
+        "flavor_notes_json": "TEXT NOT NULL DEFAULT '[]'",
+    }
+    existing = _bean_columns(db)
+    for name, definition in additions.items():
+        if name not in existing:
+            db.execute(f"ALTER TABLE beans ADD COLUMN {name} {definition}")
+
+
 def _safe_float(value: Any) -> float | None:
     if value in (None, ""):
         return None
@@ -84,8 +98,9 @@ def _migrate_legacy_recipes(db: sqlite3.Connection) -> int:
             """
             INSERT OR IGNORE INTO beans (
                 id, name, roaster, origin_country, origin_region, blend,
-                roast, status, order_url, notes, favorite, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                roast, status, order_url, notes, flavor_notes_json, favorite,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '[]', ?, ?, ?)
             """,
             (
                 bean_id,
@@ -152,8 +167,8 @@ def _seed_new_database(db: sqlite3.Connection) -> None:
         """
         INSERT INTO beans (
             id, name, roaster, origin_country, origin_region, blend, roast,
-            status, order_url, notes, favorite, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, '', ?, 1, ?, ?)
+            status, order_url, notes, flavor_notes_json, favorite, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, '', ?, ?, 1, ?, ?)
         """,
         (
             bean_id,
@@ -165,6 +180,7 @@ def _seed_new_database(db: sqlite3.Connection) -> None:
             "dark",
             "active",
             "Example bean – replace it with your own coffee.",
+            json.dumps(["Chocolate", "Caramel"], ensure_ascii=False),
             timestamp,
             timestamp,
         ),
@@ -238,6 +254,7 @@ def init_db() -> None:
                 status TEXT NOT NULL DEFAULT 'active',
                 order_url TEXT NOT NULL DEFAULT '',
                 notes TEXT NOT NULL DEFAULT '',
+                flavor_notes_json TEXT NOT NULL DEFAULT '[]',
                 favorite INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
@@ -282,6 +299,7 @@ def init_db() -> None:
             """
         )
         _ensure_legacy_recipe_columns(db)
+        _ensure_bean_columns(db)
         db.executemany(
             "INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)",
             [("machine", DEFAULT_MACHINE), ("grinder", DEFAULT_GRINDER), ("theme", DEFAULT_THEME)],

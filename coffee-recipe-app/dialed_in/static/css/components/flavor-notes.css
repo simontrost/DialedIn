@@ -1,0 +1,215 @@
+/* Flavor-note pills, picker and bean-card presentation. */
+.flavor-notes-editor {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 15px;
+  background: var(--cream-50);
+}
+
+.flavor-notes-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.flavor-notes-heading > div > span,
+.flavor-notes-heading > div > small { display: block; }
+.flavor-notes-heading > div > span {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.flavor-notes-heading > div > small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1.4;
+}
+
+.flavor-note-add-button {
+  flex: 0 0 auto;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(201,135,74,.38);
+  border-radius: 999px;
+  padding: 0 13px;
+  color: var(--espresso-700);
+  background: var(--cream-100);
+  font-size: .76rem;
+  font-weight: 850;
+}
+.flavor-note-add-button > span {
+  font-size: 1.18rem;
+  line-height: 1;
+}
+.flavor-note-add-button:hover,
+.flavor-note-add-button.active {
+  border-color: var(--crema-500);
+  background: var(--cream-200);
+}
+
+.flavor-note-pills,
+.bean-flavor-notes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+.flavor-note-pills-editor { min-height: 34px; }
+.flavor-notes-empty {
+  color: var(--muted);
+  font-size: .76rem;
+  font-style: italic;
+}
+
+.flavor-note-pill {
+  max-width: 100%;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(201,135,74,.26);
+  border-radius: 999px;
+  padding: 5px 10px;
+  color: var(--espresso-700);
+  background: var(--cream-100);
+  font-size: .72rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.flavor-note-pill > .app-icon { width: 1rem; height: 1rem; }
+.flavor-note-pill > span:not(.app-icon) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flavor-note-remove {
+  width: 22px;
+  height: 22px;
+  margin: -2px -5px -2px 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 1rem;
+  line-height: 1;
+}
+.flavor-note-remove:hover {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.flavor-note-picker {
+  display: grid;
+  gap: 13px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.flavor-note-search-field input { background: var(--cream-100); }
+.flavor-note-options {
+  max-height: 310px;
+  overflow: auto;
+  display: grid;
+  gap: 15px;
+  padding-right: 4px;
+}
+.flavor-note-options section h4 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: .66rem;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+.flavor-note-options section > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.flavor-note-option,
+.flavor-note-custom-button {
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: var(--cream-100);
+  text-align: left;
+  font-size: .75rem;
+  font-weight: 750;
+}
+.flavor-note-option > .app-icon,
+.flavor-note-custom-button > .app-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--espresso-700);
+}
+.flavor-note-option > span,
+.flavor-note-custom-button > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flavor-note-option > small {
+  margin-left: auto;
+  color: var(--sage-500);
+  font-size: .62rem;
+}
+.flavor-note-option:hover:not(:disabled),
+.flavor-note-custom-button:hover {
+  border-color: rgba(201,135,74,.64);
+  background: var(--cream-200);
+}
+.flavor-note-option.selected,
+.flavor-note-option:disabled {
+  cursor: default;
+  opacity: .62;
+}
+.flavor-note-custom-button {
+  width: 100%;
+  border-style: dashed;
+  color: var(--espresso-700);
+}
+.flavor-note-no-results {
+  margin: 0;
+  border: 1px dashed var(--line);
+  border-radius: 13px;
+  padding: 13px;
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+.bean-flavor-notes { margin: -5px 0 17px; }
+.bean-flavor-notes .flavor-note-pill {
+  min-height: 29px;
+  padding: 4px 9px;
+  font-size: .68rem;
+}
+.bean-flavor-notes .flavor-note-pill > .app-icon { width: .92rem; height: .92rem; }
+
+@media (max-width: 700px) {
+  .flavor-notes-heading { align-items: flex-start; }
+  .flavor-note-add-button { min-width: 42px; padding: 0 11px; }
+  .flavor-note-options section > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 430px) {
+  .flavor-notes-heading { flex-direction: column; }
+  .flavor-note-add-button { width: 100%; }
+  .flavor-note-options section > div { grid-template-columns: 1fr; }
+}

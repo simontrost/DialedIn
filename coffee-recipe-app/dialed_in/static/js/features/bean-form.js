@@ -1,6 +1,12 @@
-import { normalizeUrl } from "../core/utils.js";
+import { escapeHtml, normalizeUrl } from "../core/utils.js";
 import { createCoffeeImport } from "./coffee-import.js";
 import { createBarcodeScanner } from "./barcode-scanner.js";
+import {
+  FLAVOR_NOTE_CATEGORIES,
+  canonicalFlavorNoteName,
+  flavorNoteIconMarkup,
+  flavorNotePillMarkup
+} from "../data/flavor-notes.js";
 
 export function createBeanForm({ state, api, showToast, onChanged }) {
   const dialog = document.querySelector("#beanDialog");
@@ -10,6 +16,13 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   const customBlendFields = document.querySelector("#customBlendFields");
   const arabicaBar = document.querySelector("#arabicaBar");
   const blendSum = document.querySelector("#blendSum");
+  const flavorNoteAddButton = document.querySelector("#flavorNoteAddButton");
+  const flavorNotePills = document.querySelector("#flavorNotePills");
+  const flavorNotePicker = document.querySelector("#flavorNotePicker");
+  const flavorNoteSearchInput = document.querySelector("#flavorNoteSearchInput");
+  const flavorNoteOptions = document.querySelector("#flavorNoteOptions");
+  const flavorNoteCustomButton = document.querySelector("#flavorNoteCustomButton");
+  let selectedFlavorNotes = [];
 
   const fields = {
     name: document.querySelector("#beanNameInput"),
@@ -26,6 +39,74 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     notes: document.querySelector("#beanNotesInput"),
     favorite: document.querySelector("#beanFavoriteInput")
   };
+
+  function hasFlavorNote(name) {
+    const key = String(name).trim().toLocaleLowerCase();
+    return selectedFlavorNotes.some(note => note.toLocaleLowerCase() === key);
+  }
+
+  function renderFlavorNotePills() {
+    flavorNotePills.innerHTML = selectedFlavorNotes.length
+      ? selectedFlavorNotes.map(note => flavorNotePillMarkup(note, { removable: true })).join("")
+      : '<span class="flavor-notes-empty">No flavor notes selected yet.</span>';
+  }
+
+  function renderFlavorNoteOptions() {
+    const query = flavorNoteSearchInput.value.trim().toLocaleLowerCase();
+    const groups = FLAVOR_NOTE_CATEGORIES.map(category => {
+      const options = category.notes
+        .filter(([name]) => !query || name.toLocaleLowerCase().includes(query) || category.name.toLocaleLowerCase().includes(query))
+        .map(([name]) => {
+          const selected = hasFlavorNote(name);
+          return `<button class="flavor-note-option ${selected ? "selected" : ""}" type="button" data-add-flavor-note="${escapeHtml(name)}" ${selected ? "disabled" : ""}>${flavorNoteIconMarkup(name)}<span>${escapeHtml(name)}</span>${selected ? '<small>Added</small>' : ""}</button>`;
+        }).join("");
+      return options ? `<section><h4>${escapeHtml(category.name)}</h4><div>${options}</div></section>` : "";
+    }).join("");
+
+    flavorNoteOptions.innerHTML = groups || '<p class="flavor-note-no-results">No predefined flavor note matches your search.</p>';
+
+    const customName = canonicalFlavorNoteName(flavorNoteSearchInput.value);
+    const exactPredefined = FLAVOR_NOTE_CATEGORIES.some(category =>
+      category.notes.some(([name]) => name.toLocaleLowerCase() === customName.toLocaleLowerCase())
+    );
+    const canAddCustom = Boolean(customName) && !exactPredefined && !hasFlavorNote(customName);
+    flavorNoteCustomButton.classList.toggle("hidden", !canAddCustom);
+    flavorNoteCustomButton.innerHTML = canAddCustom
+      ? `${flavorNoteIconMarkup(customName)}<span>Add “${escapeHtml(customName)}” as custom note</span>`
+      : "";
+  }
+
+  function setFlavorNotePicker(open) {
+    flavorNotePicker.classList.toggle("hidden", !open);
+    flavorNoteAddButton.setAttribute("aria-expanded", String(open));
+    flavorNoteAddButton.classList.toggle("active", open);
+    if (open) {
+      renderFlavorNoteOptions();
+      setTimeout(() => flavorNoteSearchInput.focus(), 20);
+    } else {
+      flavorNoteSearchInput.value = "";
+    }
+  }
+
+  function addFlavorNote(value) {
+    const name = canonicalFlavorNoteName(value);
+    if (!name || hasFlavorNote(name)) return;
+    if (selectedFlavorNotes.length >= 20) {
+      showToast("A maximum of 20 flavor notes can be added");
+      return;
+    }
+    selectedFlavorNotes.push(name);
+    renderFlavorNotePills();
+    flavorNoteSearchInput.value = "";
+    renderFlavorNoteOptions();
+  }
+
+  function removeFlavorNote(value) {
+    const key = String(value).trim().toLocaleLowerCase();
+    selectedFlavorNotes = selectedFlavorNotes.filter(note => note.toLocaleLowerCase() !== key);
+    renderFlavorNotePills();
+    renderFlavorNoteOptions();
+  }
 
   function ensureSelectOption(select, value) {
     if (!value || [...select.options].some(option => option.value === value)) return;
@@ -133,6 +214,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       status: fields.status.value,
       orderUrl: normalizeUrl(fields.orderUrl.value),
       notes: fields.notes.value.trim(),
+      flavorNotes: [...selectedFlavorNotes],
       favorite: fields.favorite.checked
     };
   }
@@ -154,6 +236,9 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     fields.orderUrl.value = bean?.orderUrl || "";
     fields.barcode.value = "";
     fields.notes.value = bean?.notes || "";
+    selectedFlavorNotes = Array.isArray(bean?.flavorNotes) ? [...bean.flavorNotes] : [];
+    renderFlavorNotePills();
+    setFlavorNotePicker(false);
     fields.favorite.checked = Boolean(bean?.favorite);
     coffeeImport.setStatus("");
     barcode.setStatus("");
@@ -219,6 +304,34 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     if (index >= 0) state.beans[index] = saved;
     onChanged();
   }
+
+  flavorNoteAddButton.addEventListener("click", () => {
+    setFlavorNotePicker(flavorNotePicker.classList.contains("hidden"));
+  });
+  flavorNotePills.addEventListener("click", event => {
+    const button = event.target.closest("[data-remove-flavor-note]");
+    if (button) removeFlavorNote(button.dataset.removeFlavorNote);
+  });
+  flavorNoteOptions.addEventListener("click", event => {
+    const button = event.target.closest("[data-add-flavor-note]");
+    if (button) addFlavorNote(button.dataset.addFlavorNote);
+  });
+  flavorNoteSearchInput.addEventListener("input", renderFlavorNoteOptions);
+  flavorNoteSearchInput.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      setFlavorNotePicker(false);
+      flavorNoteAddButton.focus();
+      return;
+    }
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const customName = flavorNoteSearchInput.value.trim();
+    const firstOption = flavorNoteOptions.querySelector("[data-add-flavor-note]:not(:disabled)");
+    if (customName && !firstOption) addFlavorNote(customName);
+    else if (firstOption) addFlavorNote(firstOption.dataset.addFlavorNote);
+  });
+  flavorNoteCustomButton.addEventListener("click", () => addFlavorNote(flavorNoteSearchInput.value));
 
   fields.blend.addEventListener("change", () => updateBlendUI());
   fields.arabica.addEventListener("input", () => updateBlendUI("arabica"));

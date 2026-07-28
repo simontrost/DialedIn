@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from typing import Any
 
@@ -14,6 +15,14 @@ def find_by_id(db: sqlite3.Connection, bean_id: str) -> sqlite3.Row | None:
     return db.execute("SELECT * FROM beans WHERE id = ?", (bean_id,)).fetchone()
 
 
+def _flavor_notes_from_row(row: sqlite3.Row) -> list[str]:
+    try:
+        value = json.loads(row["flavor_notes_json"] or "[]")
+    except (json.JSONDecodeError, TypeError):
+        return []
+    return [str(item) for item in value if isinstance(item, str)] if isinstance(value, list) else []
+
+
 def row_to_bean(row: sqlite3.Row) -> dict[str, Any]:
     return {
         "id": row["id"],
@@ -26,6 +35,7 @@ def row_to_bean(row: sqlite3.Row) -> dict[str, Any]:
         "status": row["status"],
         "orderUrl": row["order_url"],
         "notes": row["notes"],
+        "flavorNotes": _flavor_notes_from_row(row),
         "favorite": bool(row["favorite"]),
         "createdAt": row["created_at"],
         "updatedAt": row["updated_at"],
@@ -37,14 +47,15 @@ def insert(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         """
         INSERT INTO beans (
             id, name, roaster, origin_country, origin_region, blend, roast,
-            status, order_url, notes, favorite, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            status, order_url, notes, flavor_notes_json, favorite, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             bean["id"], bean["name"], bean["roaster"], bean["originCountry"],
             bean["originRegion"], bean["blend"], bean["roast"], bean["status"],
-            bean["orderUrl"], bean["notes"], int(bean["favorite"]),
-            bean["createdAt"], bean["updatedAt"],
+            bean["orderUrl"], bean["notes"],
+            json.dumps(bean["flavorNotes"], ensure_ascii=False),
+            int(bean["favorite"]), bean["createdAt"], bean["updatedAt"],
         ),
     )
 
@@ -55,14 +66,15 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         UPDATE beans SET
             name = ?, roaster = ?, origin_country = ?, origin_region = ?,
             blend = ?, roast = ?, status = ?, order_url = ?, notes = ?,
-            favorite = ?, updated_at = ?
+            flavor_notes_json = ?, favorite = ?, updated_at = ?
         WHERE id = ?
         """,
         (
             bean["name"], bean["roaster"], bean["originCountry"],
             bean["originRegion"], bean["blend"], bean["roast"], bean["status"],
-            bean["orderUrl"], bean["notes"], int(bean["favorite"]),
-            bean["updatedAt"], bean["id"],
+            bean["orderUrl"], bean["notes"],
+            json.dumps(bean["flavorNotes"], ensure_ascii=False),
+            int(bean["favorite"]), bean["updatedAt"], bean["id"],
         ),
     )
 

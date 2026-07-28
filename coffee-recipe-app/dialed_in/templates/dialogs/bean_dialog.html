@@ -100,9 +100,29 @@
         <span>Status</span>
         <select id="beanStatusInput"><option value="active">Active</option><option value="empty">Out of beans</option><option value="wishlist">Wishlist</option></select>
       </label>
+      <div class="flavor-notes-editor full">
+        <div class="flavor-notes-heading">
+          <div>
+            <span>Flavor notes</span>
+            <small>Add the aromas and tastes you notice in this coffee.</small>
+          </div>
+          <button class="flavor-note-add-button" id="flavorNoteAddButton" type="button" aria-expanded="false" aria-controls="flavorNotePicker">
+            <span aria-hidden="true">+</span> Add flavor note
+          </button>
+        </div>
+        <div class="flavor-note-pills flavor-note-pills-editor" id="flavorNotePills" aria-live="polite"></div>
+        <div class="flavor-note-picker hidden" id="flavorNotePicker">
+          <label class="field flavor-note-search-field">
+            <span>Search or enter a custom note</span>
+            <input id="flavorNoteSearchInput" type="search" maxlength="40" autocomplete="off" placeholder="e.g. Chocolate, plum or marzipan">
+          </label>
+          <div class="flavor-note-options" id="flavorNoteOptions"></div>
+          <button class="flavor-note-custom-button hidden" id="flavorNoteCustomButton" type="button"></button>
+        </div>
+      </div>
       <label class="field full">
         <span>General bean notes</span>
-        <textarea id="beanNotesInput" rows="4" maxlength="1000" placeholder="Processing, tasting notes, roast date …"></textarea>
+        <textarea id="beanNotesInput" rows="4" maxlength="1000" placeholder="Processing, roast date, storage notes …"></textarea>
       </label>
       <div class="reorder-link-home full" id="beanReorderLinkHome">
         <div class="reorder-link-content" id="beanReorderLinkContent">

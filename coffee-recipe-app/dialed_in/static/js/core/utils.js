@@ -4,10 +4,17 @@ export function escapeHtml(value = "") {
   })[char]);
 }
 const ICON_NAME_PATTERN = /^[a-z0-9-]+$/;
+const ICON_GROUP_FALLBACKS = Object.freeze({
+  methods: "custom-method",
+  navigation: "overview",
+  notes: "custom",
+  ui: "add"
+});
 
 export function iconMarkup(name, { group = "ui", className = "", label = "" } = {}) {
-  const safeName = ICON_NAME_PATTERN.test(String(name || "")) ? String(name) : "custom-method";
-  const safeGroup = ["methods", "navigation", "ui"].includes(group) ? group : "ui";
+  const safeGroup = Object.hasOwn(ICON_GROUP_FALLBACKS, group) ? group : "ui";
+  const fallback = ICON_GROUP_FALLBACKS[safeGroup];
+  const safeName = ICON_NAME_PATTERN.test(String(name || "")) ? String(name) : fallback;
   const classes = ["app-icon", className].filter(Boolean).join(" ");
   const aria = label ? `role="img" aria-label="${escapeHtml(label)}"` : 'aria-hidden="true"';
   return `<span class="${classes}" style="--app-icon:url('/static/icons/${safeGroup}/${safeName}.svg')" ${aria}></span>`;

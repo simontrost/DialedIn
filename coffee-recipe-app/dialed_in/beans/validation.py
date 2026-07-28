@@ -28,6 +28,33 @@ def _text(payload: dict[str, Any], key: str, maximum: int, default: str = "") ->
     return value
 
 
+def _flavor_notes(payload: dict[str, Any]) -> list[str]:
+    value = payload.get("flavorNotes", [])
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError("flavorNotes must be a list.")
+    if len(value) > 20:
+        raise ValueError("A bean can have at most 20 flavor notes.")
+
+    notes: list[str] = []
+    seen: set[str] = set()
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError("Every flavor note must be text.")
+        note = item.strip()
+        if not note:
+            continue
+        if len(note) > 40:
+            raise ValueError("A flavor note is too long.")
+        key = note.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        notes.append(note)
+    return notes
+
+
 def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
     name = _text(payload, "name", 80)
     if not name:
@@ -50,5 +77,6 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "status": status,
         "orderUrl": _text(payload, "orderUrl", 500),
         "notes": _text(payload, "notes", 1000),
+        "flavorNotes": _flavor_notes(payload),
         "favorite": bool(payload.get("favorite", False)),
     }
