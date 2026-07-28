@@ -46,9 +46,26 @@ export function statusLabel(status) {
   return ({ active: "Active", empty: "Out of beans", wishlist: "Wishlist" })[status] || "Active";
 }
 
+function splitOriginList(value, { preserveEmpty = false } = {}) {
+  const items = String(value || "")
+    .split(/\s*[;,]\s*/)
+    .map(item => item.trim());
+  return preserveEmpty ? items : items.filter(Boolean);
+}
+
 export function originLabel(bean) {
-  const parts = [bean?.originCountry, bean?.originRegion].filter(Boolean);
-  return parts.length ? parts.join(" · ") : "Origin not set";
+  const countries = splitOriginList(bean?.originCountry);
+  const regions = splitOriginList(bean?.originRegion, { preserveEmpty: true });
+
+  const labels = countries.map((country, index) => {
+    const region = regions[index] || "";
+    return region ? `${country} · ${region}` : country;
+  }).filter(Boolean);
+
+  if (labels.length) return labels.join(", ");
+
+  const standaloneRegions = regions.filter(Boolean);
+  return standaloneRegions.length ? standaloneRegions.join(", ") : "Origin not set";
 }
 
 export function methodById(state, methodId) {

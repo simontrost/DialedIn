@@ -84,11 +84,11 @@ function statusKey(value) {
   return normalizeText(value).replace(/\s+/g, "-");
 }
 
-function splitList(value) {
-  return String(value || "")
+function splitList(value, { preserveEmpty = false } = {}) {
+  const items = String(value || "")
     .split(/\s*[;,]\s*/)
-    .map(item => item.trim())
-    .filter(Boolean);
+    .map(item => item.trim());
+  return preserveEmpty ? items : items.filter(Boolean);
 }
 
 function project([lon, lat]) {
@@ -151,7 +151,7 @@ function viewToString(view) {
 
 function parseOriginEntries(bean) {
   const countries = splitList(bean.originCountry || bean.origin_country || "");
-  const regions = splitList(bean.originRegion || bean.origin_region || "");
+  const regions = splitList(bean.originRegion || bean.origin_region || "", { preserveEmpty: true });
   const maxLen = Math.max(countries.length, regions.length);
   if (!maxLen) return [];
   const entries = [];

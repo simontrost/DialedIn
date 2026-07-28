@@ -1,62 +1,91 @@
 # Dialed In
 
-A mobile web app for your espresso machine and grinder. All data remains inside your home network and is stored centrally in a SQLite database.
-
 <p align="center">
   <img src="coffee-recipe-app/dialed_in/static/icons/icon.svg" alt="Dialed In Logo" width="180">
 </p>
 
+Dialed In is a self-hosted coffee companion for keeping track of beans, brewing recipes and dial-in results. It runs in the browser, works across phones, tablets and desktops, and can be hosted on any suitable computer or server.
+
 ## Features
 
-- Dashboard with coffees, average brew ratio, and average shot time
-- Recipes with dose, yield, ratio, shot time, grind setting, and temperature
-- Roaster, origin/blend, roast level, status, rating, and notes
-- barcode scanner for fetching bean details
-- Reorder link for each coffee, scrape website for information when creating a new recipe entry
-- Search, filters, and favorites
-- Create, edit, and delete recipes
-- Central SQLite backend shared by phone, tablet, and desktop
-- JSON backup and restore
-- Responsive coffee-inspired interface optimized for smartphones
+### Bean library
 
+- Keep coffee name, roaster, roast level, status, tasting notes and reorder link together
+- Store origin country, region or farm separately from the bean composition
+- Choose common Arabica and Robusta ratios or enter a custom blend
+- Add multiple origins to a coffee and assign blend components to their respective countries
+- Mark beans as favorites and filter by roast level, status or availability
 
-### WebApp Mobile
+### Method-specific recipes
 
-| <img src="assets/main.jpg" height="500" /> | <img src="assets/recipes.jpg" height="500" /> | | <img src="assets/new.jpg" height="500" /> |
+Create independent recipes for every bean instead of limiting a coffee to one set of brewing values. Each method provides suitable fields and, where useful, configurable brewing steps.
 
+Supported methods include:
 
-## Recommended: Automatic Installation on a linux host device (e.g. raspberry pi os)
+- Espresso
+- Americano
+- Flat White
+- Cappuccino
+- Caffè Latte
+- V60
+- Pour Over
+- Chemex
+- AeroPress
+- French Press
+- Moka Pot
+- Cold Brew
+- Custom methods
 
-Extract the ZIP archive or clone git, open the project directory, and run:
+### Dial-in history and recommendations
 
-```bash
-chmod +x install.sh
-sudo ./install.sh
-```
+- Log individual brews with grind setting, dose, yield, time, taste, rating and notes
+- Keep separate histories for each bean and recipe
+- Exclude unusual or invalid brews from calculations without deleting them
+- Calculate a recommended next grind setting from previous measurements
+- Limit the maximum suggested adjustment between brews
 
-Then open the app on a device connected to the same network:
+### Coffee origin map
 
-```text
-http://<IP_ADDRESS>:8080
-```
+Explore the origins in your collection on an interactive world map. Beans with several origins appear in each relevant country, and markers can be filtered by bean status.
 
-Display the your IP address with:
+### Quick bean import
 
-```bash
-hostname -I
-```
+- Scan a barcode to look up available product information
+- Paste a roastery or product link to fetch bean details
+- Review and correct imported values before saving
 
-The service starts automatically after every reboot.
+### Overview and organization
 
-### Manage the Service
+- Dashboard with current beans, recipes and logged brews
+- Choose which brewing method is shown on bean cards
+- Search and filter beans and recipes
+- Mark both beans and recipes as favorites
+- Save your espresso machine and grinder in the app settings
 
-```bash
-sudo systemctl status dialed-in-coffee
-sudo systemctl restart dialed-in-coffee
-sudo journalctl -u dialed-in-coffee -f
-```
+### Backup and restore
 
-## Alternative: Docker Compose
+Export all beans, recipes, dial-in measurements and settings as a JSON backup. Existing backups from the earlier recipe-only version remain importable.
+
+### Responsive app experience
+
+Dialed In is designed for both desktop and mobile browsers. On supported devices, it can also be added to the home screen for a more app-like experience.
+
+## Screenshots
+
+<p align="center">
+  <img src="assets/main.jpeg" alt="Dashboard" height="500">
+  <img src="assets/recipes.jpeg" alt="Recipe overview" height="500">
+  <img src="assets/new.jpeg" alt="Adding a new bean/recipe/measurement" height="500">
+  <img src="assets/map.jpeg" alt="Coffee bean origin map" height="500">
+</p>
+
+## Getting started
+
+Dialed In is not tied to a particular device or operating system. The simplest way to host it is with Docker, but it can also be started directly with Python.
+
+### Docker Compose
+
+From the `coffee-recipe-app` directory, run:
 
 ```bash
 docker compose up -d --build
@@ -65,72 +94,55 @@ docker compose up -d --build
 Then open:
 
 ```text
-http://<IP_ADDRESS>:8080
-```
-
-The SQLite database is stored at `data/coffee.db`.
-
-## Alternative: Run Manually
-
-```bash
-sudo apt update
-sudo apt install -y python3 python3-venv
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python server.py
-```
-
-On Windows PowerShell:
-
-```powershell
-py -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe server.py
-```
-
-Open the local app at:
-
-```text
 http://localhost:8080
 ```
 
-## Use a Local Hostname Instead of an IP Address
+When accessing Dialed In from another device, use the address or domain name of the computer hosting it.
 
-On many devices, the default hostname works automatically:
-
-```text
-http://hostname.local:8080
-```
-
-You can change the hostname with:
+To stop the application:
 
 ```bash
-sudo raspi-config
+docker compose down
 ```
 
-For example, choose `coffee` as the hostname. The app will then usually be available at:
+### Run with Python
 
-```text
-http://coffee.local:8080
-```
-
-## Backup
-
-Use **Setup → Export JSON** to download a complete backup. Importing a backup replaces the recipes currently stored in the database.
-
-You can also back up the database directly:
+From the `coffee-recipe-app` directory:
 
 ```bash
-cp /opt/dialed-in-coffee/data/coffee.db ~/coffee-backup.db
+python -m venv .venv
 ```
 
-## Security Note
+Activate the environment:
 
-The app intentionally has no login and is intended for use inside your private home network. Do not forward port 8080 directly to the public internet. For remote access, use a private VPN such as Tailscale.
+```bash
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+```
+
+Install the requirements and start Dialed In:
+
+```bash
+pip install -r requirements.txt
+python run.py
+```
+
+Open `http://localhost:8080` in your browser.
+
+## Backups
+
+Open **Settings** and select **Export JSON** to download a complete backup. Importing a backup replaces the beans, recipes and measurements currently shown in the app, so creating a fresh export beforehand is recommended.
+
+## Privacy and access
+
+Dialed In has no built-in user accounts and is primarily intended for private, self-hosted use. When making it reachable outside a trusted network, place it behind an appropriate authentication and secure connection instead of exposing it directly.
 
 ## License
+
 Creative Commons Attribution–NonCommercial 4.0
 
-Full license text:
+Full license text:  
 https://creativecommons.org/licenses/by-nc/4.0/legalcode.txt

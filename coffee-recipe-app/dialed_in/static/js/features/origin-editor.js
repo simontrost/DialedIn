@@ -60,11 +60,11 @@ function normalizeText(value) {
     .replace(/\s+/g, " ");
 }
 
-function splitList(value) {
-  return String(value || "")
+function splitList(value, { preserveEmpty = false } = {}) {
+  const items = String(value || "")
     .split(/\s*[;,]\s*/)
-    .map(item => item.trim())
-    .filter(Boolean);
+    .map(item => item.trim());
+  return preserveEmpty ? items : items.filter(Boolean);
 }
 
 function parseCountryMetadata(value) {
@@ -245,7 +245,7 @@ export function createOriginEditorEnhancer() {
         country: formatCountryMetadata(country, component.value),
         region: region.value.trim()
       };
-    }).filter(entry => entry.country || entry.region);
+    }).filter(entry => entry.country);
 
     countryInput.value = entries.map(entry => entry.country).join(", ");
     regionInput.value = entries.map(entry => entry.region).join(", ");
@@ -346,7 +346,7 @@ export function createOriginEditorEnhancer() {
 
   function parseEntries() {
     const countries = splitList(countryInput.value);
-    const regions = splitList(regionInput.value);
+    const regions = splitList(regionInput.value, { preserveEmpty: true });
     const maxLen = Math.max(countries.length, regions.length, 1);
     const entries = [];
     for (let index = 0; index < maxLen; index += 1) {
