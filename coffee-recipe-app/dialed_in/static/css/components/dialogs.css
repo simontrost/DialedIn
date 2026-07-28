@@ -55,3 +55,65 @@ dialog form,.quick-add-content { padding:26px; }
 @media(max-width:700px){
   .brew-method-select .method-select-menu{position:fixed;z-index:120;left:16px;right:16px;top:auto;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:auto;max-height:min(520px,68dvh)}
 }
+
+/* Collapsible import tools keep the normal bean form compact by default. */
+.import-panel {
+  overflow: hidden;
+  padding: 0;
+}
+.import-panel-summary {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.import-panel-summary::-webkit-details-marker { display: none; }
+.import-panel-summary-copy { min-width: 0; }
+.import-panel-summary-copy strong,
+.import-panel-summary-copy small { display: block; }
+.import-panel-summary-copy strong { font-size: .92rem; }
+.import-panel-summary-copy small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .76rem;
+  line-height: 1.4;
+}
+.import-panel-chevron {
+  width: 10px;
+  height: 10px;
+  justify-self: center;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .18s ease;
+}
+.import-panel[open] .import-panel-chevron {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+.import-panel-body {
+  border-top: 1px solid rgba(201,135,74,.22);
+  padding: 16px;
+}
+.reorder-link-home:empty { display: none; }
+.reorder-link-content { min-width: 0; }
+.reorder-link-help {
+  display: block;
+  margin: 7px 2px 0;
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1.4;
+}
+#beanImportUrlMount .reorder-link-help {
+  margin-bottom: 0;
+}
+
+@media(max-width:700px){
+  .import-panel-summary { min-height: 64px; padding: 13px 14px; }
+  .import-panel-summary-copy small { font-size: .72rem; }
+  .import-panel-body { padding: 14px; }
+}

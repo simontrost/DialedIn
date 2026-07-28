@@ -8,7 +8,10 @@ export function createCoffeeImport({
   metadataIsBlank,
   updateBarcodeAvailability
 }) {
-  const importHelp = document.querySelector("#importHelp");
+  const importPanel = document.querySelector("#beanImportDetails");
+  const importUrlMount = document.querySelector("#beanImportUrlMount");
+  const reorderLinkHome = document.querySelector("#beanReorderLinkHome");
+  const reorderLinkContent = document.querySelector("#beanReorderLinkContent");
   const scrapeButton = document.querySelector("#scrapeButton");
   const scrapeStatus = document.querySelector("#scrapeStatus");
 
@@ -17,10 +20,19 @@ export function createCoffeeImport({
     scrapeStatus.dataset.type = type;
   }
 
+  function placeReorderLink() {
+    const importExpanded = !state.editingBeanId && importPanel.open;
+    const target = importExpanded ? importUrlMount : reorderLinkHome;
+    if (reorderLinkContent.parentElement !== target) target.append(reorderLinkContent);
+    scrapeButton.classList.toggle("hidden", !importExpanded);
+  }
+
   function updateAvailability() {
     const newBean = !state.editingBeanId;
-    importHelp.classList.toggle("hidden", !newBean);
-    scrapeButton.classList.toggle("hidden", !newBean);
+    importPanel.classList.toggle("hidden", !newBean);
+    if (!newBean) importPanel.open = false;
+
+    placeReorderLink();
     updateBarcodeAvailability();
 
     if (!newBean) {
@@ -31,6 +43,12 @@ export function createCoffeeImport({
     scrapeButton.disabled = state.scrapeInProgress
       || !metadataIsBlank()
       || !normalizeUrl(fields.orderUrl.value);
+  }
+
+  function resetPanel() {
+    importPanel.open = false;
+    placeReorderLink();
+    updateAvailability();
   }
 
   async function scrapeProductInfo(manual = false) {
@@ -79,13 +97,20 @@ export function createCoffeeImport({
     clearTimeout(state.scrapeTimer);
     updateAvailability();
     const url = normalizeUrl(fields.orderUrl.value);
-    if (state.editingBeanId || !url || !metadataIsBlank() || state.lastScrapedUrl === url) return;
+    if (state.editingBeanId || !importPanel.open || !url || !metadataIsBlank() || state.lastScrapedUrl === url) return;
     state.scrapeTimer = setTimeout(() => scrapeProductInfo(false), 850);
   }
 
+  importPanel.addEventListener("toggle", () => {
+    clearTimeout(state.scrapeTimer);
+    setStatus("");
+    updateAvailability();
+  });
   scrapeButton.addEventListener("click", () => scrapeProductInfo(true));
   fields.orderUrl.addEventListener("input", scheduleAutomaticScrape);
-  fields.orderUrl.addEventListener("blur", () => scrapeProductInfo(false));
+  fields.orderUrl.addEventListener("blur", () => {
+    if (importPanel.open) void scrapeProductInfo(false);
+  });
 
-  return { setStatus, updateAvailability, scrapeProductInfo };
+  return { setStatus, updateAvailability, scrapeProductInfo, resetPanel };
 }

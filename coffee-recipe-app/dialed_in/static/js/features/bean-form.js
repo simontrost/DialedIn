@@ -10,7 +10,6 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   const customBlendFields = document.querySelector("#customBlendFields");
   const arabicaBar = document.querySelector("#arabicaBar");
   const blendSum = document.querySelector("#blendSum");
-  const barcodeScanButton = document.querySelector("#barcodeScanButton");
 
   const fields = {
     name: document.querySelector("#beanNameInput"),
@@ -159,9 +158,9 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     coffeeImport.setStatus("");
     barcode.setStatus("");
     void barcode.stop();
-    coffeeImport.updateAvailability();
+    coffeeImport.resetPanel();
     dialog.showModal();
-    setTimeout(() => (bean ? fields.name : barcodeScanButton).focus(), 80);
+    setTimeout(() => fields.name.focus(), 80);
   }
 
   async function save(event) {
