@@ -30,8 +30,12 @@
   </section>
 
   <section class="dial-summary-grid">
-    <article class="dial-summary-card">
+    <article class="dial-summary-card dial-target-card">
       <small>Selected target</small>
+      <button class="dial-target-edit-button" id="editDialTargetButton" type="button"
+        aria-label="Edit recipe target time" title="Edit target time">
+        <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/edit.svg') }}')" aria-hidden="true"></span>
+      </button>
       <strong id="dialTargetSummary">–</strong>
       <span id="dialRecipeSummary">Choose a recipe</span>
     </article>

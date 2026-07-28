@@ -35,3 +35,10 @@
 .compact-field .input-with-unit>input:focus{outline:0;box-shadow:none!important}
 .compact-field .input-with-unit:focus-within{border-color:rgba(201,135,74,.82);box-shadow:0 0 0 4px rgba(201,135,74,.12)}
 .recommendation-card #recommendationMeta{font-weight:700;text-transform:capitalize}
+
+.dial-target-card{position:relative;padding-right:68px}
+.dial-target-edit-button{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid var(--line);border-radius:50%;color:var(--espresso-800);background:rgba(255,255,255,.82);cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.dial-target-edit-button:hover:not(:disabled){transform:translateY(-1px);border-color:rgba(201,135,74,.55);background:var(--cream-100)}
+.dial-target-edit-button:focus-visible{outline:3px solid rgba(201,135,74,.22);outline-offset:2px}
+.dial-target-edit-button:disabled{opacity:.38;cursor:not-allowed}
+.dial-target-edit-button .app-icon{width:1.05rem;height:1.05rem}

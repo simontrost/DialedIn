@@ -66,9 +66,9 @@ function toggleBeanFavorite(beanId) {
   if (bean) beanForm.toggleFavorite(bean).catch(error => showToast(error.message));
 }
 function addBean() { beanForm.open(); }
-function editRecipe(recipeId) {
+function editRecipe(recipeId, options = {}) {
   const recipe = state.brewRecipes.find(item => item.id === recipeId);
-  if (recipe) brewRecipeForm.open(recipe);
+  if (recipe) brewRecipeForm.open(recipe, options);
 }
 function addRecipe(defaults = {}) { brewRecipeForm.open(null, defaults); }
 function addMeasurement(defaults = {}) { dialInLogForm.open(defaults); }
@@ -93,7 +93,7 @@ recipesPage = createRecipesPage({
   onAdd: addRecipe,
   onOpenDialIn: openDialIn
 });
-dialInPage = createDialInPage({ state, api, showToast, onAddMeasurement: addMeasurement });
+dialInPage = createDialInPage({ state, api, showToast, onAddMeasurement: addMeasurement, onEditRecipe: editRecipe });
 originsPage = createOriginsPage({ state, onEditBean: editBean, showToast });
 
 quickAdd = createQuickAdd({

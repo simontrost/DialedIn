@@ -143,6 +143,14 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     draftSteps = recipe?.steps?.map(step => ({ ...step })) || methodById(state, methodInput.value).defaultSteps?.map(step => ({ ...step })) || [];
     renderMethodFields(recipe?.values || {});
     dialog.showModal();
+    if (defaults.focusField) {
+      requestAnimationFrame(() => {
+        const field = fieldsContainer.querySelector(`[data-recipe-field="${CSS.escape(defaults.focusField)}"]`);
+        if (!field) return;
+        field.focus();
+        if (typeof field.select === "function") field.select();
+      });
+    }
     return true;
   }
 

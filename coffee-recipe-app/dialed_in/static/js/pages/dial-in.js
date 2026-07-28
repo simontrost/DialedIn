@@ -5,13 +5,14 @@ const tasteLabels = {
   bitter: "Bitter", very_bitter: "Very bitter", astringent: "Astringent", hollow: "Hollow"
 };
 
-export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
+export function createDialInPage({ state, api, showToast, onAddMeasurement, onEditRecipe }) {
   const beanSelect = document.querySelector("#dialInBeanSelect");
   const recipeSelect = document.querySelector("#dialInRecipeSelect");
   const maxStep = document.querySelector("#dialInMaxStep");
   const addButton = document.querySelector("#addMeasurementButton");
   const emptyAddButton = document.querySelector("#dialInEmptyAddButton");
   const calculateButton = document.querySelector("#calculateGrindButton");
+  const editTargetButton = document.querySelector("#editDialTargetButton");
   const tableBody = document.querySelector("#measurementTableBody");
   const mobileList = document.querySelector("#measurementMobileList");
   const empty = document.querySelector("#dialInEmptyState");
@@ -113,6 +114,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
     addButton.disabled = disabled;
     calculateButton.disabled = disabled || !validLogs.length;
     emptyAddButton.disabled = disabled;
+    editTargetButton.disabled = disabled;
 
     targetSummary.textContent = recipe?.values?.targetTime ? `${formatNumber(recipe.values.targetTime, 1)} s` : "–";
     recipeSummary.textContent = recipe ? `${method.name} · target grind ${formatNumber(recipe.values?.grind, 2)}` : "Create a dial-in-capable recipe first";
@@ -133,6 +135,12 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
     const recipe = selectedRecipe();
     if (!recipe) return showToast("Create or choose a recipe first");
     onAddMeasurement({ beanId: recipe.beanId, recipeId: recipe.id });
+  }
+
+  function editTargetTime() {
+    const recipe = selectedRecipe();
+    if (!recipe) return showToast("Create or choose a recipe first");
+    onEditRecipe(recipe.id, { focusField: "targetTime" });
   }
 
   async function calculate() {
@@ -194,6 +202,7 @@ export function createDialInPage({ state, api, showToast, onAddMeasurement }) {
   addButton.addEventListener("click", addMeasurement);
   emptyAddButton.addEventListener("click", addMeasurement);
   calculateButton.addEventListener("click", calculate);
+  editTargetButton.addEventListener("click", editTargetTime);
   function handleDeleteClick(event) {
     const button = event.target.closest("[data-delete-log]");
     if (button) deleteLog(button.dataset.deleteLog);
