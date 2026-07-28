@@ -1,1 +1,15 @@
-.bean-toolbar { grid-template-columns:minmax(240px,1fr) auto auto auto; }
+.bean-toolbar {
+  grid-template-columns:minmax(240px,1fr) minmax(150px,auto) minmax(150px,auto) minmax(170px,auto) auto;
+}
+
+@media(max-width:1050px) {
+  #page-beans .bean-toolbar { grid-template-columns:1fr 1fr; }
+  #page-beans .bean-toolbar .search-field { grid-column:1 / -1; }
+  #page-beans .bean-toolbar select { min-width:0; width:100%; }
+  #page-beans .bean-toolbar .favorites-filter { justify-content:center; }
+}
+
+@media(max-width:520px) {
+  #page-beans .bean-toolbar { grid-template-columns:1fr; }
+  #page-beans .bean-toolbar .search-field { grid-column:auto; }
+}
