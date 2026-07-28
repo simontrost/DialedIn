@@ -43,7 +43,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
         ${recipeBlock}
       </div>
       <footer class="bean-card-footer">
-        <button class="edit-button icon-only-button" type="button" data-edit-bean="${bean.id}" aria-label="Edit bean" title="Edit bean">${iconMarkup("edit", { group: "ui" })}</button>
+        <button class="edit-button button-with-icon" type="button" data-edit-bean="${bean.id}" aria-label="Edit bean" title="Edit bean">${iconMarkup("edit", { group: "ui" })}<span>Edit bean</span></button>
         ${bean.orderUrl ? `<a class="order-link button-with-icon" href="${escapeHtml(bean.orderUrl)}" target="_blank" rel="noopener">${iconMarkup("reorder", { group: "ui" })}<span>Reorder</span></a>` : ""}
       </footer>
     </article>`;
