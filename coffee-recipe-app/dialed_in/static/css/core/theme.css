@@ -628,3 +628,191 @@
 :root[data-theme="dark"] .theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
   background: var(--crema-400);
 }
+
+/*
+ * Contrast mastheads
+ * Light mode uses deep espresso headers with crema details.
+ * Dark mode inverts those large headers to warm parchment surfaces.
+ */
+:root:not([data-theme="dark"]) .hero {
+  color: #fff5eb;
+  border-color: rgba(58, 37, 25, .18);
+  background:
+    radial-gradient(circle at 82% 28%, rgba(234, 209, 183, .20) 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 35%, rgba(234, 209, 183, .14) 0 3px, transparent 4px),
+    linear-gradient(135deg, #29180f 0%, #4a2f21 100%);
+  box-shadow: 0 20px 54px rgba(58, 37, 25, .20);
+}
+
+:root:not([data-theme="dark"]) .hero::before {
+  border-color: rgba(234, 209, 183, .075);
+}
+
+:root:not([data-theme="dark"]) .hero::after {
+  color: #ead1b7;
+  opacity: .11;
+}
+
+:root:not([data-theme="dark"]) .hero h1 em {
+  color: #e7b77f;
+}
+
+:root:not([data-theme="dark"]) .hero-copy {
+  color: rgba(255, 245, 235, .74);
+}
+
+:root:not([data-theme="dark"]) .hero-button {
+  color: #2b190f;
+  background: #e7b77f;
+  box-shadow: 0 12px 28px rgba(20, 11, 7, .24);
+}
+
+:root:not([data-theme="dark"]) .hero-button:hover {
+  background: #f0ca9e;
+}
+
+:root:not([data-theme="dark"]) .page-header,
+:root:not([data-theme="dark"]) .origin-page-header {
+  color: #fff5eb;
+  border-color: rgba(58, 37, 25, .18);
+  background: linear-gradient(135deg, #29180f 0%, #4a2f21 100%);
+  box-shadow: 0 18px 46px rgba(58, 37, 25, .16);
+}
+
+:root:not([data-theme="dark"]) .page-header .eyebrow,
+:root:not([data-theme="dark"]) .origin-page-header .eyebrow {
+  color: #e7b77f;
+}
+
+:root:not([data-theme="dark"]) .page-header p:last-child,
+:root:not([data-theme="dark"]) .origin-page-header p:last-child {
+  color: rgba(255, 245, 235, .70);
+}
+
+:root:not([data-theme="dark"]) .page-header .primary-button,
+:root:not([data-theme="dark"]) .page-header .beta-badge {
+  color: #2b190f;
+  background: #e7b77f;
+}
+
+:root:not([data-theme="dark"]) .page-header .primary-button:hover {
+  background: #f0ca9e;
+}
+
+:root:not([data-theme="dark"]) .origin-page-header .origin-filter {
+  color: rgba(255, 245, 235, .68);
+}
+
+:root:not([data-theme="dark"]) .origin-page-header .origin-filter select {
+  color: #2b190f;
+  border-color: rgba(255, 245, 235, .35);
+  background: #f0dcc7;
+}
+
+:root:not([data-theme="dark"]) .origin-page-header .secondary-button {
+  color: #f5dfca;
+  border-color: rgba(245, 223, 202, .34);
+  background: rgba(255, 245, 235, .08);
+}
+
+:root:not([data-theme="dark"]) .origin-page-header .secondary-button:hover {
+  color: #2b190f;
+  border-color: #f0dcc7;
+  background: #f0dcc7;
+}
+
+:root[data-theme="dark"] .hero,
+:root[data-theme="dark"] .page-header,
+:root[data-theme="dark"] .origin-page-header {
+  color: #2b190f;
+  border-color: rgba(244, 226, 207, .30);
+  background:
+    radial-gradient(circle at 86% 24%, rgba(83, 49, 29, .11) 0 2px, transparent 3px),
+    linear-gradient(135deg, #f0dcc7 0%, #d4aa82 100%);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, .30);
+}
+
+:root[data-theme="dark"] .hero::before {
+  border-color: rgba(70, 42, 25, .08);
+}
+
+:root[data-theme="dark"] .hero::after {
+  color: #4a2d1d;
+  opacity: .11;
+}
+
+:root[data-theme="dark"] .hero h1 em {
+  color: #6a3e24;
+}
+
+:root[data-theme="dark"] .hero-copy,
+:root[data-theme="dark"] .page-header p:last-child,
+:root[data-theme="dark"] .origin-page-header p:last-child {
+  color: rgba(43, 25, 15, .70);
+}
+
+:root[data-theme="dark"] .hero .eyebrow,
+:root[data-theme="dark"] .page-header .eyebrow,
+:root[data-theme="dark"] .origin-page-header .eyebrow {
+  color: #9b582d;
+}
+
+:root[data-theme="dark"] .hero-button,
+:root[data-theme="dark"] .page-header .primary-button,
+:root[data-theme="dark"] .page-header .beta-badge {
+  color: #f7e9dc;
+  background: #342017;
+  box-shadow: 0 12px 28px rgba(43, 25, 15, .22);
+}
+
+:root[data-theme="dark"] .hero-button:hover,
+:root[data-theme="dark"] .page-header .primary-button:hover {
+  background: #4a2f21;
+}
+
+:root[data-theme="dark"] .origin-page-header .origin-filter {
+  color: rgba(43, 25, 15, .66);
+}
+
+:root[data-theme="dark"] .origin-page-header .origin-filter select {
+  color: #f4e8dc;
+  border-color: rgba(43, 25, 15, .24);
+  background: #342017;
+}
+
+:root[data-theme="dark"] .origin-page-header .secondary-button {
+  color: #342017;
+  border-color: rgba(52, 32, 23, .28);
+  background: rgba(52, 32, 23, .08);
+}
+
+:root[data-theme="dark"] .origin-page-header .secondary-button:hover {
+  color: #f7e9dc;
+  border-color: #342017;
+  background: #342017;
+}
+
+/* The floating equipment strip stays opposite to the hero for clear layering. */
+:root[data-theme="dark"] .equipment-strip {
+  color: #f4e8dc;
+  border-color: rgba(238, 208, 181, .20);
+  background: linear-gradient(135deg, #342017, #24150f);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, .34);
+}
+
+:root[data-theme="dark"] .equipment-item small {
+  color: rgba(244, 232, 220, .62);
+}
+
+:root[data-theme="dark"] .equipment-icon {
+  color: #342017;
+  background: #e7c6a5;
+}
+
+:root[data-theme="dark"] .equipment-icon.grinder {
+  color: #342017;
+}
+
+:root[data-theme="dark"] .equipment-divider {
+  background: rgba(238, 208, 181, .18);
+}
