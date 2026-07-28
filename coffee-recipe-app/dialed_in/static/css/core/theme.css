@@ -530,7 +530,8 @@
 }
 
 :root[data-theme="dark"] .method-select-current-icon,
-:root[data-theme="dark"] .method-select-trigger .app-icon {
+:root[data-theme="dark"] .method-select-trigger .app-icon,
+:root[data-theme="dark"] .dashboard-method-picker .method-select-current-label {
   color: #4a2d1d;
 }
 
