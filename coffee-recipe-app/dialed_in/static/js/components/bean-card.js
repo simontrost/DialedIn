@@ -44,7 +44,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
       </div>
       <footer class="bean-card-footer">
         <button class="edit-button icon-only-button" type="button" data-edit-bean="${bean.id}" aria-label="Edit bean" title="Edit bean">${iconMarkup("edit", { group: "ui" })}</button>
-        ${bean.orderUrl ? `<a class="order-link" href="${escapeHtml(bean.orderUrl)}" target="_blank" rel="noopener">Reorder</a>` : ""}
+        ${bean.orderUrl ? `<a class="order-link button-with-icon" href="${escapeHtml(bean.orderUrl)}" target="_blank" rel="noopener">${iconMarkup("reorder", { group: "ui" })}<span>Reorder</span></a>` : ""}
       </footer>
     </article>`;
 }

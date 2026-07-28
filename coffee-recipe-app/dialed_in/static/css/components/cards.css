@@ -22,6 +22,7 @@
 .inline-edit-button { min-width:36px; height:36px; border:1px solid rgba(201,135,74,.26); border-radius:999px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; color:var(--crema-500); background:rgba(255,250,244,.9); }
 .inline-edit-button .app-icon { width:1rem; height:1rem; }
 .order-link { border:1px solid var(--line); color:var(--espresso-700); background:#fff; }
+.order-link .app-icon,.brew-recipe-footer .secondary-button .app-icon { width:1rem; height:1rem; }
 .bean-recipe-preview { border:1px solid rgba(201,135,74,.28); border-radius:16px; padding:13px; background:linear-gradient(145deg,rgba(248,239,228,.7),rgba(255,255,255,.9)); }
 .bean-recipe-preview.missing { border-style:dashed; }
 .bean-recipe-heading { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }

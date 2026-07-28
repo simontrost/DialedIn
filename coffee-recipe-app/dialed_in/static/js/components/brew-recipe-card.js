@@ -21,7 +21,7 @@ export function brewRecipeCardHtml(recipe, state) {
       </div>
       <footer class="brew-recipe-footer">
         <button class="edit-button icon-only-button" type="button" data-edit-recipe="${recipe.id}" aria-label="Edit recipe" title="Edit recipe">${iconMarkup("edit", { group: "ui" })}</button>
-        ${method.supportsDialIn ? `<button class="secondary-button" type="button" data-open-dial-in="${recipe.id}">Dial in</button>` : ""}
+        ${method.supportsDialIn ? `<button class="secondary-button button-with-icon" type="button" data-open-dial-in="${recipe.id}">${iconMarkup("dial-in", { group: "navigation" })}<span>Dial in</span></button>` : ""}
       </footer>
     </article>`;
 }
