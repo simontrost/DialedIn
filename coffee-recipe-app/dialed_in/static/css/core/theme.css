@@ -1,0 +1,440 @@
+/* Appearance switch shown in Settings. */
+.theme-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px 18px;
+  background: var(--cream-50);
+  cursor: pointer;
+}
+
+.theme-setting-copy {
+  min-width: 0;
+}
+
+.theme-setting-copy > span,
+.theme-setting-copy > strong,
+.theme-setting-copy > small {
+  display: block;
+}
+
+.theme-setting-copy > span {
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.theme-setting-copy > strong {
+  margin-top: 5px;
+  font-size: .94rem;
+}
+
+.theme-setting-copy > small {
+  max-width: 460px;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .74rem;
+  line-height: 1.45;
+}
+
+.theme-switch-row {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.theme-switch {
+  position: relative;
+  width: 58px;
+  height: 32px;
+  display: inline-block;
+}
+
+.theme-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.theme-switch-track {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--cream-200);
+  box-shadow: inset 0 1px 3px rgba(41, 26, 18, .12);
+  transition: background .2s ease, border-color .2s ease;
+}
+
+.theme-switch-thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 3px 9px rgba(41, 26, 18, .22);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.theme-switch input:checked + .theme-switch-track {
+  border-color: rgba(201, 135, 74, .55);
+  background: var(--espresso-800);
+}
+
+.theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
+  transform: translateX(26px);
+  background: var(--crema-400);
+}
+
+.theme-switch input:focus-visible + .theme-switch-track {
+  outline: 3px solid rgba(201, 135, 74, .25);
+  outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+  .theme-setting {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .theme-switch-row {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/*
+ * Dark coffee theme: deep brown surfaces instead of neutral black/grey,
+ * with crema and light-beige details taking the place of dark brown accents.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --espresso-950: #1b110c;
+  --espresso-900: #21150f;
+  --espresso-800: #e3bd97;
+  --espresso-700: #d8ad84;
+  --espresso-600: #bd8f68;
+  --crema-500: #d59659;
+  --crema-400: #e7b77f;
+  --cream-50: #1d1511;
+  --cream-100: #291d17;
+  --cream-200: #3a2920;
+  --sage-500: #96ad88;
+  --danger: #df756b;
+  --ink: #f4e8dc;
+  --muted: #bca99a;
+  --line: rgba(238, 208, 181, .14);
+  --shadow: 0 18px 54px rgba(0, 0, 0, .3);
+}
+
+:root[data-theme="dark"] {
+  background: #120c09;
+}
+
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 90% 2%, rgba(201, 135, 74, .13), transparent 30rem),
+    linear-gradient(180deg, #17100c 0%, #110b08 100%);
+}
+
+:root[data-theme="dark"] ::selection {
+  color: #21140d;
+  background: var(--crema-400);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #8f7b6d;
+}
+
+/* General surfaces and controls. */
+:root[data-theme="dark"] .page-header,
+:root[data-theme="dark"] .origin-page-header,
+:root[data-theme="dark"] .dial-selection-panel,
+:root[data-theme="dark"] .dial-summary-card:not(.recommendation-card),
+:root[data-theme="dark"] .measurement-table-wrap,
+:root[data-theme="dark"] .measurement-mobile-card,
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .equipment-strip,
+:root[data-theme="dark"] .bean-card,
+:root[data-theme="dark"] .brew-recipe-card,
+:root[data-theme="dark"] .search-field,
+:root[data-theme="dark"] .toolbar select,
+:root[data-theme="dark"] .favorites-filter,
+:root[data-theme="dark"] .desktop-nav,
+:root[data-theme="dark"] .empty-state {
+  background: rgba(38, 26, 20, .9);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .2);
+}
+
+:root[data-theme="dark"] .icon-button:not(.active),
+:root[data-theme="dark"] .dialog-close,
+:root[data-theme="dark"] .secondary-button,
+:root[data-theme="dark"] .order-link,
+:root[data-theme="dark"] .origin-sheet-close,
+:root[data-theme="dark"] .origin-bean-row,
+:root[data-theme="dark"] .quick-add-grid button,
+:root[data-theme="dark"] .recipe-step-row,
+:root[data-theme="dark"] .method-description > .method-icon-shell,
+:root[data-theme="dark"] .dial-target-edit-button,
+:root[data-theme="dark"] .method-select-trigger,
+:root[data-theme="dark"] .dashboard-method-picker select,
+:root[data-theme="dark"] .origin-filter select,
+:root[data-theme="dark"] .field input,
+:root[data-theme="dark"] .field select,
+:root[data-theme="dark"] .field textarea,
+:root[data-theme="dark"] .metric-input div,
+:root[data-theme="dark"] .input-with-unit {
+  color: var(--ink);
+  background: #241914;
+}
+
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] option {
+  color: var(--ink);
+  background-color: #241914;
+}
+
+:root[data-theme="dark"] .icon-button:not(.active):hover,
+:root[data-theme="dark"] .dialog-close:hover,
+:root[data-theme="dark"] .secondary-button:hover,
+:root[data-theme="dark"] .order-link:hover,
+:root[data-theme="dark"] .origin-sheet-close:hover {
+  background: #30211a;
+}
+
+:root[data-theme="dark"] .icon-button.active,
+:root[data-theme="dark"] .desktop-nav button.active {
+  color: #25170f;
+  background: var(--espresso-800);
+}
+
+:root[data-theme="dark"] .primary-button,
+:root[data-theme="dark"] .beta-badge,
+:root[data-theme="dark"] .import-icon {
+  color: #25170f;
+}
+
+:root[data-theme="dark"] .edit-button {
+  color: #25170f;
+  background: var(--espresso-800);
+}
+
+:root[data-theme="dark"] .edit-button:hover {
+  background: #edcca9;
+}
+
+:root[data-theme="dark"] .bean-card,
+:root[data-theme="dark"] .brew-recipe-card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .19);
+}
+
+:root[data-theme="dark"] .bean-card:hover,
+:root[data-theme="dark"] .brew-recipe-card:hover {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .29);
+}
+
+:root[data-theme="dark"] .bean-recipe-preview {
+  background: linear-gradient(145deg, rgba(51, 35, 27, .92), rgba(31, 21, 16, .94));
+}
+
+:root[data-theme="dark"] .method-select-menu {
+  background: #211712;
+  box-shadow: 0 22px 58px rgba(0, 0, 0, .42);
+}
+
+:root[data-theme="dark"] .method-select-option[aria-selected="true"] {
+  color: #f6ddc3;
+  background: rgba(201, 135, 74, .2);
+}
+
+:root[data-theme="dark"] dialog {
+  color: var(--ink);
+  background: #1b120e;
+  box-shadow: 0 34px 100px rgba(0, 0, 0, .55);
+}
+
+:root[data-theme="dark"] dialog::backdrop {
+  background: rgba(5, 3, 2, .72);
+}
+
+:root[data-theme="dark"] .import-panel {
+  background: linear-gradient(135deg, rgba(49, 33, 25, .96), rgba(29, 20, 15, .96));
+}
+
+:root[data-theme="dark"] .backup-panel {
+  color: #f6e7d8;
+  background: #100a07;
+  box-shadow: inset 0 0 0 1px rgba(231, 183, 127, .12);
+}
+
+:root[data-theme="dark"] .backup-panel p {
+  color: rgba(246, 231, 216, .68);
+}
+
+:root[data-theme="dark"] .backup-panel .secondary-button {
+  color: #f1d2b3;
+  background: #281a13;
+  border-color: rgba(241, 210, 179, .18);
+}
+
+:root[data-theme="dark"] .remove-step-button,
+:root[data-theme="dark"] .table-delete-button {
+  color: #f09288;
+  background: rgba(169, 71, 62, .18);
+}
+
+:root[data-theme="dark"] .remove-step-button:hover,
+:root[data-theme="dark"] .table-delete-button:hover {
+  background: rgba(169, 71, 62, .28);
+}
+
+/* Keep the main overview hero deliberately deep and coffee-coloured. */
+:root[data-theme="dark"] .hero {
+  color: #fff4e8;
+  background:
+    radial-gradient(circle at 82% 28%, rgba(231, 183, 127, .22) 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 35%, rgba(231, 183, 127, .17) 0 3px, transparent 4px),
+    linear-gradient(135deg, #100a07, #352117);
+}
+
+:root[data-theme="dark"] .hero::after {
+  color: #fff4e8;
+}
+
+:root[data-theme="dark"] .equipment-strip {
+  border-color: rgba(231, 183, 127, .15);
+  backdrop-filter: blur(16px);
+}
+
+/* In dark mode the recommendation becomes the inverted crema highlight card. */
+:root[data-theme="dark"] .recommendation-card {
+  color: #24150d;
+  background: linear-gradient(145deg, #ecc9a5, #c9874a);
+}
+
+:root[data-theme="dark"] .recommendation-card small,
+:root[data-theme="dark"] .recommendation-card span {
+  color: rgba(36, 21, 13, .7);
+}
+
+:root[data-theme="dark"] .recommendation-card strong {
+  color: #24150d;
+}
+
+:root[data-theme="dark"] .recommendation-card[data-confidence="high"] {
+  box-shadow: inset 0 0 0 2px rgba(48, 87, 44, .34);
+}
+
+:root[data-theme="dark"] .recommendation-card[data-confidence="medium"] {
+  box-shadow: inset 0 0 0 2px rgba(70, 42, 22, .24);
+}
+
+/* Origin map uses a dark parchment treatment rather than a grey map. */
+:root[data-theme="dark"] .origin-map-card {
+  border-color: rgba(231, 183, 127, .15);
+  background: linear-gradient(145deg, #302017, #1a120e);
+}
+
+:root[data-theme="dark"] .origin-map-card::before {
+  background:
+    radial-gradient(circle at 22% 15%, rgba(231, 183, 127, .1), transparent 28%),
+    repeating-linear-gradient(0deg, rgba(231, 183, 127, .025) 0 1px, transparent 1px 8px);
+  mix-blend-mode: screen;
+}
+
+:root[data-theme="dark"] .origin-zoom-controls {
+  border-color: rgba(231, 183, 127, .18);
+  background: rgba(27, 18, 14, .84);
+}
+
+:root[data-theme="dark"] .origin-zoom-controls button + button {
+  border-left-color: rgba(231, 183, 127, .15);
+}
+
+:root[data-theme="dark"] .origin-country {
+  fill: rgba(227, 189, 151, .13);
+  stroke: rgba(227, 189, 151, .4);
+}
+
+:root[data-theme="dark"] .origin-country.has-beans {
+  fill: rgba(201, 135, 74, .42);
+}
+
+:root[data-theme="dark"] .origin-marker-halo {
+  fill: rgba(29, 21, 17, .92);
+  stroke: rgba(231, 183, 127, .32);
+}
+
+:root[data-theme="dark"] .origin-marker:hover .origin-marker-halo,
+:root[data-theme="dark"] .origin-marker:focus .origin-marker-halo {
+  fill: #35241b;
+}
+
+:root[data-theme="dark"] .origin-map-loading,
+:root[data-theme="dark"] .origin-map-empty {
+  background: rgba(29, 20, 15, .82);
+}
+
+:root[data-theme="dark"] .origin-sheet {
+  border-color: rgba(231, 183, 127, .15);
+  background: rgba(27, 18, 14, .97);
+  box-shadow: 0 30px 86px rgba(0, 0, 0, .55);
+}
+
+:root[data-theme="dark"] .origin-component-badge {
+  color: #25170f;
+  background: var(--espresso-800);
+}
+
+:root[data-theme="dark"] .bottom-nav {
+  border-color: rgba(231, 183, 127, .13);
+  background: rgba(15, 9, 6, .97);
+  box-shadow: 0 -10px 38px rgba(0, 0, 0, .36);
+}
+
+:root[data-theme="dark"] .bottom-nav button {
+  color: rgba(244, 232, 220, .5);
+}
+
+:root[data-theme="dark"] .bottom-nav button.active {
+  color: var(--crema-400);
+}
+
+:root[data-theme="dark"] .theme-switch-track {
+  background: #3a2920;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .35);
+}
+
+:root[data-theme="dark"] .theme-switch-thumb {
+  background: #f3e4d5;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, .32);
+}
+
+:root[data-theme="dark"] .theme-switch input:checked + .theme-switch-track {
+  background: #60412d;
+}
+
+:root[data-theme="dark"] .theme-switch input:checked + .theme-switch-track .theme-switch-thumb {
+  background: var(--crema-400);
+}

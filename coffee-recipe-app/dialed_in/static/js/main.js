@@ -1,6 +1,7 @@
 import { api } from "./core/api.js";
 import { applyServerState, state } from "./core/state.js";
 import { showToast } from "./core/toast.js";
+import { applyTheme } from "./core/theme.js";
 import { createNavigation } from "./components/navigation.js";
 import { createBeanForm } from "./features/bean-form.js";
 import { createBrewRecipeForm } from "./features/brew-recipe-form.js";
@@ -34,6 +35,7 @@ function renderAll() {
 async function loadState() {
   try {
     applyServerState(await api("/api/state"));
+    applyTheme(state.settings.theme);
     renderAll();
   } catch (error) {
     showToast("Server unavailable");

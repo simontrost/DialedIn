@@ -1,6 +1,7 @@
 export const defaultSettings = Object.freeze({
   machine: "Gaggia Classic Evo Pro E24",
-  grinder: "Turin G-Micron DF64P"
+  grinder: "Turin G-Micron DF64P",
+  theme: "light"
 });
 
 export const state = {

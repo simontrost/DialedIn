@@ -161,11 +161,14 @@ def import_data():
 
             settings = payload.get("settings")
             if isinstance(settings, dict):
-                for key in ("machine", "grinder"):
+                for key in ("machine", "grinder", "theme"):
                     if key in settings:
+                        value = str(settings[key]).strip()
+                        if key == "theme" and value not in {"light", "dark"}:
+                            value = "light"
                         db.execute(
                             "INSERT OR REPLACE INTO settings(key, value) VALUES (?, ?)",
-                            (key, str(settings[key]).strip()),
+                            (key, value),
                         )
     except (TypeError, ValueError) as error:
         return jsonify({"error": str(error)}), 400

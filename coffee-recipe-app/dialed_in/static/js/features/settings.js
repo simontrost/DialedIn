@@ -1,14 +1,32 @@
+import { applyTheme, normalizeTheme } from "../core/theme.js";
+
 export function createSettings({ state, api, showToast, reloadState, onChanged }) {
   const dialog = document.querySelector("#settingsDialog");
   const form = document.querySelector("#settingsForm");
   const machine = document.querySelector("#machineInput");
   const grinder = document.querySelector("#grinderSettingsInput");
+  const darkMode = document.querySelector("#darkModeInput");
   const importInput = document.querySelector("#importInput");
+
+  let themeBeforePreview = null;
+
+  function selectedTheme() {
+    return darkMode?.checked ? "dark" : "light";
+  }
 
   function open() {
     machine.value = state.settings.machine;
     grinder.value = state.settings.grinder;
+    themeBeforePreview = normalizeTheme(state.settings.theme);
+    if (darkMode) darkMode.checked = themeBeforePreview === "dark";
+    applyTheme(themeBeforePreview);
     dialog.showModal();
+  }
+
+  function cancel() {
+    if (themeBeforePreview) applyTheme(themeBeforePreview);
+    themeBeforePreview = null;
+    dialog.close();
   }
 
   async function save(event) {
@@ -16,11 +34,17 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
     try {
       state.settings = await api("/api/settings", {
         method: "PUT",
-        body: JSON.stringify({ machine: machine.value.trim(), grinder: grinder.value.trim() })
+        body: JSON.stringify({
+          machine: machine.value.trim(),
+          grinder: grinder.value.trim(),
+          theme: selectedTheme()
+        })
       });
+      applyTheme(state.settings.theme);
+      themeBeforePreview = null;
       onChanged();
       dialog.close();
-      showToast("Setup saved");
+      showToast("Settings saved");
     } catch (error) {
       alert(error.message);
     }
@@ -41,6 +65,7 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
     try {
       const payload = JSON.parse(await file.text());
       const result = await api("/api/import", { method: "POST", body: JSON.stringify(payload) });
+      themeBeforePreview = null;
       await reloadState();
       dialog.close();
       showToast(`${result.beans || 0} beans, ${result.recipes || 0} recipes and ${result.measurements || 0} measurements imported`);
@@ -51,8 +76,13 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
     }
   }
 
+  darkMode?.addEventListener("change", () => applyTheme(selectedTheme()));
   form.addEventListener("submit", save);
-  document.querySelectorAll("[data-close-settings]").forEach(button => button.addEventListener("click", () => dialog.close()));
+  document.querySelectorAll("[data-close-settings]").forEach(button => button.addEventListener("click", cancel));
+  dialog.addEventListener("close", () => {
+    if (themeBeforePreview) applyTheme(themeBeforePreview);
+    themeBeforePreview = null;
+  });
   document.querySelector("#exportButton")?.addEventListener("click", exportData);
   importInput?.addEventListener("change", event => importData(event.target.files?.[0]));
   return { open };

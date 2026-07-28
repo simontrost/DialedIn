@@ -9,7 +9,7 @@ from typing import Any
 
 from flask import current_app
 
-from .settings.service import DEFAULT_GRINDER, DEFAULT_MACHINE
+from .settings.service import DEFAULT_GRINDER, DEFAULT_MACHINE, DEFAULT_THEME
 
 
 def utc_now() -> str:
@@ -284,7 +284,7 @@ def init_db() -> None:
         _ensure_legacy_recipe_columns(db)
         db.executemany(
             "INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)",
-            [("machine", DEFAULT_MACHINE), ("grinder", DEFAULT_GRINDER)],
+            [("machine", DEFAULT_MACHINE), ("grinder", DEFAULT_GRINDER), ("theme", DEFAULT_THEME)],
         )
         _migrate_legacy_recipes(db)
         _seed_new_database(db)
