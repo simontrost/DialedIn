@@ -351,18 +351,35 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
       circle.setAttribute("r", group.items.length > 1 ? "14" : "11");
 
       marker.append(halo, circle);
+
+      const beanIcon = document.createElementNS(SVG_NS, "g");
+      beanIcon.setAttribute("class", "origin-marker-bean");
+      beanIcon.setAttribute("transform", "translate(-8 -8) scale(.67)");
+
+      const beanOutline = document.createElementNS(SVG_NS, "path");
+      beanOutline.setAttribute("d", "M4.693 20.717C1.002 18.549 1.741 13.829 3.825 10.349C6.403 6.044 9.93 2.918 13.81 5.197C17.69 7.477 16.428 11.687 13.74 16.174C11.766 19.471 8.383 22.885 4.693 20.717Z");
+
+      const beanCrease = document.createElementNS(SVG_NS, "path");
+      beanCrease.setAttribute("d", "M13.619 5.702C10.119 7.202 11.288 10.825 9.619 13.202C8.13 15.428 4.619 15.702 4.619 19.702");
+
+      beanIcon.append(beanOutline, beanCrease);
+      marker.append(beanIcon);
+
       if (group.items.length > 1) {
-        const text = document.createElementNS(SVG_NS, "text");
-        text.setAttribute("class", "origin-marker-count");
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("dy", ".35em");
-        text.textContent = group.items.length;
-        marker.append(text);
-      } else {
-        const pin = document.createElementNS(SVG_NS, "path");
-        pin.setAttribute("class", "origin-marker-bean");
-        pin.setAttribute("d", "M-3.5 4.5C-8 0-5.8-7 0-8.5C5.8-7 8 0 3.5 4.5C1.5 6.5-1.5 6.5-3.5 4.5ZM-3.8 3.8C-.8 1 .8-2.1 3.6-6");
-        marker.append(pin);
+        const countBadge = document.createElementNS(SVG_NS, "circle");
+        countBadge.setAttribute("class", "origin-marker-count-badge");
+        countBadge.setAttribute("cx", "12");
+        countBadge.setAttribute("cy", "-12");
+        countBadge.setAttribute("r", "7.5");
+
+        const countText = document.createElementNS(SVG_NS, "text");
+        countText.setAttribute("class", "origin-marker-count");
+        countText.setAttribute("x", "12");
+        countText.setAttribute("y", "-12");
+        countText.setAttribute("text-anchor", "middle");
+        countText.setAttribute("dy", ".35em");
+        countText.textContent = group.items.length;
+        marker.append(countBadge, countText);
       }
 
       marker.addEventListener("click", event => {
