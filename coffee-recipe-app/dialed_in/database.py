@@ -57,6 +57,9 @@ def _bean_columns(db: sqlite3.Connection) -> set[str]:
 def _ensure_bean_columns(db: sqlite3.Connection) -> None:
     additions = {
         "flavor_notes_json": "TEXT NOT NULL DEFAULT '[]'",
+        "strength": "INTEGER NOT NULL DEFAULT 0",
+        "taste_balance": "TEXT NOT NULL DEFAULT ''",
+        "decaf": "INTEGER NOT NULL DEFAULT 0",
     }
     existing = _bean_columns(db)
     for name, definition in additions.items():
@@ -255,6 +258,9 @@ def init_db() -> None:
                 order_url TEXT NOT NULL DEFAULT '',
                 notes TEXT NOT NULL DEFAULT '',
                 flavor_notes_json TEXT NOT NULL DEFAULT '[]',
+                strength INTEGER NOT NULL DEFAULT 0,
+                taste_balance TEXT NOT NULL DEFAULT '',
+                decaf INTEGER NOT NULL DEFAULT 0,
                 favorite INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL

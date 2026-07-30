@@ -4,6 +4,7 @@ from typing import Any
 
 VALID_ROASTS = {"light", "medium", "dark"}
 VALID_STATUSES = {"active", "empty", "wishlist"}
+VALID_TASTE_BALANCES = {"", "very_acidic", "acidic", "little_acidic", "balanced", "little_bitter", "bitter", "very_bitter"}
 
 
 COUNTRY_ALIASES = {
@@ -67,6 +68,17 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
     if status not in VALID_STATUSES:
         raise ValueError("Invalid bean status.")
 
+    try:
+        strength = int(payload.get("strength") or 0)
+    except (TypeError, ValueError) as error:
+        raise ValueError("strength must be a whole number from 0 to 5.") from error
+    if strength < 0 or strength > 5:
+        raise ValueError("strength must be between 0 and 5.")
+
+    taste_balance = _text(payload, "tasteBalance", 30)
+    if taste_balance not in VALID_TASTE_BALANCES:
+        raise ValueError("Invalid acidity / bitterness value.")
+
     return {
         "name": name,
         "roaster": _text(payload, "roaster", 80),
@@ -78,5 +90,8 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "orderUrl": _text(payload, "orderUrl", 500),
         "notes": _text(payload, "notes", 1000),
         "flavorNotes": _flavor_notes(payload),
+        "strength": strength,
+        "tasteBalance": taste_balance,
+        "decaf": bool(payload.get("decaf", False)),
         "favorite": bool(payload.get("favorite", False)),
     }

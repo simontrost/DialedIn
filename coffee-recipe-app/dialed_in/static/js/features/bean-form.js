@@ -1,6 +1,7 @@
 import { escapeHtml, normalizeUrl } from "../core/utils.js";
 import { createCoffeeImport } from "./coffee-import.js";
 import { createBarcodeScanner } from "./barcode-scanner.js";
+import { createFillRatingControl } from "../components/rating-control.js";
 import {
   FLAVOR_NOTE_CATEGORIES,
   canonicalFlavorNoteName,
@@ -22,6 +23,12 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   const flavorNoteSearchInput = document.querySelector("#flavorNoteSearchInput");
   const flavorNoteOptions = document.querySelector("#flavorNoteOptions");
   const flavorNoteCustomButton = document.querySelector("#flavorNoteCustomButton");
+  const strengthInput = document.querySelector("#beanStrengthInput");
+  const strengthControlRoot = document.querySelector("#beanStrengthControl");
+  const balanceInput = document.querySelector("#beanBalanceInput");
+  const balanceControl = document.querySelector("#beanBalanceControl");
+  const decafInput = document.querySelector("#beanDecafInput");
+  const strengthControl = createFillRatingControl({ root: strengthControlRoot, input: strengthInput, itemLabel: "strength" });
   let selectedFlavorNotes = [];
 
   const fields = {
@@ -203,6 +210,15 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     updateBarcodeAvailability: barcode.updateAvailability
   });
 
+  function setBalanceValue(value = "") {
+    balanceInput.value = value || "";
+    balanceControl?.querySelectorAll("[data-balance-value]").forEach(button => {
+      const active = button.dataset.balanceValue === balanceInput.value;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  }
+
   function payload() {
     return {
       name: fields.name.value.trim(),
@@ -215,6 +231,9 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       orderUrl: normalizeUrl(fields.orderUrl.value),
       notes: fields.notes.value.trim(),
       flavorNotes: [...selectedFlavorNotes],
+      strength: strengthInput.value === "" ? 0 : Number(strengthInput.value),
+      tasteBalance: balanceInput.value,
+      decaf: decafInput.checked,
       favorite: fields.favorite.checked
     };
   }
@@ -233,6 +252,9 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     setBlendValue(bean?.blend || "");
     fields.roast.value = bean?.roast || "medium";
     fields.status.value = bean?.status || "active";
+    strengthControl.setValue(bean?.strength || 0);
+    setBalanceValue(bean?.tasteBalance || "");
+    decafInput.checked = Boolean(bean?.decaf);
     fields.orderUrl.value = bean?.orderUrl || "";
     fields.barcode.value = "";
     fields.notes.value = bean?.notes || "";
@@ -336,6 +358,11 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   fields.blend.addEventListener("change", () => updateBlendUI());
   fields.arabica.addEventListener("input", () => updateBlendUI("arabica"));
   fields.robusta.addEventListener("input", () => updateBlendUI("robusta"));
+  balanceControl?.addEventListener("click", event => {
+    const button = event.target.closest("[data-balance-value]");
+    if (!button) return;
+    setBalanceValue(button.dataset.balanceValue === balanceInput.value ? "" : button.dataset.balanceValue);
+  });
   form.addEventListener("submit", save);
   deleteButton.addEventListener("click", remove);
   document.querySelectorAll("[data-close-bean-dialog]").forEach(button => button.addEventListener("click", () => dialog.close()));

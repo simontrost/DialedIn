@@ -1,4 +1,5 @@
 import { beanById, escapeHtml, methodById, recipeById, toLocalDateTimeInput } from "../core/utils.js";
+import { createFillRatingControl } from "../components/rating-control.js";
 
 const legacyTasteLabels = {
   astringent: "Astringent (legacy)",
@@ -21,6 +22,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const beverageYield = document.querySelector("#logYieldInput");
   const taste = document.querySelector("#logTasteInput");
   const rating = document.querySelector("#logRatingInput");
+  const ratingControl = createFillRatingControl({ root: document.querySelector("#logRatingControl"), input: rating, itemLabel: "stars" });
   const notes = document.querySelector("#logNotesInput");
   const valid = document.querySelector("#logValidInput");
   let editingLogId = "";
@@ -114,7 +116,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
       dose.value = existingLog.dose ?? "";
       beverageYield.value = existingLog.beverageYield ?? "";
       setTasteValue(existingLog.taste || "neutral");
-      rating.value = existingLog.rating ?? "";
+      ratingControl.setValue(existingLog.rating ?? 0);
       notes.value = existingLog.notes || "";
       valid.checked = existingLog.valid !== false;
       updateContext();
@@ -125,7 +127,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
       dose.value = "";
       beverageYield.value = "";
       setTasteValue("neutral");
-      rating.value = "";
+      ratingControl.setValue(0);
       notes.value = "";
       valid.checked = true;
       applyRecipeDefaults();
