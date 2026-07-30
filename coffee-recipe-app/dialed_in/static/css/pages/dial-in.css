@@ -1,10 +1,10 @@
-.dial-total-brews{align-self:flex-start;display:flex;align-items:center;gap:11px;min-width:176px;border:1px solid rgba(201,135,74,.22);border-radius:18px;padding:10px 13px;color:var(--espresso-700);background:var(--cream-100);box-shadow:0 9px 24px rgba(67,42,25,.07)}
-.dial-total-brews-icon{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border-radius:13px;color:var(--espresso-700);background:var(--cream-50)}
+.dial-total-brews{align-self:flex-start;display:flex;align-items:center;gap:11px;min-width:176px;border:1px solid rgba(201,135,74,.28);border-radius:18px;padding:10px 13px;color:var(--espresso-950);background:var(--crema-400);box-shadow:0 10px 22px rgba(201,135,74,.22)}
+.dial-total-brews-icon{flex:0 0 auto;width:38px;height:38px;display:grid;place-items:center;border-radius:13px;color:var(--espresso-950);background:rgba(255,250,244,.72)}
 .dial-total-brews-icon .app-icon{width:1.15rem;height:1.15rem}
 .dial-total-brews-copy{min-width:0;display:grid;gap:2px}
-.dial-total-brews-copy small{color:var(--muted);font-size:.61rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+.dial-total-brews-copy small{color:rgba(28,18,13,.68);font-size:.61rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
 .dial-total-brews-copy strong{font-size:.88rem;line-height:1.2;white-space:nowrap}
-.dial-total-brews-copy #dialTotalBrewCount{font-family:Georgia,serif;font-size:1.34rem;color:var(--ink)}
+.dial-total-brews-copy #dialTotalBrewCount{font-family:Georgia,serif;font-size:1.34rem;color:var(--espresso-950)}
 .dial-selection-panel{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px;border:1px solid var(--line);border-radius:var(--radius-xl);padding:20px;background:rgba(255,255,255,.82);box-shadow:0 14px 34px rgba(65,39,22,.06)}.dial-selection-grid{flex:1;grid-template-columns:minmax(180px,1fr) minmax(220px,1.4fr) 170px}.compact-field .input-with-unit{height:48px;display:flex;align-items:center;gap:5px;padding:0 12px}.dial-selection-actions{display:flex;gap:8px;flex:0 0 auto}
 .dial-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:38px}.dial-summary-card{min-height:132px;border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px;background:rgba(255,255,255,.75)}.dial-summary-card small,.dial-summary-card strong,.dial-summary-card span{display:block}.dial-summary-card small{color:var(--muted);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em}.dial-summary-card strong{margin:12px 0 7px;font-family:Georgia,serif;font-size:2rem}.dial-summary-card span{color:var(--muted);font-size:.78rem;line-height:1.45}.recommendation-card{color:#fff;background:linear-gradient(145deg,var(--espresso-950),var(--espresso-800))}.recommendation-card small,.recommendation-card span{color:rgba(255,255,255,.65)}.recommendation-card strong{color:var(--crema-400)}.recommendation-card[data-confidence="high"]{box-shadow:inset 0 0 0 2px rgba(151,206,141,.4)}.recommendation-card[data-confidence="medium"]{box-shadow:inset 0 0 0 2px rgba(221,165,111,.45)}
 .history-hint{max-width:390px;color:var(--muted);font-size:.75rem;line-height:1.45;text-align:right}.measurement-table-wrap{overflow:auto;border:1px solid var(--line);border-radius:var(--radius-lg);background:rgba(255,255,255,.82)}.measurement-table{width:100%;border-collapse:collapse;min-width:850px}.measurement-table th,.measurement-table td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:left;font-size:.8rem}.measurement-table th{color:var(--muted);background:var(--cream-100);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em}.measurement-table tbody tr:last-child td{border-bottom:0}.measurement-table .invalid-measurement{opacity:.5}.invalid-label{display:block;margin-top:3px;color:var(--danger);font-size:.6rem;text-transform:uppercase}.table-delete-button{width:32px;height:32px;border:0;border-radius:50%;color:var(--danger);background:#fff1ee;font-size:1.15rem}
@@ -83,11 +83,21 @@
   #page-dial-in>.page-header .eyebrow{margin-bottom:7px}
   #page-dial-in>.page-header h1{
     max-width:none;
-    font-size:2.45rem;
+    font-size:2.35rem;
     line-height:.98;
     letter-spacing:-.035em;
   }
-  #page-dial-in>.page-header>div:first-child>p:last-child{display:none}
+  #page-dial-in>.page-header>div:first-child>p:last-child{
+    display:block;
+    max-width:none;
+    margin-top:12px;
+    font-size:.94rem;
+    line-height:1.5;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:3;
+    overflow:hidden;
+  }
   #page-dial-in .dial-total-brews{
     align-self:stretch;
     width:100%;
@@ -96,7 +106,6 @@
     gap:10px;
     padding:9px 11px;
     border-radius:16px;
-    box-shadow:none;
   }
   #page-dial-in .dial-total-brews-icon{
     width:34px;
@@ -115,4 +124,23 @@
     white-space:normal;
   }
   #page-dial-in .dial-total-brews-copy #dialTotalBrewCount{font-size:1.15rem}
+}
+
+
+/* Keep the total-brew counter visually aligned with primary actions in both themes. */
+:root[data-theme="dark"] #page-dial-in .dial-total-brews{
+  color:#25170f;
+  background:var(--crema-400);
+  border-color:rgba(255,244,232,.28);
+  box-shadow:0 10px 22px rgba(0,0,0,.2);
+}
+:root[data-theme="dark"] #page-dial-in .dial-total-brews-icon{
+  color:#25170f;
+  background:rgba(255,250,244,.68);
+}
+:root[data-theme="dark"] #page-dial-in .dial-total-brews-copy small{
+  color:rgba(37,23,15,.66);
+}
+:root[data-theme="dark"] #page-dial-in .dial-total-brews-copy #dialTotalBrewCount{
+  color:#25170f;
 }
