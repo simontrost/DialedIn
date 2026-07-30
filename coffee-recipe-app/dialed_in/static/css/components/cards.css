@@ -118,4 +118,5 @@
   line-height:1.35;
 }
 .dashboard-strength .bean-strength-mini { margin-top:7px; }
+.bean-card--dashboard .bean-card-lower { margin-top:0; }
 .bean-card--dashboard .bean-recipe-preview { margin-top:0; }

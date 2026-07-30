@@ -180,6 +180,11 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   const sheetTitle = document.querySelector("#originSheetTitle");
   const sheetSubtitle = document.querySelector("#originSheetSubtitle");
   const beanList = document.querySelector("#originBeanList");
+  const mapCard = document.querySelector(".origin-map-card");
+
+  // Keep the details panel inside the map card on desktop so it is always
+  // visible above the SVG instead of being positioned outside the page.
+  if (mapCard && sheet.parentElement !== mapCard) mapCard.append(sheet);
 
   let features = [];
   let featureByKey = new Map();
@@ -437,6 +442,9 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   }, { passive: false });
 
   viewport.addEventListener("pointerdown", event => {
+    // A marker click is an action, not the beginning of a map drag. Pointer
+    // capture on the viewport can otherwise swallow desktop click events.
+    if (event.target.closest?.(".origin-marker")) return;
     viewport.setPointerCapture(event.pointerId);
     const pointers = viewport.__originPointers || new Map();
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });

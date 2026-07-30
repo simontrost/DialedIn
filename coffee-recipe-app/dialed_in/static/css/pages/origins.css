@@ -18,7 +18,7 @@
 #originMap{width:100%;height:100%;min-height:clamp(390px,58vw,650px);display:block;outline:0}
 .origin-country{fill:rgba(86,55,37,.18);stroke:rgba(86,55,37,.42);stroke-width:.65;vector-effect:non-scaling-stroke;transition:fill .2s ease}
 .origin-country.has-beans{fill:rgba(201,135,74,.36)}
-.origin-marker{cursor:pointer;filter:url(#originMarkerShadow);outline:none}
+.origin-marker{cursor:pointer;filter:url(#originMarkerShadow);outline:none;pointer-events:all}
 .origin-marker-halo{fill:rgba(255,250,244,.86);stroke:rgba(86,55,37,.22);stroke-width:1;vector-effect:non-scaling-stroke}
 .origin-marker-dot{fill:var(--espresso-800);stroke:var(--crema-400);stroke-width:2;vector-effect:non-scaling-stroke}
 .origin-marker-count-badge{fill:var(--crema-500);stroke:var(--cream-50);stroke-width:2;vector-effect:non-scaling-stroke;pointer-events:none}
@@ -29,8 +29,8 @@
 .origin-map-empty h2{margin:12px 0 5px;font-family:Georgia,serif}
 .origin-map-empty p{max-width:430px;margin:0;color:var(--muted);line-height:1.5}
 .origin-map-hint{position:relative;z-index:2;margin:0;padding:0 20px 17px;color:var(--muted);font-size:.74rem;text-align:center}
-.origin-sheet{position:fixed;z-index:160;right:28px;top:50%;width:min(430px,calc(100% - 56px));max-height:min(76dvh,680px);overflow:auto;transform:translateY(-50%);border:1px solid rgba(255,255,255,.78);border-radius:24px;padding:24px;background:rgba(255,250,244,.98);backdrop-filter:blur(20px);box-shadow:0 28px 80px rgba(36,23,15,.32);animation:origin-sheet-in-desktop .2s ease}
-@keyframes origin-sheet-in-desktop{from{opacity:0;transform:translate(18px,-50%)}to{opacity:1;transform:translate(0,-50%)}}
+.origin-sheet{position:absolute;z-index:8;right:24px;top:78px;width:min(430px,calc(100% - 48px));max-height:calc(100% - 108px);overflow:auto;border:1px solid rgba(255,255,255,.78);border-radius:24px;padding:24px;background:rgba(255,250,244,.98);backdrop-filter:blur(20px);box-shadow:0 28px 80px rgba(36,23,15,.32);animation:origin-sheet-in-desktop .2s ease}
+@keyframes origin-sheet-in-desktop{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
 .origin-sheet h2{margin:0;font-family:Georgia,serif;font-size:2rem}
 .origin-sheet>p:not(.eyebrow){margin:6px 0 18px;color:var(--muted)}
 .origin-sheet-close{position:absolute;right:14px;top:14px;width:38px;height:38px;border:1px solid var(--line);border-radius:50%;color:var(--espresso-700);background:#fff;font-size:1.4rem}
@@ -48,7 +48,7 @@
   .origin-map-toolbar{padding:14px 14px 3px}.origin-map-toolbar strong{font-size:1.05rem}
   .origin-map-viewport,#originMap{min-height:440px}
   .origin-map-hint{padding-bottom:14px}
-  .origin-sheet{left:50%;right:auto;top:auto;bottom:calc(62px + var(--safe-bottom));width:min(560px,calc(100% - 28px));max-height:min(66dvh,620px);transform:translateX(-50%);padding:22px 18px 18px;border-radius:22px;animation:origin-sheet-in-mobile .2s ease}
+  .origin-sheet{position:fixed;left:50%;right:auto;top:auto;bottom:calc(62px + var(--safe-bottom));width:min(560px,calc(100% - 28px));max-height:min(66dvh,620px);transform:translateX(-50%);padding:22px 18px 18px;border-radius:22px;animation:origin-sheet-in-mobile .2s ease}
 }
 @keyframes origin-sheet-in-mobile{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
 @media(max-width:410px){
