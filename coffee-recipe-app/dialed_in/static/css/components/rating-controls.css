@@ -1,31 +1,128 @@
-.fill-rating-field { display:grid; gap:8px; }
+/* Unified profile controls used by bean strength, taste balance and shot rating. */
+.fill-rating-field,
+.bean-balance-field { display:grid; align-content:start; gap:8px; }
+
 .fill-rating-field > span,
 .bean-balance-field > span,
-.toggle-field > span:first-child { color:var(--muted); font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
-.fill-rating { display:flex; align-items:center; gap:6px; min-height:54px; border:1px solid var(--line); border-radius:16px; padding:8px 10px; background:#fff; touch-action:none; user-select:none; }
-.fill-rating-button { flex:1 1 0; min-width:0; height:36px; border:0; border-radius:10px; padding:0; display:grid; place-items:center; color:#cbbfb5; background:transparent; cursor:pointer; transition:color .14s ease, background .14s ease, transform .14s ease; }
-.fill-rating-button .app-icon { width:1.45rem; height:1.45rem; }
-.fill-rating-button.is-active,
-.fill-rating-button.is-preview { color:var(--crema-500); background:var(--cream-100); }
-.fill-rating-button:hover,
-.fill-rating-button:focus-visible { color:var(--crema-500); background:var(--cream-100); transform:translateY(-1px); outline:0; }
-.fill-rating-help { color:var(--muted); font-size:.68rem; line-height:1.35; }
+.profile-field-label,
+.toggle-field-copy > .profile-field-label {
+  display:block;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1.2;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
 
-.bean-balance-field { display:grid; gap:8px; }
-.bean-balance-scale { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; border:1px solid var(--line); border-radius:16px; padding:7px; background:#fff; }
-.bean-balance-option { min-width:0; min-height:42px; border:0; border-radius:11px; padding:5px 3px; color:var(--muted); background:transparent; font-size:.59rem; font-weight:800; line-height:1.15; cursor:pointer; }
-.bean-balance-option.is-active { color:#fff; background:var(--espresso-700); }
+/* Strength sits beside Status and both controls now share the same vertical rhythm. */
+.form-grid > .fill-rating-field.bean-profile-field { min-width:0; }
+.form-grid > .field:has(#beanStatusInput),
+.form-grid > .fill-rating-field.bean-profile-field { align-self:start; }
+.form-grid > .field:has(#beanStatusInput) select,
+.fill-rating { height:60px; }
+
+.fill-rating {
+  --rating-icon:url('/static/icons/ui/star.svg');
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:8px 10px;
+  background:#fff;
+  touch-action:none;
+  user-select:none;
+}
+#beanStrengthControl { --rating-icon:url('/static/icons/ui/coffee-bean.svg'); }
+#logRatingControl { --rating-icon:url('/static/icons/ui/star.svg'); }
+
+.fill-rating-button {
+  position:relative;
+  flex:1 1 0;
+  min-width:0;
+  height:40px;
+  overflow:hidden;
+  border:0;
+  border-radius:10px;
+  padding:0;
+  background:transparent;
+  cursor:pointer;
+  transition:background .14s ease, transform .14s ease;
+}
+.fill-rating-button .app-icon { display:none; }
+.fill-rating-button::before,
+.fill-rating-button::after {
+  content:"";
+  position:absolute;
+  inset:7px;
+  background:currentColor;
+  -webkit-mask:var(--rating-icon) center / contain no-repeat;
+  mask:var(--rating-icon) center / contain no-repeat;
+}
+.fill-rating-button::before { color:#cbbfb5; }
+.fill-rating-button::after {
+  color:var(--crema-500);
+  clip-path:inset(0 100% 0 0);
+  transition:clip-path .12s ease;
+}
+.fill-rating-button.is-half::after { clip-path:inset(0 50% 0 0); }
+.fill-rating-button.is-full::after { clip-path:inset(0 0 0 0); }
+.fill-rating-button:hover,
+.fill-rating-button:focus-visible,
+.fill-rating-button.is-preview { background:var(--cream-100); outline:0; }
+.fill-rating-button:hover,
+.fill-rating-button:focus-visible { transform:translateY(-1px); }
+
+.bean-balance-field.full { grid-column:1/-1; }
+.bean-balance-scale {
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:5px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:7px;
+  background:#fff;
+}
+.bean-balance-option {
+  min-width:0;
+  min-height:44px;
+  border:0;
+  border-radius:11px;
+  padding:6px 4px;
+  color:var(--muted);
+  background:transparent;
+  font-size:.67rem;
+  font-weight:500;
+  line-height:1.2;
+  cursor:pointer;
+}
+.bean-balance-option.is-active { color:#fff; background:var(--espresso-700); font-weight:700; }
 .bean-balance-option:hover,
 .bean-balance-option:focus-visible { color:var(--espresso-700); background:var(--cream-100); outline:0; }
 .bean-balance-option.is-active:hover,
 .bean-balance-option.is-active:focus-visible { color:#fff; background:var(--espresso-800); }
-.bean-balance-ends { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:.64rem; }
+.bean-balance-ends { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:.68rem; font-weight:400; }
 
-.toggle-field { min-height:54px; display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--line); border-radius:16px; padding:10px 13px; background:#fff; }
-.toggle-field-copy strong,
-.toggle-field-copy small { display:block; }
-.toggle-field-copy strong { font-size:.85rem; }
-.toggle-field-copy small { margin-top:3px; color:var(--muted); font-size:.67rem; line-height:1.3; }
+.toggle-field {
+  min-height:74px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:13px 16px;
+  background:#fff;
+}
+.toggle-field-copy > small {
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.72rem;
+  font-weight:400;
+  line-height:1.4;
+}
 .simple-switch { position:relative; flex:0 0 auto; width:50px; height:28px; }
 .simple-switch input { position:absolute; opacity:0; pointer-events:none; }
 .simple-switch-track { position:absolute; inset:0; border-radius:999px; background:var(--cream-200); box-shadow:inset 0 0 0 1px var(--line); transition:background .18s ease; }
@@ -37,21 +134,38 @@
 .bean-profile-row { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin:0 0 15px; }
 .bean-profile-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid rgba(201,135,74,.26); border-radius:999px; padding:7px 10px; color:var(--espresso-700); background:var(--cream-50); font-size:.68rem; font-weight:800; }
 .bean-strength-mini { display:inline-flex; gap:2px; }
-.bean-strength-mini .app-icon { width:.78rem; height:.78rem; color:#cbbfb5; }
-.bean-strength-mini .app-icon.is-active { color:var(--crema-500); }
+.bean-strength-mini-item {
+  position:relative;
+  width:.78rem;
+  height:.78rem;
+  color:#cbbfb5;
+  background:currentColor;
+  -webkit-mask:url('/static/icons/ui/coffee-bean.svg') center / contain no-repeat;
+  mask:url('/static/icons/ui/coffee-bean.svg') center / contain no-repeat;
+}
+.bean-strength-mini-item::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--crema-500);
+  clip-path:inset(0 100% 0 0);
+  -webkit-mask:url('/static/icons/ui/coffee-bean.svg') center / contain no-repeat;
+  mask:url('/static/icons/ui/coffee-bean.svg') center / contain no-repeat;
+}
+.bean-strength-mini-item.is-half::after { clip-path:inset(0 50% 0 0); }
+.bean-strength-mini-item.is-full::after { clip-path:inset(0 0 0 0); }
 
 :root[data-theme="dark"] .fill-rating,
 :root[data-theme="dark"] .bean-balance-scale,
 :root[data-theme="dark"] .toggle-field { color:var(--ink); background:#342219; border-color:rgba(238,208,181,.18); }
-:root[data-theme="dark"] .fill-rating-button { color:#806e61; }
-:root[data-theme="dark"] .fill-rating-button.is-active,
-:root[data-theme="dark"] .fill-rating-button.is-preview,
+:root[data-theme="dark"] .fill-rating-button::before { color:#806e61; }
 :root[data-theme="dark"] .fill-rating-button:hover,
-:root[data-theme="dark"] .fill-rating-button:focus-visible { color:var(--crema-400); background:#442d21; }
+:root[data-theme="dark"] .fill-rating-button:focus-visible,
+:root[data-theme="dark"] .fill-rating-button.is-preview { background:#442d21; }
 :root[data-theme="dark"] .bean-profile-chip { color:#f1dcc7; background:#3a271d; border-color:rgba(238,208,181,.18); }
 
-@media(max-width:600px){
-  .bean-balance-scale { grid-template-columns:repeat(7,minmax(38px,1fr)); overflow-x:auto; }
-  .bean-balance-option { min-width:38px; }
-  .fill-rating-button .app-icon { width:1.35rem; height:1.35rem; }
+@media(max-width:700px){
+  .form-grid > .fill-rating-field.bean-profile-field { grid-column:1/-1; }
+  .bean-balance-scale { grid-template-columns:repeat(7,minmax(64px,1fr)); overflow-x:auto; }
+  .bean-balance-option { min-width:64px; }
 }

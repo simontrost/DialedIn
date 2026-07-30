@@ -12,8 +12,12 @@ const TASTE_BALANCE_LABELS = Object.freeze({
 });
 
 function beanStrengthMarkup(value = 0) {
-  const strength = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
-  return `<span class="bean-strength-mini" aria-label="Strength ${strength} of 5">${Array.from({ length: 5 }, (_, index) => iconMarkup("coffee-bean", { group: "ui", className: index < strength ? "is-active" : "" })).join("")}</span>`;
+  const strength = Math.max(0, Math.min(5, Math.round((Number(value) || 0) * 2) / 2));
+  return `<span class="bean-strength-mini" aria-label="Strength ${strength} of 5">${Array.from({ length: 5 }, (_, index) => {
+    const amount = Math.max(0, Math.min(1, strength - index));
+    const className = amount >= 1 ? "is-full" : amount === .5 ? "is-half" : "";
+    return `<span class="bean-strength-mini-item ${className}" aria-hidden="true"></span>`;
+  }).join("")}</span>`;
 }
 
 export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = false } = {}) {

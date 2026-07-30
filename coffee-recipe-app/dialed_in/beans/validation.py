@@ -69,11 +69,11 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Invalid bean status.")
 
     try:
-        strength = int(payload.get("strength") or 0)
+        strength = float(payload.get("strength") or 0)
     except (TypeError, ValueError) as error:
-        raise ValueError("strength must be a whole number from 0 to 5.") from error
-    if strength < 0 or strength > 5:
-        raise ValueError("strength must be between 0 and 5.")
+        raise ValueError("strength must be a number from 0 to 5.") from error
+    if strength < 0 or strength > 5 or strength * 2 != int(strength * 2):
+        raise ValueError("strength must be between 0 and 5 in half-step increments.")
 
     taste_balance = _text(payload, "tasteBalance", 30)
     if taste_balance not in VALID_TASTE_BALANCES:

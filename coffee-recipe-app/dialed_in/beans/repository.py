@@ -36,7 +36,7 @@ def row_to_bean(row: sqlite3.Row) -> dict[str, Any]:
         "orderUrl": row["order_url"],
         "notes": row["notes"],
         "flavorNotes": _flavor_notes_from_row(row),
-        "strength": int(row["strength"] or 0),
+        "strength": float(row["strength"] or 0),
         "tasteBalance": row["taste_balance"],
         "decaf": bool(row["decaf"]),
         "favorite": bool(row["favorite"]),

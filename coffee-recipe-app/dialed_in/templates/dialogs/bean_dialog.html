@@ -100,7 +100,7 @@
         <span>Status</span>
         <select id="beanStatusInput"><option value="active">Active</option><option value="empty">Out of beans</option><option value="wishlist">Wishlist</option></select>
       </label>
-      <div class="fill-rating-field full">
+      <div class="fill-rating-field bean-profile-field">
         <span>Strength</span>
         <div class="fill-rating" id="beanStrengthControl" role="group" aria-label="Coffee strength">
           <button class="fill-rating-button" type="button" data-rating-value="1" aria-label="Strength 1 of 5"><span class="app-icon" style="--app-icon:url('/static/icons/ui/coffee-bean.svg')" aria-hidden="true"></span></button>
@@ -110,9 +110,8 @@
           <button class="fill-rating-button" type="button" data-rating-value="5" aria-label="Strength 5 of 5"><span class="app-icon" style="--app-icon:url('/static/icons/ui/coffee-bean.svg')" aria-hidden="true"></span></button>
         </div>
         <input id="beanStrengthInput" type="hidden">
-        <small class="fill-rating-help">Tap, drag or swipe across the beans. Tap the selected value again to clear it.</small>
       </div>
-      <div class="bean-balance-field full">
+      <div class="bean-balance-field full bean-profile-field">
         <span>Acidity / bitterness</span>
         <div class="bean-balance-scale" id="beanBalanceControl" role="group" aria-label="Acidity and bitterness">
           <button class="bean-balance-option" type="button" data-balance-value="very_acidic">Very acidic</button>
@@ -126,8 +125,8 @@
         <div class="bean-balance-ends"><span>More acidic</span><span>More bitter</span></div>
         <input id="beanBalanceInput" type="hidden">
       </div>
-      <label class="toggle-field full">
-        <span class="toggle-field-copy"><strong>Decaf</strong><small>Mark this bean as decaffeinated.</small></span>
+      <label class="toggle-field full bean-profile-field">
+        <span class="toggle-field-copy"><span class="profile-field-label">Decaf</span><small>Mark this bean as decaffeinated.</small></span>
         <span class="simple-switch"><input id="beanDecafInput" type="checkbox"><span class="simple-switch-track" aria-hidden="true"></span></span>
       </label>
       <div class="flavor-notes-editor full">
