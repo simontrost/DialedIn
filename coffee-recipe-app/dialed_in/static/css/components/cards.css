@@ -37,8 +37,9 @@
 .preview-metrics span,.recipe-card-metrics span { min-width:0; border-radius:12px; padding:9px; background:var(--cream-50); }
 .preview-metrics b,.preview-metrics small,.recipe-card-metrics b,.recipe-card-metrics small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .preview-metrics b,.recipe-card-metrics b { font-size:.86rem; }.preview-metrics small,.recipe-card-metrics small { margin-top:2px; color:var(--muted); font-size:.58rem; text-transform:uppercase; letter-spacing:.06em; }
-.brew-recipe-card { position:relative; padding-top:7px; }
+.brew-recipe-card { position:relative; display:flex; flex-direction:column; height:100%; padding-top:7px; }
 .brew-recipe-card::before { content:""; position:absolute; inset:0 0 auto; height:7px; background:var(--crema-500); }
+.brew-recipe-body { display:flex; flex-direction:column; flex:1; }
 .brew-recipe-icon { width:50px; height:50px; margin:20px 20px 0; display:grid; place-items:center; border-radius:16px; color:var(--espresso-700); background:var(--cream-100); }
 .step-count { margin:12px 0 0; color:var(--crema-500); font-size:.73rem; font-weight:800; }
 .recipe-step-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; }
