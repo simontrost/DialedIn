@@ -56,6 +56,23 @@ export function createDialInPage({
   const totalBrewLabel = document.querySelector("#dialTotalBrewLabel");
   let recommendationRecipeId = "";
 
+  function adjustMaxStep(button) {
+    try {
+      if (button.dataset.dialNumberStep === "up") maxStep.stepUp();
+      else maxStep.stepDown();
+    } catch (error) {
+      const step = Number(maxStep.step) || 0.1;
+      const current = maxStep.value === "" ? (Number(maxStep.min) || 0) : Number(maxStep.value);
+      const next = current + (button.dataset.dialNumberStep === "up" ? step : -step);
+      const minimum = maxStep.min === "" ? -Infinity : Number(maxStep.min);
+      const maximum = maxStep.max === "" ? Infinity : Number(maxStep.max);
+      maxStep.value = String(Math.min(maximum, Math.max(minimum, next)));
+    }
+    maxStep.dispatchEvent(new Event("input", { bubbles: true }));
+    maxStep.dispatchEvent(new Event("change", { bubbles: true }));
+    maxStep.focus({ preventScroll: true });
+  }
+
   function dialableRecipes(beanId) {
     return state.brewRecipes.filter(recipe => recipe.beanId === beanId && methodById(state, recipe.method).supportsDialIn);
   }
@@ -260,6 +277,11 @@ export function createDialInPage({
     const deleteButton = event.target.closest("[data-delete-log]");
     if (deleteButton) deleteLog(deleteButton.dataset.deleteLog);
   }
+
+  document.querySelector(".dial-max-step-control")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-dial-number-step]");
+    if (button) adjustMaxStep(button);
+  });
 
   beanSelect.addEventListener("change", () => {
     state.selectedDialBeanId = beanSelect.value;

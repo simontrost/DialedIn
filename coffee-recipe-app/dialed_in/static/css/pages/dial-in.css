@@ -144,3 +144,80 @@
 :root[data-theme="dark"] #page-dial-in .dial-total-brews-copy #dialTotalBrewCount{
   color:#25170f;
 }
+
+
+/* Recipe-style stepper for the maximum next grind change control. */
+.dial-max-step-control {
+  position: relative;
+  padding: 0 58px 0 14px !important;
+  align-items: center !important;
+}
+.dial-max-step-control input[type="number"] {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.dial-max-step-control input[type="number"]::-webkit-inner-spin-button,
+.dial-max-step-control input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.dial-max-step-control > small {
+  align-self: center;
+  line-height: 1;
+}
+.dial-max-step-control .number-stepper {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 44px;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  overflow: hidden;
+  border-left: 1px solid var(--line);
+  border-radius: 0 14px 14px 0;
+}
+.dial-max-step-control .number-stepper button {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: var(--espresso-700);
+  background: var(--cream-50);
+}
+.dial-max-step-control .number-stepper button + button {
+  border-top: 1px solid var(--line);
+}
+.dial-max-step-control .number-stepper button::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+}
+.dial-max-step-control .number-stepper button[data-dial-number-step="up"]::before {
+  transform: translate(-50%, -25%) rotate(45deg);
+}
+.dial-max-step-control .number-stepper button[data-dial-number-step="down"]::before {
+  transform: translate(-50%, -75%) rotate(225deg);
+}
+.dial-max-step-control .number-stepper button:hover,
+.dial-max-step-control .number-stepper button:focus-visible {
+  background: var(--cream-100);
+}
+:root[data-theme="dark"] .dial-max-step-control .number-stepper button {
+  color: #ead1b7;
+  background: #342219;
+}
+:root[data-theme="dark"] .dial-max-step-control .number-stepper button:hover,
+:root[data-theme="dark"] .dial-max-step-control .number-stepper button:focus-visible {
+  background: #432d22;
+}
