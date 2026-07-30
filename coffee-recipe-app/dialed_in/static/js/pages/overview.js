@@ -68,7 +68,8 @@ export function createOverviewPage({ state, onEditBean, onToggleBeanFavorite, on
       .sort((a, b) => Number(b.favorite) - Number(a.favorite) || new Date(b.updatedAt) - new Date(a.updatedAt));
     grid.innerHTML = beans.map(bean => beanCardHtml(bean, state, {
       dashboardMethod: selectedMethodId,
-      showRecipe: true
+      showRecipe: true,
+      compactBeanDetails: true
     })).join("");
     empty.classList.toggle("hidden", beans.length > 0);
     beanCount.textContent = state.beans.length;

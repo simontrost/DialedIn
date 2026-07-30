@@ -849,3 +849,11 @@
 :root[data-theme="dark"] .recipe-step-summary .step-count {
   color: #e1b576;
 }
+
+
+:root[data-theme="dark"] .bean-profile-grid { background:rgba(238,208,181,.18); border-color:rgba(238,208,181,.18); }
+:root[data-theme="dark"] .bean-profile-detail { background:#342219; }
+:root[data-theme="dark"] .bean-origin-detail { border-left-color:#e1b576; }
+:root[data-theme="dark"] .bean-decaf-badge { color:#f1dcc7; background:#3a271d; }
+:root[data-theme="dark"] .dashboard-bean-profile,
+:root[data-theme="dark"] .dashboard-bean-profile > div + div { border-color:rgba(238,208,181,.16); }

@@ -20,22 +20,45 @@ function beanStrengthMarkup(value = 0) {
   }).join("")}</span>`;
 }
 
-export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = false } = {}) {
+export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = false, compactBeanDetails = false } = {}) {
   const recipe = showRecipe
     ? state.brewRecipes.find(item => item.beanId === bean.id && item.method === dashboardMethod)
     : null;
   const method = methodById(state, dashboardMethod);
   const metrics = recipeMetricSummary(recipe, method);
   const flavorNotes = Array.isArray(bean.flavorNotes) ? bean.flavorNotes : [];
-  const profileItems = [];
-  if (Number(bean.strength) > 0) profileItems.push(`<span class="bean-profile-chip"><b>Strength</b>${beanStrengthMarkup(bean.strength)}</span>`);
-  if (bean.tasteBalance && TASTE_BALANCE_LABELS[bean.tasteBalance]) profileItems.push(`<span class="bean-profile-chip">${escapeHtml(TASTE_BALANCE_LABELS[bean.tasteBalance])}</span>`);
-  if (bean.decaf) profileItems.push(`<span class="bean-profile-chip">Decaf</span>`);
-  const profileBlock = profileItems.length ? `<div class="bean-profile-row">${profileItems.join("")}</div>` : "";
-  const flavorNotesBlock = flavorNotes.length ? `
-    <div class="bean-flavor-notes" aria-label="Flavor notes">
-      ${flavorNotes.map(note => flavorNotePillMarkup(note)).join("")}
-    </div>` : "";
+  const strength = Number(bean.strength) > 0 ? beanStrengthMarkup(bean.strength) : '<span class="bean-detail-empty">Not set</span>';
+  const tasteLabel = bean.tasteBalance && TASTE_BALANCE_LABELS[bean.tasteBalance]
+    ? TASTE_BALANCE_LABELS[bean.tasteBalance]
+    : "Not set";
+
+  const compactDetails = `
+    <div class="dashboard-bean-profile" aria-label="Bean profile">
+      <div><small>Blend</small><strong>${escapeHtml(bean.blend || "Not specified")}</strong></div>
+      <div><small>Roast</small><strong>${escapeHtml(bean.roast || "Not specified")}</strong></div>
+      <div class="dashboard-strength"><small>Strength</small>${strength}</div>
+    </div>`;
+
+  const fullDetails = `
+    <div class="bean-origin-detail">
+      <small>Origin</small>
+      <p>${escapeHtml(originLabel(bean))}</p>
+    </div>
+    <div class="bean-profile-grid" aria-label="Bean profile">
+      <div class="bean-profile-detail"><small>Blend</small><strong>${escapeHtml(bean.blend || "Not specified")}</strong></div>
+      <div class="bean-profile-detail"><small>Roast</small><strong>${escapeHtml(bean.roast || "Not specified")}</strong></div>
+      <div class="bean-profile-detail bean-profile-strength"><small>Strength</small>${strength}</div>
+      <div class="bean-profile-detail bean-profile-taste"><small>Acidity / bitterness</small><strong>${escapeHtml(tasteLabel)}</strong></div>
+    </div>
+    ${bean.decaf ? '<span class="bean-decaf-badge">Decaf</span>' : ""}
+    ${flavorNotes.length ? `
+      <div class="bean-flavor-section">
+        <small class="bean-flavor-heading">Flavor notes</small>
+        <div class="bean-flavor-notes" aria-label="Flavor notes">
+          ${flavorNotes.map(note => flavorNotePillMarkup(note)).join("")}
+        </div>
+      </div>` : ""}`;
+
   const recipeBlock = showRecipe ? `
     <div class="bean-recipe-preview ${recipe ? "" : "missing"}">
       <div class="bean-recipe-heading">
@@ -49,7 +72,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
     </div>` : "";
 
   return `
-    <article class="bean-card" data-roast="${escapeHtml(bean.roast)}">
+    <article class="bean-card ${compactBeanDetails ? "bean-card--dashboard" : "bean-card--library"}" data-roast="${escapeHtml(bean.roast)}">
       <div class="bean-card-accent"></div>
       <div class="bean-card-body">
         <div class="card-top">
@@ -58,13 +81,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
         </div>
         <h3>${escapeHtml(bean.name)}</h3>
         <p class="bean-roaster">${escapeHtml(bean.roaster || "Roaster not set")}</p>
-        <div class="coffee-tags">
-          <span><b>Origin</b>${escapeHtml(originLabel(bean))}</span>
-          <span><b>Blend</b>${escapeHtml(bean.blend || "Not specified")}</span>
-          <span><b>Roast</b>${escapeHtml(bean.roast)}</span>
-        </div>
-        ${profileBlock}
-        ${flavorNotesBlock}
+        ${compactBeanDetails ? compactDetails : fullDetails}
         <div class="bean-card-lower">${recipeBlock}</div>
       </div>
       <footer class="bean-card-footer">
