@@ -161,7 +161,10 @@ def import_data():
 
             settings = payload.get("settings")
             if isinstance(settings, dict):
-                for key in ("machine", "grinder", "theme"):
+                for key in (
+                    "machine", "grinder", "theme", "grindMin", "grindMax",
+                    "machineTemperatureControl", "machinePressureControl", "machineFlowControl",
+                ):
                     if key in settings:
                         value = str(settings[key]).strip()
                         if key == "theme" and value not in {"light", "dark"}:

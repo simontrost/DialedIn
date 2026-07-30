@@ -56,6 +56,7 @@ ESPRESSO_FIELDS = [
     number_field("grind", "Grind setting", default=17, minimum=0, maximum=200, step=0.1),
     number_field("temperature", "Temperature", "°C", default=93, minimum=70, maximum=110, step=0.5),
     number_field("pressure", "Pressure", "bar", default=9, minimum=0, maximum=15, step=0.1),
+    number_field("flowRate", "Flow rate", "ml/s", default=None, minimum=0, maximum=20, step=0.1),
 ]
 
 BREWING_METHODS: dict[str, dict[str, Any]] = {

@@ -144,8 +144,17 @@ export function createDialInPage({
       </article>`).join("");
   }
 
+  function syncGrinderRange() {
+    const minimum = Number(state.settings.grindMin ?? 0);
+    const maximum = Number(state.settings.grindMax ?? 500);
+    const span = Math.max(0.1, maximum - minimum);
+    maxStep.max = String(span);
+    if (Number(maxStep.value) > span) maxStep.value = String(span);
+  }
+
   function render() {
     syncSelectors();
+    syncGrinderRange();
     const totalBrews = state.dialInLogs.length;
     totalBrewCount.textContent = String(totalBrews);
     totalBrewLabel.textContent = totalBrews === 1 ? "brew logged" : "brews logged";
@@ -200,7 +209,12 @@ export function createDialInPage({
     try {
       const result = await api("/api/dial-in/recommendation", {
         method: "POST",
-        body: JSON.stringify({ recipeId: recipe.id, maxStep: Number(maxStep.value) || 2.5 })
+        body: JSON.stringify({
+          recipeId: recipe.id,
+          maxStep: Number(maxStep.value) || 2.5,
+          grindMin: Number(state.settings.grindMin ?? 0),
+          grindMax: Number(state.settings.grindMax ?? 500)
+        })
       });
       recommendationRecipeId = recipe.id;
       recommended.textContent = formatNumber(result.recommendedGrind, 3);

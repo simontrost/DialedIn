@@ -8,6 +8,7 @@ from ..beans.repository import find_by_id as find_bean_by_id
 from ..brew_recipes.repository import find_by_id as find_recipe_by_id
 from ..brew_recipes.repository import row_to_recipe
 from ..database import utc_now
+from ..settings.service import get_settings
 from . import repository
 from .recommendation import calculate_recommendation
 from .validation import validate_log
@@ -74,5 +75,12 @@ def recommend(db: sqlite3.Connection, recipe_id: str, max_step: float = 2.5) -> 
         raise ValueError("Recipe not found.")
     recipe = row_to_recipe(recipe_row)
     logs = list_logs_for_recipe(db, recipe_id)
-    result = calculate_recommendation(logs, recipe["values"], max_step=max_step)
+    settings = get_settings(db)
+    result = calculate_recommendation(
+        logs,
+        recipe["values"],
+        max_step=max_step,
+        grind_min=float(settings["grindMin"]),
+        grind_max=float(settings["grindMax"]),
+    )
     return {**result, "recipeId": recipe_id, "beanId": recipe["beanId"], "method": recipe["method"]}

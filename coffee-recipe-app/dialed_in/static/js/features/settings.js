@@ -6,6 +6,11 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
   const machine = document.querySelector("#machineInput");
   const grinder = document.querySelector("#grinderSettingsInput");
   const darkMode = document.querySelector("#darkModeInput");
+  const grindMin = document.querySelector("#grindMinInput");
+  const grindMax = document.querySelector("#grindMaxInput");
+  const machineTemperatureControl = document.querySelector("#machineTemperatureControlInput");
+  const machinePressureControl = document.querySelector("#machinePressureControlInput");
+  const machineFlowControl = document.querySelector("#machineFlowControlInput");
   const importInput = document.querySelector("#importInput");
 
   let themeBeforePreview = null;
@@ -17,6 +22,11 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
   function open() {
     machine.value = state.settings.machine;
     grinder.value = state.settings.grinder;
+    grindMin.value = state.settings.grindMin ?? 1;
+    grindMax.value = state.settings.grindMax ?? 50;
+    machineTemperatureControl.checked = Boolean(state.settings.machineTemperatureControl);
+    machinePressureControl.checked = Boolean(state.settings.machinePressureControl);
+    machineFlowControl.checked = Boolean(state.settings.machineFlowControl);
     themeBeforePreview = normalizeTheme(state.settings.theme);
     if (darkMode) darkMode.checked = themeBeforePreview === "dark";
     applyTheme(themeBeforePreview);
@@ -37,6 +47,11 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
         body: JSON.stringify({
           machine: machine.value.trim(),
           grinder: grinder.value.trim(),
+          grindMin: Number(grindMin.value),
+          grindMax: Number(grindMax.value),
+          machineTemperatureControl: machineTemperatureControl.checked,
+          machinePressureControl: machinePressureControl.checked,
+          machineFlowControl: machineFlowControl.checked,
           theme: selectedTheme()
         })
       });

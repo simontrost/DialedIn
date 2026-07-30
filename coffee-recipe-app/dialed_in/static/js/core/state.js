@@ -1,6 +1,11 @@
 export const defaultSettings = Object.freeze({
   machine: "Gaggia Classic Evo Pro E24",
   grinder: "Turin G-Micron DF64P",
+  grindMin: 1,
+  grindMax: 50,
+  machineTemperatureControl: false,
+  machinePressureControl: false,
+  machineFlowControl: false,
   theme: "light"
 });
 

@@ -857,3 +857,11 @@
 :root[data-theme="dark"] .bean-decaf-badge { color:#f1dcc7; background:#3a271d; }
 :root[data-theme="dark"] .dashboard-bean-profile,
 :root[data-theme="dark"] .dashboard-bean-profile > div + div { border-color:rgba(238,208,181,.16); }
+
+
+:root[data-theme="dark"] .setup-settings-section,
+:root[data-theme="dark"] .capability-card {
+  background:#2d1c14;
+  border-color:rgba(238,208,181,.18);
+}
+:root[data-theme="dark"] .capability-card { background:#342219; }

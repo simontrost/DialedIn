@@ -27,6 +27,11 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const valid = document.querySelector("#logValidInput");
   let editingLogId = "";
 
+  function applyGrinderRange() {
+    grind.min = String(Number(state.settings.grindMin ?? 0));
+    grind.max = String(Number(state.settings.grindMax ?? 500));
+  }
+
   function dialableRecipes(beanId) {
     return state.brewRecipes.filter(recipe => recipe.beanId === beanId && methodById(state, recipe.method)?.supportsDialIn);
   }
@@ -94,6 +99,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   }
 
   function open({ beanId = "", recipeId = "", log = null, logId = "" } = {}) {
+    applyGrinderRange();
     const existingLog = log || state.dialInLogs.find(item => item.id === logId) || null;
     editingLogId = existingLog?.id || "";
     setDialogMode(Boolean(existingLog));

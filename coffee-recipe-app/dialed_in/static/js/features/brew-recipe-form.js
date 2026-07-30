@@ -23,6 +23,24 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
 
   let draftSteps = [];
 
+  const machineBasedMethods = new Set(["espresso", "americano", "flat_white", "cappuccino", "latte"]);
+
+  function visibleMethodFields(method) {
+    return (method.fields || []).filter(field => {
+      if (field.key === "grind") return true;
+      if (!machineBasedMethods.has(method.id)) return true;
+      if (field.key === "temperature") return Boolean(state.settings.machineTemperatureControl);
+      if (field.key === "pressure") return Boolean(state.settings.machinePressureControl);
+      if (field.key === "flowRate") return Boolean(state.settings.machineFlowControl);
+      return true;
+    });
+  }
+
+  function configuredField(field) {
+    if (field.key !== "grind") return field;
+    return { ...field, min: Number(state.settings.grindMin ?? field.min ?? 0), max: Number(state.settings.grindMax ?? field.max ?? 500) };
+  }
+
 
   const recipeFieldIcons = {
     dose: "dose",
@@ -31,6 +49,7 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     grind: "grind",
     temperature: "temperature",
     pressure: "pressure",
+    flowRate: "flow",
     addedWater: "water",
     waterTemperature: "temperature",
     servingOrder: "serving-order",
@@ -181,7 +200,8 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
   function renderMethodFields(values = {}) {
     const method = methodById(state, methodInput.value);
     description.innerHTML = `<span class="method-icon-shell" aria-hidden="true">${methodIconMarkup(method)}</span><div><strong>${escapeHtml(method.name)}</strong><p>${escapeHtml(method.description || "")}</p></div>`;
-    fieldsContainer.innerHTML = (method.fields || []).map(field => {
+    fieldsContainer.innerHTML = visibleMethodFields(method).map(rawField => {
+      const field = configuredField(rawField);
       const value = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : field.default;
       return fieldHtml(field, value);
     }).join("");

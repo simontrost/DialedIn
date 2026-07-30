@@ -123,6 +123,8 @@ def calculate_recommendation(
     recipe_values: dict[str, Any],
     *,
     max_step: float = 2.5,
+    grind_min: float | None = None,
+    grind_max: float | None = None,
 ) -> dict[str, Any]:
     valid_logs = [
         log for log in logs
@@ -183,6 +185,10 @@ def calculate_recommendation(
     max_step = max(0.1, min(float(max_step), 20.0))
     delta = max(-max_step, min(max_step, raw_prediction - current_grind))
     recommended = current_grind + delta
+    if grind_min is not None:
+        recommended = max(float(grind_min), recommended)
+    if grind_max is not None:
+        recommended = min(float(grind_max), recommended)
 
     if distinct_count >= 5 and bracketing:
         confidence = "high"
