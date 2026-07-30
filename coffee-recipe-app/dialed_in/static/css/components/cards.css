@@ -68,13 +68,15 @@
   text-transform:uppercase;
   letter-spacing:.09em;
 }
-.bean-origin-detail p { margin:5px 0 0; color:var(--ink); font-size:.76rem; line-height:1.4; }
+.bean-origin-detail p { margin:5px 0 0; color:var(--ink); font-size:.76rem; font-weight:700; line-height:1.4; }
+.bean-origin-detail p.bean-profile-value--empty { color:var(--muted); }
 .bean-profile-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:var(--line); }
 .bean-profile-detail { min-width:0; min-height:64px; padding:12px; background:rgba(255,250,244,.92); }
-.bean-profile-detail strong { display:block; margin-top:7px; overflow:hidden; text-overflow:ellipsis; color:var(--ink); font-size:.78rem; line-height:1.25; }
+.bean-profile-detail strong,
+.bean-profile-detail .bean-profile-value { display:block; margin-top:7px; overflow:hidden; text-overflow:ellipsis; color:var(--ink); font-size:.78rem; font-weight:700; line-height:1.25; }
+.bean-profile-detail .bean-profile-value--empty { color:var(--muted); font-weight:700; }
 .bean-profile-strength .bean-strength-mini { margin-top:9px; }
 .bean-profile-taste strong { color:var(--espresso-700); }
-.bean-detail-empty { display:block; margin-top:7px; color:var(--muted); font-size:.72rem; }
 .bean-decaf-badge { display:inline-flex; margin-top:10px; border-radius:999px; padding:6px 10px; color:var(--espresso-700); background:var(--cream-100); font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
 .bean-flavor-section { margin-top:15px; }
 .bean-flavor-heading { margin-bottom:8px; }

@@ -27,28 +27,31 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
   const method = methodById(state, dashboardMethod);
   const metrics = recipeMetricSummary(recipe, method);
   const flavorNotes = Array.isArray(bean.flavorNotes) ? bean.flavorNotes : [];
-  const strength = Number(bean.strength) > 0 ? beanStrengthMarkup(bean.strength) : '<span class="bean-detail-empty">Not set</span>';
+  const strength = Number(bean.strength) > 0
+    ? beanStrengthMarkup(bean.strength)
+    : '<strong class="bean-profile-value bean-profile-value--empty">Not set</strong>';
   const tasteLabel = bean.tasteBalance && TASTE_BALANCE_LABELS[bean.tasteBalance]
     ? TASTE_BALANCE_LABELS[bean.tasteBalance]
     : "Not set";
+  const origin = originLabel(bean) === "Origin not set" ? "Not set" : originLabel(bean);
 
   const compactDetails = `
     <div class="dashboard-bean-profile" aria-label="Bean profile">
-      <div><small>Blend</small><strong>${escapeHtml(bean.blend || "Not specified")}</strong></div>
-      <div><small>Roast</small><strong>${escapeHtml(bean.roast || "Not specified")}</strong></div>
+      <div><small>Blend</small><strong class="${bean.blend ? "" : "bean-profile-value--empty"}">${escapeHtml(bean.blend || "Not set")}</strong></div>
+      <div><small>Roast</small><strong class="${bean.roast ? "" : "bean-profile-value--empty"}">${escapeHtml(bean.roast || "Not set")}</strong></div>
       <div class="dashboard-strength"><small>Strength</small>${strength}</div>
     </div>`;
 
   const fullDetails = `
     <div class="bean-origin-detail">
       <small>Origin</small>
-      <p>${escapeHtml(originLabel(bean))}</p>
+      <p class="${origin === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(origin)}</p>
     </div>
     <div class="bean-profile-grid" aria-label="Bean profile">
-      <div class="bean-profile-detail"><small>Blend</small><strong>${escapeHtml(bean.blend || "Not specified")}</strong></div>
-      <div class="bean-profile-detail"><small>Roast</small><strong>${escapeHtml(bean.roast || "Not specified")}</strong></div>
+      <div class="bean-profile-detail"><small>Blend</small><strong class="bean-profile-value ${bean.blend ? "" : "bean-profile-value--empty"}">${escapeHtml(bean.blend || "Not set")}</strong></div>
+      <div class="bean-profile-detail"><small>Roast</small><strong class="bean-profile-value ${bean.roast ? "" : "bean-profile-value--empty"}">${escapeHtml(bean.roast || "Not set")}</strong></div>
       <div class="bean-profile-detail bean-profile-strength"><small>Strength</small>${strength}</div>
-      <div class="bean-profile-detail bean-profile-taste"><small>Acidity / bitterness</small><strong>${escapeHtml(tasteLabel)}</strong></div>
+      <div class="bean-profile-detail bean-profile-taste"><small>Acidity / bitterness</small><strong class="bean-profile-value ${tasteLabel === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(tasteLabel)}</strong></div>
     </div>
     ${bean.decaf ? '<span class="bean-decaf-badge">Decaf</span>' : ""}
     ${flavorNotes.length ? `
