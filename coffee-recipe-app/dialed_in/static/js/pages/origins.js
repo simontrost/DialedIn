@@ -194,11 +194,17 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   let pointerStart = null;
   let pinchStart = null;
 
+  function markerSizeMultiplier() {
+    // The SVG viewBox is compressed much more on phones. Compensate for that
+    // so markers keep a comfortable, tappable visual size on small screens.
+    return window.matchMedia("(max-width: 700px)").matches ? 1.7 : 1;
+  }
+
   function applyTransform() {
     scene.setAttribute("transform", `translate(${transform.x} ${transform.y}) scale(${transform.scale})`);
-    const inverseScale = 1 / transform.scale;
+    const markerScale = markerSizeMultiplier() / transform.scale;
     markersLayer.querySelectorAll(".origin-marker").forEach(marker => {
-      marker.setAttribute("transform", `translate(${marker.dataset.x} ${marker.dataset.y}) scale(${inverseScale})`);
+      marker.setAttribute("transform", `translate(${marker.dataset.x} ${marker.dataset.y}) scale(${markerScale})`);
     });
   }
 
@@ -342,7 +348,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
       marker.setAttribute("class", "origin-marker");
       marker.dataset.x = String(x);
       marker.dataset.y = String(y);
-      marker.setAttribute("transform", `translate(${x} ${y}) scale(${1 / transform.scale})`);
+      marker.setAttribute("transform", `translate(${x} ${y}) scale(${markerSizeMultiplier() / transform.scale})`);
       marker.setAttribute("role", "button");
       marker.setAttribute("tabindex", "0");
       marker.setAttribute("aria-label", `${group.label}, ${group.items.length} bean entries`);
@@ -359,13 +365,15 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
 
       const beanIcon = document.createElementNS(SVG_NS, "g");
       beanIcon.setAttribute("class", "origin-marker-bean");
-      beanIcon.setAttribute("transform", "translate(-8 -8) scale(.67)");
+      beanIcon.setAttribute("transform", "rotate(32)");
 
+      // Draw around the marker origin instead of offsetting an icon with an
+      // uneven viewBox. This keeps the bean optically centered in the circle.
       const beanOutline = document.createElementNS(SVG_NS, "path");
-      beanOutline.setAttribute("d", "M4.693 20.717C1.002 18.549 1.741 13.829 3.825 10.349C6.403 6.044 9.93 2.918 13.81 5.197C17.69 7.477 16.428 11.687 13.74 16.174C11.766 19.471 8.383 22.885 4.693 20.717Z");
+      beanOutline.setAttribute("d", "M0 -8.5C4.8 -8.5 7.7 -4.7 7.7 0C7.7 4.9 4.5 8.5 0 8.5C-4.8 8.5 -7.7 4.8 -7.7 0C-7.7 -4.9 -4.6 -8.5 0 -8.5Z");
 
       const beanCrease = document.createElementNS(SVG_NS, "path");
-      beanCrease.setAttribute("d", "M13.619 5.702C10.119 7.202 11.288 10.825 9.619 13.202C8.13 15.428 4.619 15.702 4.619 19.702");
+      beanCrease.setAttribute("d", "M1.9 -7.6C-2.8 -5.1 2.8 -2.8 -1.4 .2C-4.4 2.4 .8 4.8 -1.7 7.7");
 
       beanIcon.append(beanOutline, beanCrease);
       marker.append(beanIcon);
@@ -510,6 +518,7 @@ export function createOriginsPage({ state, onEditBean, showToast }) {
   }
   viewport.addEventListener("pointerup", releasePointer);
   viewport.addEventListener("pointercancel", releasePointer);
+  window.addEventListener("resize", applyTransform);
 
   resetView();
   return { render, activate };
