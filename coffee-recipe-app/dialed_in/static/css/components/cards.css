@@ -81,14 +81,39 @@
 .bean-card--library .bean-flavor-notes { margin:0; }
 
 /* Dashboard keeps only the bean essentials before the embedded recipe. */
-.dashboard-bean-profile { display:grid; grid-template-columns:1.35fr .75fr 1fr; gap:10px; margin:1px 0 16px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:12px 0; }
+.dashboard-bean-profile {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  margin:1px 0 16px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:12px 0;
+}
 .dashboard-bean-profile > div { min-width:0; }
-.dashboard-bean-profile > div + div { border-left:1px solid var(--line); padding-left:10px; }
-.dashboard-bean-profile strong { display:block; margin-top:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink); font-size:.76rem; }
+.dashboard-bean-profile > div:first-child {
+  grid-column:1/-1;
+  border-bottom:1px solid var(--line);
+  padding:0 0 11px;
+}
+.dashboard-bean-profile > div:nth-child(2) { padding:11px 10px 0 0; }
+.dashboard-bean-profile > div:nth-child(3) {
+  border-left:1px solid var(--line);
+  padding:11px 0 0 12px;
+}
+.dashboard-bean-profile strong {
+  display:block;
+  margin-top:6px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--ink);
+  font-size:.76rem;
+}
+.dashboard-bean-profile > div:first-child strong {
+  overflow:visible;
+  text-overflow:clip;
+  white-space:normal;
+  line-height:1.35;
+}
 .dashboard-strength .bean-strength-mini { margin-top:7px; }
 .bean-card--dashboard .bean-recipe-preview { margin-top:0; }
-
-@media(max-width:420px){
-  .dashboard-bean-profile { grid-template-columns:1fr 1fr; }
-  .dashboard-bean-profile .dashboard-strength { grid-column:1/-1; border-left:0; border-top:1px solid var(--line); padding:10px 0 0; }
-}
