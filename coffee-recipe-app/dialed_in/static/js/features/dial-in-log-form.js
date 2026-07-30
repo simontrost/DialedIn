@@ -41,10 +41,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   function syncRecipeOptions(preferredRecipeId = "") {
     const recipes = dialableRecipes(beanInput.value);
     recipeInput.innerHTML = recipes.length
-      ? recipes.map(recipe => {
-        const method = methodById(state, recipe.method);
-        return `<option value="${escapeHtml(recipe.id)}">${escapeHtml(recipe.name)} · ${escapeHtml(method?.name || recipe.method)}</option>`;
-      }).join("")
+      ? recipes.map(recipe => `<option value="${escapeHtml(recipe.id)}">${escapeHtml(recipe.name)}</option>`).join("")
       : '<option value="">No dial-in recipe for this bean</option>';
     recipeInput.value = [...recipeInput.options].some(option => option.value === preferredRecipeId)
       ? preferredRecipeId
@@ -59,8 +56,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
       context.textContent = "Choose a bean with a dial-in-capable recipe.";
       return null;
     }
-    const method = methodById(state, recipe.method);
-    context.textContent = `${bean.name} · ${method?.name || recipe.method} · ${recipe.name}`;
+    context.textContent = `${bean.name} · ${recipe.name}`;
     return { recipe, bean };
   }
 

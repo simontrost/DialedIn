@@ -5,7 +5,15 @@
       <h1>Dial in over time</h1>
       <p>Measurements remain stored across days and weeks. Add, edit or remove brews, then calculate the next grind setting from the complete history.</p>
     </div>
-    <span class="beta-badge">Persistent log</span>
+    <div class="dial-total-brews" aria-label="Total brewed count">
+      <span class="dial-total-brews-icon" aria-hidden="true">
+        <span class="app-icon" style="--app-icon:url('{{ url_for('static', filename='icons/ui/measurements.svg') }}')"></span>
+      </span>
+      <span class="dial-total-brews-copy">
+        <small>Total brewed</small>
+        <strong><span id="dialTotalBrewCount">0</span> <span id="dialTotalBrewLabel">brews logged</span></strong>
+      </span>
+    </div>
   </header>
 
   <section class="dial-selection-panel">

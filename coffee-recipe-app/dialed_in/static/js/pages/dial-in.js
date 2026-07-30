@@ -52,6 +52,8 @@ export function createDialInPage({
   const recommended = document.querySelector("#recommendedGrind");
   const recommendationMeta = document.querySelector("#recommendationMeta");
   const recommendationCard = document.querySelector("#recommendationCard");
+  const totalBrewCount = document.querySelector("#dialTotalBrewCount");
+  const totalBrewLabel = document.querySelector("#dialTotalBrewLabel");
   let recommendationRecipeId = "";
 
   function dialableRecipes(beanId) {
@@ -80,10 +82,7 @@ export function createDialInPage({
     const recipes = dialableRecipes(selectedBean);
     const previousRecipe = state.selectedDialRecipeId || recipeSelect.value;
     recipeSelect.innerHTML = recipes.length
-      ? recipes.map(recipe => {
-        const method = methodById(state, recipe.method);
-        return `<option value="${escapeHtml(recipe.id)}">${escapeHtml(recipe.name)} · ${escapeHtml(method.name)}</option>`;
-      }).join("")
+      ? recipes.map(recipe => `<option value="${escapeHtml(recipe.id)}">${escapeHtml(recipe.name)}</option>`).join("")
       : '<option value="">No dial-in recipe for this bean</option>';
     const selected = [...recipeSelect.options].some(option => option.value === previousRecipe) ? previousRecipe : (recipes[0]?.id || "");
     recipeSelect.value = selected;
@@ -147,6 +146,9 @@ export function createDialInPage({
 
   function render() {
     syncSelectors();
+    const totalBrews = state.dialInLogs.length;
+    totalBrewCount.textContent = String(totalBrews);
+    totalBrewLabel.textContent = totalBrews === 1 ? "brew logged" : "brews logged";
     const recipe = selectedRecipe();
     const method = recipe ? methodById(state, recipe.method) : null;
     const logs = selectedLogs();
