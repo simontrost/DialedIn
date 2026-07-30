@@ -359,3 +359,90 @@ dialog form,.quick-add-content { padding:26px; }
 .capability-card .theme-switch { flex:0 0 auto; transform:scale(.86); transform-origin:right center; }
 .grinder-range-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:14px; }
 @media(max-width:700px){.capability-grid{grid-template-columns:1fr}.grinder-range-grid{grid-template-columns:1fr}.setup-settings-section{padding:15px}.capability-card .theme-switch{transform:scale(.82)}}
+
+
+/* Dial-in measurement editor: centered values and recipe-style number steppers. */
+#dialInLogDialog .dial-log-metric-input > .metric-control {
+  position: relative;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  padding: 0 0 0 14px;
+}
+#dialInLogDialog .dial-log-metric-input input[type="number"] {
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  line-height: normal;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+#dialInLogDialog .dial-log-metric-input input[type="number"]::-webkit-inner-spin-button,
+#dialInLogDialog .dial-log-metric-input input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+#dialInLogDialog .metric-unit {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  padding: 0 2px;
+  white-space: nowrap;
+}
+#dialInLogDialog .number-stepper {
+  width: 40px;
+  align-self: stretch;
+  flex: 0 0 40px;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  border-left: 1px solid var(--line);
+  background: var(--cream-50);
+}
+#dialInLogDialog .number-stepper button {
+  position: relative;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  color: var(--espresso-700);
+  background: transparent;
+  transition: background .16s ease, color .16s ease;
+}
+#dialInLogDialog .number-stepper button + button {
+  border-top: 1px solid var(--line);
+}
+#dialInLogDialog .number-stepper button::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+}
+#dialInLogDialog .number-stepper button[data-number-step="up"]::before {
+  transform: translate(-50%, -25%) rotate(45deg);
+}
+#dialInLogDialog .number-stepper button[data-number-step="down"]::before {
+  transform: translate(-50%, -75%) rotate(225deg);
+}
+#dialInLogDialog .number-stepper button:hover,
+#dialInLogDialog .number-stepper button:focus-visible {
+  color: var(--espresso-950);
+  background: var(--cream-100);
+  outline: none;
+}
+:root[data-theme="dark"] #dialInLogDialog .number-stepper {
+  background: #2d1c14;
+  border-left-color: rgba(238,208,181,.18);
+}
+:root[data-theme="dark"] #dialInLogDialog .number-stepper button + button {
+  border-top-color: rgba(238,208,181,.18);
+}
+:root[data-theme="dark"] #dialInLogDialog .number-stepper button:hover,
+:root[data-theme="dark"] #dialInLogDialog .number-stepper button:focus-visible {
+  color: #f4e8dc;
+  background: #432d22;
+}

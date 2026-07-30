@@ -27,6 +27,25 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const valid = document.querySelector("#logValidInput");
   let editingLogId = "";
 
+  function adjustNumberInput(button) {
+    const input = button.closest(".metric-control")?.querySelector('input[type="number"]');
+    if (!input) return;
+    try {
+      if (button.dataset.numberStep === "up") input.stepUp();
+      else input.stepDown();
+    } catch (error) {
+      const step = Number(input.step) || 1;
+      const current = input.value === "" ? (Number(input.min) || 0) : Number(input.value);
+      const next = current + (button.dataset.numberStep === "up" ? step : -step);
+      const minimum = input.min === "" ? -Infinity : Number(input.min);
+      const maximum = input.max === "" ? Infinity : Number(input.max);
+      input.value = String(Math.min(maximum, Math.max(minimum, next)));
+    }
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    input.focus({ preventScroll: true });
+  }
+
   function applyGrinderRange() {
     grind.min = String(Number(state.settings.grindMin ?? 0));
     grind.max = String(Number(state.settings.grindMax ?? 500));
@@ -190,6 +209,10 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
     }
   }
 
+  form.addEventListener("click", event => {
+    const stepper = event.target.closest("[data-number-step]");
+    if (stepper) adjustNumberInput(stepper);
+  });
   beanInput.addEventListener("change", () => {
     syncRecipeOptions();
     if (editingLogId) updateContext();

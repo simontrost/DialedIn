@@ -24,17 +24,48 @@
         <span>Brewed at</span>
         <input id="logBrewedAtInput" type="datetime-local" required>
       </label>
-      <label class="metric-input">
-        <span>Grind setting *</span><div><input id="logGrindInput" type="number" min="0" max="500" step="0.1" required></div>
+      <label class="metric-input dial-log-metric-input">
+        <span>Grind setting *</span>
+        <div class="metric-control">
+          <input id="logGrindInput" type="number" min="0" max="500" step="0.1" required>
+          <span class="number-stepper">
+            <button type="button" data-number-step="up" aria-label="Increase grind setting"></button>
+            <button type="button" data-number-step="down" aria-label="Decrease grind setting"></button>
+          </span>
+        </div>
       </label>
-      <label class="metric-input">
-        <span>Time *</span><div><input id="logTimeInput" type="number" min="0.1" max="10000" step="0.1" required><small>sec</small></div>
+      <label class="metric-input dial-log-metric-input">
+        <span>Time *</span>
+        <div class="metric-control">
+          <input id="logTimeInput" type="number" min="0.1" max="10000" step="0.1" required>
+          <small class="metric-unit">sec</small>
+          <span class="number-stepper">
+            <button type="button" data-number-step="up" aria-label="Increase time"></button>
+            <button type="button" data-number-step="down" aria-label="Decrease time"></button>
+          </span>
+        </div>
       </label>
-      <label class="metric-input">
-        <span>Dose</span><div><input id="logDoseInput" type="number" min="0" max="1000" step="0.1"><small>g</small></div>
+      <label class="metric-input dial-log-metric-input">
+        <span>Dose</span>
+        <div class="metric-control">
+          <input id="logDoseInput" type="number" min="0" max="1000" step="0.1">
+          <small class="metric-unit">g</small>
+          <span class="number-stepper">
+            <button type="button" data-number-step="up" aria-label="Increase dose"></button>
+            <button type="button" data-number-step="down" aria-label="Decrease dose"></button>
+          </span>
+        </div>
       </label>
-      <label class="metric-input">
-        <span>Yield</span><div><input id="logYieldInput" type="number" min="0" max="10000" step="0.1"><small>g</small></div>
+      <label class="metric-input dial-log-metric-input">
+        <span>Yield</span>
+        <div class="metric-control">
+          <input id="logYieldInput" type="number" min="0" max="10000" step="0.1">
+          <small class="metric-unit">g</small>
+          <span class="number-stepper">
+            <button type="button" data-number-step="up" aria-label="Increase yield"></button>
+            <button type="button" data-number-step="down" aria-label="Decrease yield"></button>
+          </span>
+        </div>
       </label>
       <label class="field">
         <span>Taste</span>
