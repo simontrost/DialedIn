@@ -41,6 +41,11 @@
 .brew-recipe-card::before { content:""; position:absolute; inset:0 0 auto; height:7px; background:var(--crema-500); }
 .brew-recipe-icon { width:50px; height:50px; margin:20px 20px 0; display:grid; place-items:center; border-radius:16px; color:var(--espresso-700); background:var(--cream-100); }
 .step-count { margin:12px 0 0; color:var(--crema-500); font-size:.73rem; font-weight:800; }
+.recipe-step-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:14px; }
+.recipe-step-summary .step-count { margin:0; }
+.recipe-start-button { flex:0 0 auto; width:44px; height:44px; border:1px solid rgba(201,135,74,.22); border-radius:16px; display:grid; place-items:center; color:var(--crema-500); background:rgba(255,247,240,.95); box-shadow:0 10px 22px rgba(88,49,23,.08); }
+.recipe-start-button .app-icon { width:1.2rem; height:1.2rem; }
+.recipe-start-button:hover { transform:translateY(-1px); border-color:rgba(201,135,74,.42); box-shadow:0 14px 30px rgba(88,49,23,.12); }
 .notes-preview { min-height:38px; margin:12px 0 0; color:var(--muted); font-size:.8rem; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 @media(max-width:950px){.bean-grid,.brew-recipe-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.bean-grid,.brew-recipe-grid{grid-template-columns:1fr}.bean-card,.brew-recipe-card{border-radius:20px}}

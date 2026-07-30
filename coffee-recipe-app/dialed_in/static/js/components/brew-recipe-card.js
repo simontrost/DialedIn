@@ -16,7 +16,7 @@ export function brewRecipeCardHtml(recipe, state) {
         <h3>${escapeHtml(recipe.name)}</h3>
         <p class="recipe-bean-name">${escapeHtml(bean?.name || "Missing bean")} · ${escapeHtml(bean?.roaster || "Roaster not set")}</p>
         <div class="recipe-card-metrics">${metrics.map(metric => `<span><b>${escapeHtml(metric.value)}${metric.unit ? ` ${escapeHtml(metric.unit)}` : ""}</b><small>${escapeHtml(metric.label)}</small></span>`).join("")}</div>
-        ${stepCount ? `<p class="step-count">${stepCount} saved recipe step${stepCount === 1 ? "" : "s"}</p>` : ""}
+        ${stepCount ? `<div class="recipe-step-summary"><p class="step-count">${stepCount} saved recipe step${stepCount === 1 ? "" : "s"}</p><button class="recipe-start-button" type="button" data-start-recipe="${recipe.id}" aria-label="Start guided recipe" title="Start guided recipe">${iconMarkup("start", { group: "ui" })}</button></div>` : ""}
         ${recipe.notes ? `<p class="notes-preview">${escapeHtml(recipe.notes)}</p>` : ""}
       </div>
       <footer class="brew-recipe-footer">

@@ -1,0 +1,38 @@
+<dialog class="recipe-runner-dialog" id="recipeRunnerDialog">
+  <div class="recipe-runner-shell">
+    <header class="recipe-runner-header">
+      <div class="recipe-runner-header-copy">
+        <div class="recipe-runner-method-badge" id="recipeRunnerMethodBadge"></div>
+        <h2 id="recipeRunnerRecipeTitle">Recipe guide</h2>
+        <p id="recipeRunnerRecipeMeta">Step by step brewing guide.</p>
+      </div>
+      <button class="recipe-runner-close" type="button" data-close-recipe-runner aria-label="Close recipe guide">×</button>
+    </header>
+
+    <section class="recipe-runner-progress">
+      <div class="recipe-runner-progress-top">
+        <span id="recipeRunnerProgressLabel">Brewing step</span>
+      </div>
+      <div class="recipe-runner-progress-track" aria-hidden="true"><span id="recipeRunnerProgressFill"></span></div>
+    </section>
+
+    <section class="recipe-runner-stage-card">
+      <p class="recipe-runner-stage-eyebrow" id="recipeRunnerStageEyebrow">Recipe step</p>
+      <h3 id="recipeRunnerStageTitle">Bloom</h3>
+      <p class="recipe-runner-stage-body" id="recipeRunnerStageBody">Wet all grounds evenly.</p>
+
+      <div class="recipe-runner-metrics" id="recipeRunnerMetrics"></div>
+
+      <div class="recipe-runner-timer hidden" id="recipeRunnerTimerPanel">
+        <span class="recipe-runner-timer-label">Timer</span>
+        <strong id="recipeRunnerTimerValue">00:00</strong>
+        <p id="recipeRunnerTimerHint">Start the timer when you are ready.</p>
+      </div>
+    </section>
+
+    <footer class="recipe-runner-actions">
+      <button class="secondary-button hidden" id="recipeRunnerSecondaryButton" type="button">Skip wait</button>
+      <button class="primary-button button-with-icon" id="recipeRunnerPrimaryButton" type="button"></button>
+    </footer>
+  </div>
+</dialog>

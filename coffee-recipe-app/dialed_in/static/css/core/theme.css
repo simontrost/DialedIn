@@ -818,22 +818,34 @@
   background: rgba(238, 208, 181, .18);
 }
 
-/* Recipe editor controls in dark mode. */
-:root[data-theme="dark"] #brewRecipeDialog .number-stepper {
-  border-left-color: rgba(238, 208, 181, .18);
-  background: #2a1a13;
+
+:root[data-theme="dark"] .recipe-start-button,
+:root[data-theme="dark"] .recipe-runner-close,
+:root[data-theme="dark"] .recipe-runner-method-badge,
+:root[data-theme="dark"] .recipe-runner-metric {
+  color: #f1dcc7;
+  background: #35231a;
+  border-color: rgba(238, 208, 181, .18);
 }
-:root[data-theme="dark"] #brewRecipeDialog .number-stepper button {
-  color: #e5ad73;
+
+:root[data-theme="dark"] .recipe-runner-dialog {
+  background: linear-gradient(180deg, #24150f 0%, #1b110d 100%);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .34);
 }
-:root[data-theme="dark"] #brewRecipeDialog .number-stepper button + button {
-  border-top-color: rgba(238, 208, 181, .18);
+
+:root[data-theme="dark"] .recipe-runner-stage-card,
+:root[data-theme="dark"] .recipe-runner-timer {
+  color: var(--ink);
+  background: #2d1c14;
+  border-color: rgba(238, 208, 181, .18);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, .22);
 }
-:root[data-theme="dark"] #brewRecipeDialog .number-stepper button:hover,
-:root[data-theme="dark"] #brewRecipeDialog .number-stepper button:focus-visible {
-  color: #f3ddc5;
-  background: #3a271d;
+
+:root[data-theme="dark"] .recipe-runner-progress-track {
+  background: rgba(255, 238, 221, .08);
 }
-:root[data-theme="dark"] #brewRecipeDialog .recipe-field-label > .app-icon {
-  color: #e5ad73;
+
+:root[data-theme="dark"] .recipe-runner-stage-eyebrow,
+:root[data-theme="dark"] .recipe-step-summary .step-count {
+  color: #e1b576;
 }

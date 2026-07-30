@@ -1,7 +1,7 @@
 import { brewRecipeCardHtml } from "../components/brew-recipe-card.js";
 import { beanById, escapeHtml, methodById } from "../core/utils.js";
 
-export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDialIn }) {
+export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDialIn, onStart }) {
   const grid = document.querySelector("#brewRecipeGrid");
   const empty = document.querySelector("#recipeEmptyState");
   const search = document.querySelector("#recipeSearchInput");
@@ -46,9 +46,11 @@ export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDial
     const edit = event.target.closest("[data-edit-recipe]");
     const favorite = event.target.closest("[data-toggle-recipe-favorite]");
     const dial = event.target.closest("[data-open-dial-in]");
+    const start = event.target.closest("[data-start-recipe]");
     if (edit) onEdit(edit.dataset.editRecipe);
     if (favorite) onFavorite(favorite.dataset.toggleRecipeFavorite);
     if (dial) onOpenDialIn(dial.dataset.openDialIn);
+    if (start) onStart?.(start.dataset.startRecipe);
   });
   return { render };
 }

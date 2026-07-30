@@ -5,6 +5,7 @@ import { applyTheme } from "./core/theme.js";
 import { createNavigation } from "./components/navigation.js";
 import { createBeanForm } from "./features/bean-form.js";
 import { createBrewRecipeForm } from "./features/brew-recipe-form.js";
+import { createRecipeRunner } from "./features/recipe-runner.js";
 import { createDialInLogForm } from "./features/dial-in-log-form.js";
 import { createQuickAdd } from "./features/quick-add.js";
 import { createSettings } from "./features/settings.js";
@@ -22,6 +23,7 @@ let dialInPage;
 let originsPage;
 let navigation;
 let quickAdd;
+let recipeRunner;
 
 function renderAll() {
   overviewPage?.render();
@@ -45,6 +47,7 @@ async function loadState() {
 
 const beanForm = createBeanForm({ state, api, showToast, onChanged: renderAll });
 const brewRecipeForm = createBrewRecipeForm({ state, api, showToast, onChanged: renderAll });
+recipeRunner = createRecipeRunner({ state, showToast });
 const dialInLogForm = createDialInLogForm({
   state,
   api,
@@ -105,7 +108,8 @@ recipesPage = createRecipesPage({
   onEdit: editRecipe,
   onFavorite: brewRecipeForm.toggleFavorite,
   onAdd: addRecipe,
-  onOpenDialIn: openDialIn
+  onOpenDialIn: openDialIn,
+  onStart: recipeRunner.open
 });
 dialInPage = createDialInPage({
   state,
