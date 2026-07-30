@@ -88,3 +88,45 @@
   .recipe-runner-actions .secondary-button,
   .recipe-runner-actions .primary-button { flex:1 1 100%; }
 }
+
+
+/* The wait phase is intentionally timer-only: no repeated step metadata. */
+.recipe-runner-dialog.is-wait-stage .recipe-runner-stage-card {
+  display:flex;
+  align-items:stretch;
+  justify-content:center;
+  overflow:hidden;
+  padding:24px;
+}
+.recipe-runner-dialog.is-wait-stage .recipe-runner-stage-eyebrow,
+.recipe-runner-dialog.is-wait-stage .recipe-runner-stage-card > h3,
+.recipe-runner-dialog.is-wait-stage .recipe-runner-stage-body,
+.recipe-runner-dialog.is-wait-stage .recipe-runner-metrics {
+  display:none;
+}
+.recipe-runner-dialog.is-wait-stage .recipe-runner-timer {
+  width:100%;
+  min-height:100%;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+.recipe-runner-dialog.is-wait-stage .recipe-runner-timer strong {
+  margin-top:16px;
+  font-size:clamp(4rem, 12vw, 7.5rem);
+}
+@media (max-width:700px) {
+  .recipe-runner-dialog.is-wait-stage .recipe-runner-stage-card {
+    padding:14px;
+  }
+  .recipe-runner-dialog.is-wait-stage .recipe-runner-timer {
+    min-height:100%;
+    padding:22px 12px;
+  }
+  .recipe-runner-dialog.is-wait-stage .recipe-runner-timer strong {
+    font-size:clamp(4.4rem, 22vw, 7rem);
+  }
+}

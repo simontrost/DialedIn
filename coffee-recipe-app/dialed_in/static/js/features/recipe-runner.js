@@ -42,6 +42,7 @@ export function createRecipeRunner({ state, showToast }) {
     stage = "step";
     timerTotal = 0;
     timerRemaining = 0;
+    dialog.classList.remove("is-wait-stage");
     if (dialog.open) dialog.close();
   }
 
@@ -117,6 +118,7 @@ export function createRecipeRunner({ state, showToast }) {
         : `Brewing step ${displayStep}`;
     progressFill.style.width = `${Math.max(4, Math.min(100, progressBase * 100))}%`;
 
+    dialog.classList.toggle("is-wait-stage", stage === "wait");
     metrics.innerHTML = "";
     timerPanel.classList.add("hidden");
     secondaryButton.classList.add("hidden");
@@ -134,15 +136,9 @@ export function createRecipeRunner({ state, showToast }) {
       primaryButton.dataset.action = "step-continue";
       renderPrimaryButton(Number(step?.waitSeconds) > 0 ? "Continue to wait" : (currentStepIndex === total - 1 ? "Finish recipe" : "Continue"), "continue");
     } else if (stage === "wait") {
-      stageEyebrow.textContent = "Wait";
-      stageTitle.textContent = step?.waitSeconds ? `${formatNumber(step.waitSeconds, 0)} second pause` : "Short pause";
-      stageBody.textContent = step?.note
-        ? `After “${step.title || `Step ${displayStep}`}” let the brew settle. ${step.note}`
-        : `After “${step?.title || `Step ${displayStep}`}” let the brew settle before continuing.`;
-      metrics.innerHTML = metricMarkup([
-        ...(step?.waterAmount ? [{ value: `${formatNumber(step.waterAmount, 1)} g`, label: "Previous water" }] : []),
-        { value: `${displayStep}/${total}`, label: "Current step" }
-      ]);
+      stageEyebrow.textContent = "";
+      stageTitle.textContent = "";
+      stageBody.textContent = "";
       timerPanel.classList.remove("hidden");
       timerValue.textContent = formatDuration(timerRemaining);
       timerHint.textContent = timerHandle
@@ -225,6 +221,7 @@ export function createRecipeRunner({ state, showToast }) {
     stage = "step";
     timerTotal = 0;
     timerRemaining = 0;
+    dialog.classList.remove("is-wait-stage");
   });
   dialog.addEventListener("cancel", () => clearTimer());
   document.querySelectorAll("[data-close-recipe-runner]").forEach(button => button.addEventListener("click", close));

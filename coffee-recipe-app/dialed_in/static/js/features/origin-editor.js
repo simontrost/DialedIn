@@ -152,6 +152,12 @@ function ensureStyles() {
     .origin-editor-add{display:inline-flex;align-items:center;gap:8px;justify-content:center;min-height:42px;padding:0 14px;border:1px dashed rgba(95,67,53,.36);border-radius:999px;background:rgba(255,255,255,.58);color:var(--espresso-700,#5f4335);font-weight:700}
     .origin-editor-add span{font-size:1.15rem;line-height:1}
     .origin-editor-hidden-field{display:none !important}
+    :root[data-theme="dark"] .origin-editor-row{background:#342219;border-color:rgba(238,208,181,.18)}
+    :root[data-theme="dark"] .origin-editor-control{color:var(--ink);background:#2d1c14;border-color:rgba(238,208,181,.2)}
+    :root[data-theme="dark"] .origin-editor-control::placeholder{color:#a9917f}
+    :root[data-theme="dark"] .origin-editor-control:focus{border-color:var(--crema-400);box-shadow:0 0 0 3px rgba(231,183,127,.14)}
+    :root[data-theme="dark"] .origin-editor-remove{color:var(--ink);background:#2d1c14;border-color:rgba(238,208,181,.2)}
+    :root[data-theme="dark"] .origin-editor-add{color:var(--crema-400);background:#342219;border-color:rgba(231,183,127,.35)}
     @media(max-width:700px){
       .origin-editor-row{grid-template-columns:1fr;gap:12px;align-items:start}
       .origin-editor-remove{justify-self:end;margin:0}
