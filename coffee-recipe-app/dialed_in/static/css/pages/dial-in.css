@@ -66,3 +66,53 @@
   .measurement-mobile-summary>.measurement-row-actions{gap:5px}
   .measurement-mobile-summary .table-edit-button,.measurement-mobile-summary .table-delete-button{width:31px;height:31px}
 }
+
+
+/* Keep the Dial In hero compact on phones. The generic page header otherwise
+   leaves the title in a narrow column beside the total-brews counter. */
+@media(max-width:600px){
+  #page-dial-in>.page-header{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:15px;
+    margin:10px 0 18px;
+    padding:20px;
+  }
+  #page-dial-in>.page-header>div:first-child{width:100%;min-width:0}
+  #page-dial-in>.page-header .eyebrow{margin-bottom:7px}
+  #page-dial-in>.page-header h1{
+    max-width:none;
+    font-size:2.45rem;
+    line-height:.98;
+    letter-spacing:-.035em;
+  }
+  #page-dial-in>.page-header>div:first-child>p:last-child{display:none}
+  #page-dial-in .dial-total-brews{
+    align-self:stretch;
+    width:100%;
+    min-width:0;
+    justify-content:flex-start;
+    gap:10px;
+    padding:9px 11px;
+    border-radius:16px;
+    box-shadow:none;
+  }
+  #page-dial-in .dial-total-brews-icon{
+    width:34px;
+    height:34px;
+    border-radius:11px;
+  }
+  #page-dial-in .dial-total-brews-copy{
+    display:flex;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:4px 9px;
+  }
+  #page-dial-in .dial-total-brews-copy small{font-size:.58rem}
+  #page-dial-in .dial-total-brews-copy strong{
+    font-size:.82rem;
+    white-space:normal;
+  }
+  #page-dial-in .dial-total-brews-copy #dialTotalBrewCount{font-size:1.15rem}
+}
