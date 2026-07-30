@@ -817,3 +817,23 @@
 :root[data-theme="dark"] .equipment-divider {
   background: rgba(238, 208, 181, .18);
 }
+
+/* Recipe editor controls in dark mode. */
+:root[data-theme="dark"] #brewRecipeDialog .number-stepper {
+  border-left-color: rgba(238, 208, 181, .18);
+  background: #2a1a13;
+}
+:root[data-theme="dark"] #brewRecipeDialog .number-stepper button {
+  color: #e5ad73;
+}
+:root[data-theme="dark"] #brewRecipeDialog .number-stepper button + button {
+  border-top-color: rgba(238, 208, 181, .18);
+}
+:root[data-theme="dark"] #brewRecipeDialog .number-stepper button:hover,
+:root[data-theme="dark"] #brewRecipeDialog .number-stepper button:focus-visible {
+  color: #f3ddc5;
+  background: #3a271d;
+}
+:root[data-theme="dark"] #brewRecipeDialog .recipe-field-label > .app-icon {
+  color: #e5ad73;
+}
