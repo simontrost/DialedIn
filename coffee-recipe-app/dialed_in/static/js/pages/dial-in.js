@@ -20,6 +20,15 @@ const tasteLabels = {
   hollow: "Hollow / weak"
 };
 
+function formatOneDecimal(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "–";
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  }).format(number);
+}
+
 function formatRatio(log) {
   const dose = Number(log.dose);
   const beverageYield = Number(log.beverageYield);
@@ -33,7 +42,8 @@ export function createDialInPage({
   showToast,
   onAddMeasurement,
   onEditMeasurement,
-  onEditRecipe
+  onEditRecipe,
+  onRecipeChanged
 }) {
   const beanSelect = document.querySelector("#dialInBeanSelect");
   const recipeSelect = document.querySelector("#dialInRecipeSelect");
@@ -47,14 +57,17 @@ export function createDialInPage({
   const empty = document.querySelector("#dialInEmptyState");
   const targetSummary = document.querySelector("#dialTargetSummary");
   const recipeSummary = document.querySelector("#dialRecipeSummary");
+  const currentGrindSummary = document.querySelector("#dialCurrentGrind");
   const measurementSummary = document.querySelector("#dialMeasurementSummary");
   const spanSummary = document.querySelector("#dialDateSpanSummary");
   const recommended = document.querySelector("#recommendedGrind");
   const recommendationMeta = document.querySelector("#recommendationMeta");
   const recommendationCard = document.querySelector("#recommendationCard");
+  const applyRecommendedButton = document.querySelector("#applyRecommendedGrindButton");
   const totalBrewCount = document.querySelector("#dialTotalBrewCount");
   const totalBrewLabel = document.querySelector("#dialTotalBrewLabel");
   let recommendationRecipeId = "";
+  let recommendedGrindValue = null;
 
   function adjustMaxStep(button) {
     try {
@@ -108,9 +121,13 @@ export function createDialInPage({
 
   function resetRecommendation() {
     recommendationRecipeId = "";
+    recommendedGrindValue = null;
     recommended.textContent = "–";
     recommendationMeta.textContent = "Calculate after adding measurements";
     recommendationCard.dataset.confidence = "";
+    applyRecommendedButton.classList.add("hidden");
+    applyRecommendedButton.disabled = true;
+    applyRecommendedButton.textContent = "Apply";
   }
 
   function rowActions(logId) {
@@ -186,7 +203,10 @@ export function createDialInPage({
     editTargetButton.disabled = disabled;
 
     targetSummary.textContent = recipe?.values?.targetTime ? `${formatNumber(recipe.values.targetTime, 1)} s` : "–";
-    recipeSummary.textContent = recipe ? `${method.name} · target grind ${formatNumber(recipe.values?.grind, 2)}` : "Create a dial-in-capable recipe first";
+    recipeSummary.textContent = recipe ? `${method.name} recipe` : "Create a dial-in-capable recipe first";
+    currentGrindSummary.textContent = recipe?.values?.grind === null || recipe?.values?.grind === undefined || recipe?.values?.grind === ""
+      ? "–"
+      : formatOneDecimal(recipe.values.grind);
     measurementSummary.textContent = String(logs.length);
     if (logs.length > 1) {
       const oldest = logs[logs.length - 1].brewedAt;
@@ -234,7 +254,11 @@ export function createDialInPage({
         })
       });
       recommendationRecipeId = recipe.id;
-      recommended.textContent = formatNumber(result.recommendedGrind, 3);
+      recommendedGrindValue = Math.round(Number(result.recommendedGrind) * 10) / 10;
+      recommended.textContent = formatOneDecimal(recommendedGrindValue);
+      applyRecommendedButton.classList.remove("hidden");
+      applyRecommendedButton.disabled = false;
+      applyRecommendedButton.textContent = "Apply";
       const confidence = String(result.confidence || "low");
       recommendationMeta.textContent = `${confidence.charAt(0).toUpperCase()}${confidence.slice(1)} confidence`;
       recommendationCard.dataset.confidence = result.confidence;
@@ -243,6 +267,35 @@ export function createDialInPage({
     } finally {
       calculateButton.textContent = "Calculate grind";
       calculateButton.disabled = !selectedLogs().some(log => log.valid);
+    }
+  }
+
+  async function applyRecommendedGrind() {
+    const recipe = selectedRecipe();
+    if (!recipe || recommendationRecipeId !== recipe.id || !Number.isFinite(recommendedGrindValue)) {
+      return showToast("Calculate a grind recommendation first");
+    }
+
+    applyRecommendedButton.disabled = true;
+    applyRecommendedButton.textContent = "Applying …";
+    try {
+      const saved = await api(`/api/brew-recipes/${recipe.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          ...recipe,
+          values: { ...recipe.values, grind: recommendedGrindValue }
+        })
+      });
+      const index = state.brewRecipes.findIndex(item => item.id === recipe.id);
+      if (index >= 0) state.brewRecipes[index] = saved;
+      onRecipeChanged?.();
+      applyRecommendedButton.textContent = "Applied";
+      applyRecommendedButton.disabled = true;
+      showToast(`Grind ${formatOneDecimal(recommendedGrindValue)} applied to recipe`);
+    } catch (error) {
+      applyRecommendedButton.textContent = "Apply";
+      applyRecommendedButton.disabled = false;
+      showToast(error.message);
     }
   }
 
@@ -297,6 +350,7 @@ export function createDialInPage({
   addButton.addEventListener("click", addMeasurement);
   emptyAddButton.addEventListener("click", addMeasurement);
   calculateButton.addEventListener("click", calculate);
+  applyRecommendedButton.addEventListener("click", applyRecommendedGrind);
   editTargetButton.addEventListener("click", editTargetTime);
   tableBody.addEventListener("click", handleLogAction);
   mobileList.addEventListener("click", handleLogAction);

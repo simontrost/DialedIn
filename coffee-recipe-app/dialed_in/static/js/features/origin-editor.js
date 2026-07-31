@@ -141,7 +141,7 @@ function ensureStyles() {
     .origin-editor-title{display:block;font-size:.78rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted,#7d6d63)}
     .origin-editor-subtitle{display:block;margin-top:3px;font-size:.72rem;color:var(--muted,#7d6d63)}
     .origin-editor-list{display:grid;gap:12px}
-    .origin-editor-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr) auto;gap:12px;align-items:end;padding:14px;border:1px solid var(--line,#ddd2c7);border-radius:18px;background:rgba(255,255,255,.58)}
+    .origin-editor-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(110px,.65fr) minmax(0,.9fr) auto;gap:12px;align-items:end;padding:14px;border:1px solid var(--line,#ddd2c7);border-radius:18px;background:rgba(255,255,255,.58)}
     .origin-editor-field{min-width:0}
     .origin-editor-row label{display:block;margin:0 0 7px;font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#7d6d63)}
     .origin-editor-control{box-sizing:border-box;width:100%;height:50px;margin:0;border:1px solid var(--line,#ddd2c7);border-radius:16px;padding:0 14px;color:var(--ink,#2f231d);background:#fff;font:inherit;box-shadow:none;outline:none}
@@ -212,13 +212,22 @@ export function createOriginEditorEnhancer() {
     "input[name='originRegion']",
     "input[name='origin_region']"
   ], dialog);
+  const latitudeInput = findFirst([
+    "#beanOriginLatitudeInput",
+    "#beanOriginLatitude",
+    "#originLatitude",
+    "input[name='originLatitude']",
+    "input[name='origin_latitude']"
+  ], dialog);
 
-  if (!countryInput || !regionInput) return { refresh() {} };
+  if (!countryInput || !regionInput || !latitudeInput) return { refresh() {} };
 
   const countryField = getFieldContainer(countryInput);
   const regionField = getFieldContainer(regionInput);
+  const latitudeField = getFieldContainer(latitudeInput);
   countryField?.classList.add("origin-editor-hidden-field");
   regionField?.classList.add("origin-editor-hidden-field");
+  latitudeField?.classList.add("origin-editor-hidden-field");
 
   const wrapper = document.createElement("div");
   wrapper.className = "origin-editor-group";
@@ -226,14 +235,14 @@ export function createOriginEditorEnhancer() {
     <div class="origin-editor-header">
       <div>
         <span class="origin-editor-title">Origins</span>
-        <span class="origin-editor-subtitle">Add one or more origin countries and matching regions.</span>
+        <span class="origin-editor-subtitle">Add one or more origin countries with optional regions and latitudes.</span>
       </div>
     </div>
     <div class="origin-editor-list" id="originEditorList"></div>
     <button type="button" class="origin-editor-add" id="originEditorAddButton"><span>+</span> Add another origin</button>
   `;
 
-  (regionField || countryField)?.after(wrapper);
+  (latitudeField || regionField || countryField)?.after(wrapper);
 
   const list = wrapper.querySelector("#originEditorList");
   const addButton = wrapper.querySelector("#originEditorAddButton");
@@ -245,23 +254,27 @@ export function createOriginEditorEnhancer() {
       const select = row.querySelector("select");
       const custom = row.querySelector(".origin-editor-custom");
       const region = row.querySelector(".origin-editor-region");
+      const latitude = row.querySelector(".origin-editor-latitude");
       const component = row.querySelector(".origin-editor-component");
       const country = select.value === "Custom" ? custom.value.trim() : select.value.trim();
       return {
         country: formatCountryMetadata(country, component.value),
-        region: region.value.trim()
+        region: region.value.trim(),
+        latitude: latitude.value.trim()
       };
     }).filter(entry => entry.country);
 
     countryInput.value = entries.map(entry => entry.country).join(", ");
     regionInput.value = entries.map(entry => entry.region).join(", ");
-    lastExternalValue = `${countryInput.value}|||${regionInput.value}`;
+    latitudeInput.value = entries.map(entry => entry.latitude).join(", ");
+    lastExternalValue = `${countryInput.value}|||${regionInput.value}|||${latitudeInput.value}`;
   }
 
   function attachRowEvents(row) {
     const select = row.querySelector("select");
     const custom = row.querySelector(".origin-editor-custom");
     const region = row.querySelector(".origin-editor-region");
+    const latitude = row.querySelector(".origin-editor-latitude");
     const component = row.querySelector(".origin-editor-component");
     const remove = row.querySelector(".origin-editor-remove");
 
@@ -276,6 +289,7 @@ export function createOriginEditorEnhancer() {
     select.addEventListener("change", toggleCustom);
     custom.addEventListener("input", serialiseRows);
     region.addEventListener("input", serialiseRows);
+    latitude.addEventListener("input", serialiseRows);
     component.addEventListener("change", serialiseRows);
     remove.addEventListener("click", () => {
       row.remove();
@@ -309,6 +323,10 @@ export function createOriginEditorEnhancer() {
       <div class="origin-editor-field">
         <label>Region</label>
         <input type="text" class="origin-editor-control origin-editor-region" placeholder="Optional region" value="${escapeHtml(entry.region || "")}">
+      </div>
+      <div class="origin-editor-field">
+        <label>Latitude</label>
+        <input type="number" class="origin-editor-control origin-editor-latitude" min="-90" max="90" step="0.000001" inputmode="decimal" placeholder="Optional" value="${escapeHtml(entry.latitude || "")}">
       </div>
       <div class="origin-editor-field">
         <label>Bean component</label>
@@ -353,12 +371,14 @@ export function createOriginEditorEnhancer() {
   function parseEntries() {
     const countries = splitList(countryInput.value);
     const regions = splitList(regionInput.value, { preserveEmpty: true });
-    const maxLen = Math.max(countries.length, regions.length, 1);
+    const latitudes = splitList(latitudeInput.value, { preserveEmpty: true });
+    const maxLen = Math.max(countries.length, regions.length, latitudes.length, 1);
     const entries = [];
     for (let index = 0; index < maxLen; index += 1) {
       entries.push({
         country: countries[index] || "",
-        region: regions[index] || ""
+        region: regions[index] || "",
+        latitude: latitudes[index] || ""
       });
     }
     return entries;
@@ -372,7 +392,7 @@ export function createOriginEditorEnhancer() {
   }
 
   function syncIfNeeded() {
-    const current = `${countryInput.value}|||${regionInput.value}`;
+    const current = `${countryInput.value}|||${regionInput.value}|||${latitudeInput.value}`;
     if (current !== lastExternalValue) rebuildFromHidden();
   }
 
@@ -381,6 +401,7 @@ export function createOriginEditorEnhancer() {
   dialog.addEventListener("focusin", () => requestAnimationFrame(syncIfNeeded));
   countryInput.addEventListener("change", syncIfNeeded);
   regionInput.addEventListener("change", syncIfNeeded);
+  latitudeInput.addEventListener("change", syncIfNeeded);
 
   const observer = new MutationObserver(() => setTimeout(syncIfNeeded, 30));
   observer.observe(dialog, { attributes: true, attributeFilter: ["open", "class", "style", "aria-hidden"] });

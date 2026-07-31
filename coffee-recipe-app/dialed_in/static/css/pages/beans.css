@@ -1,5 +1,5 @@
 .bean-toolbar {
-  grid-template-columns:minmax(240px,1fr) minmax(150px,auto) minmax(150px,auto) minmax(170px,auto) auto;
+  grid-template-columns:minmax(240px,1fr) repeat(2,minmax(145px,auto)) minmax(165px,auto) minmax(170px,auto) auto;
 }
 
 @media(max-width:1050px) {

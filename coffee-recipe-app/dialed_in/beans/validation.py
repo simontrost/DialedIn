@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 VALID_ROASTS = {"light", "medium", "dark"}
@@ -27,6 +28,36 @@ def _text(payload: dict[str, Any], key: str, maximum: int, default: str = "") ->
     if len(value) > maximum:
         raise ValueError(f"{key} is too long.")
     return value
+
+
+def _origin_latitudes(payload: dict[str, Any]) -> str:
+    raw = payload.get("originLatitude", "")
+    if raw is None:
+        return ""
+    value = str(raw).strip()
+    if len(value) > 300:
+        raise ValueError("originLatitude is too long.")
+    if not value:
+        return ""
+
+    parts = re.split(r"\s*[;,]\s*", value)
+    normalized: list[str] = []
+    has_value = False
+    for item in parts:
+        item = item.strip()
+        if not item:
+            normalized.append("")
+            continue
+        try:
+            latitude = float(item)
+        except (TypeError, ValueError) as error:
+            raise ValueError("Every latitude must be a number between -90 and 90.") from error
+        if latitude < -90 or latitude > 90:
+            raise ValueError("Every latitude must be between -90 and 90.")
+        has_value = True
+        normalized.append(format(latitude, ".8g"))
+
+    return ", ".join(normalized) if has_value else ""
 
 
 def _flavor_notes(payload: dict[str, Any]) -> list[str]:
@@ -84,6 +115,7 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "roaster": _text(payload, "roaster", 80),
         "originCountry": _normalize_country(_text(payload, "originCountry", 100)),
         "originRegion": _text(payload, "originRegion", 100),
+        "originLatitude": _origin_latitudes(payload),
         "blend": _text(payload, "blend", 80),
         "roast": roast,
         "status": status,

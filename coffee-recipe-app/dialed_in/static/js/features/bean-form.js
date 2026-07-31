@@ -36,6 +36,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     roaster: document.querySelector("#beanRoasterInput"),
     originCountry: document.querySelector("#beanOriginCountryInput"),
     originRegion: document.querySelector("#beanOriginRegionInput"),
+    originLatitude: document.querySelector("#beanOriginLatitudeInput"),
     blend: document.querySelector("#beanBlendInput"),
     arabica: document.querySelector("#arabicaInput"),
     robusta: document.querySelector("#robustaInput"),
@@ -225,6 +226,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       roaster: fields.roaster.value.trim(),
       originCountry: fields.originCountry.value.trim(),
       originRegion: fields.originRegion.value.trim(),
+      originLatitude: fields.originLatitude.value.trim(),
       blend: currentBlendValue(),
       roast: fields.roast.value,
       status: fields.status.value,
@@ -249,6 +251,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     fields.roaster.value = bean?.roaster || "";
     fields.originCountry.value = bean?.originCountry || "";
     fields.originRegion.value = bean?.originRegion || "";
+    fields.originLatitude.value = bean?.originLatitude || "";
     setBlendValue(bean?.blend || "");
     fields.roast.value = bean?.roast || "medium";
     fields.status.value = bean?.status || "active";

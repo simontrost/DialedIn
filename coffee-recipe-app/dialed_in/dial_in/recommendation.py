@@ -264,8 +264,8 @@ def calculate_recommendation(
         "targetTime": round(target, 2),
         "currentGrind": round(current_grind, 3),
         "rawPrediction": round(float(physical_raw_prediction), 3),
-        "recommendedGrind": round(float(recommended), 3),
-        "change": round(float(recommended - current_grind), 3),
+        "recommendedGrind": round(float(recommended), 1),
+        "change": round(float(recommended - current_grind), 1),
         "grinderRange": {
             "min": round(physical_min, 3) if configured_range else None,
             "max": round(physical_max, 3) if configured_range else None,

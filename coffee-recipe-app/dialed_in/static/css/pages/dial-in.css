@@ -221,3 +221,33 @@
 :root[data-theme="dark"] .dial-max-step-control .number-stepper button:focus-visible {
   background: #432d22;
 }
+
+
+/* Current and recommended grind controls. */
+.dial-summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.recommendation-card{position:relative;padding-right:92px}
+.recommendation-apply-button{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  min-height:34px;
+  padding:0 14px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  color:#2b1a12;
+  background:var(--crema-400);
+  font-size:.72rem;
+  font-weight:900;
+  cursor:pointer;
+}
+.recommendation-apply-button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.04)}
+.recommendation-apply-button:focus-visible{outline:3px solid rgba(238,190,137,.28);outline-offset:2px}
+.recommendation-apply-button:disabled{cursor:default;opacity:.72}
+@media(max-width:1100px){
+  .dial-summary-grid{grid-template-columns:1fr 1fr}
+  .recommendation-card{grid-column:auto}
+}
+@media(max-width:600px){
+  .dial-summary-grid{grid-template-columns:1fr}
+  .recommendation-card{padding-right:92px}
+}

@@ -16,6 +16,7 @@ export function createBeansPage({ state, onEdit, onFavorite, onAdd }) {
   const roast = document.querySelector("#beanRoastFilter");
   const status = document.querySelector("#beanStatusFilter");
   const flavor = document.querySelector("#beanFlavorFilter");
+  const sort = document.querySelector("#beanSortSelect");
   const favorites = document.querySelector("#beanFavoritesFilter");
 
   function syncFlavorFilterOptions() {
@@ -68,7 +69,7 @@ export function createBeansPage({ state, onEdit, onFavorite, onAdd }) {
     const query = search.value.trim().toLocaleLowerCase("en");
     const selectedFlavor = flavor.value;
 
-    return [...state.beans].filter(bean => {
+    const beans = [...state.beans].filter(bean => {
       const flavorNotes = Array.isArray(bean.flavorNotes) ? bean.flavorNotes : [];
       const haystack = [
         bean.name,
@@ -88,7 +89,18 @@ export function createBeansPage({ state, onEdit, onFavorite, onAdd }) {
         && (status.value === "all" || bean.status === status.value)
         && hasSelectedFlavor
         && (!favorites.checked || bean.favorite);
-    }).sort((a, b) => Number(b.favorite) - Number(a.favorite) || new Date(b.updatedAt) - new Date(a.updatedAt));
+    });
+
+    const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""), "en", { sensitivity: "base" });
+    const byDate = (key, direction = -1) => (a, b) => direction * (new Date(a[key] || 0) - new Date(b[key] || 0));
+    const comparators = {
+      created_desc: byDate("createdAt", -1),
+      created_asc: byDate("createdAt", 1),
+      name_asc: byName,
+      name_desc: (a, b) => byName(b, a),
+      favorites_recent: (a, b) => Number(b.favorite) - Number(a.favorite) || byDate("updatedAt", -1)(a, b)
+    };
+    return beans.sort(comparators[sort.value] || comparators.favorites_recent);
   }
 
   function render() {
@@ -98,7 +110,7 @@ export function createBeansPage({ state, onEdit, onFavorite, onAdd }) {
     empty.classList.toggle("hidden", beans.length > 0);
   }
 
-  [search, roast, status, flavor, favorites].forEach(input => input.addEventListener("input", render));
+  [search, roast, status, flavor, sort, favorites].forEach(input => input.addEventListener("input", render));
   document.querySelectorAll("#beansAddButton, #beanEmptyAddButton").forEach(button => button?.addEventListener("click", onAdd));
   grid.addEventListener("click", event => {
     const edit = event.target.closest("[data-edit-bean]");

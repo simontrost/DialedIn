@@ -7,6 +7,7 @@ export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDial
   const search = document.querySelector("#recipeSearchInput");
   const beanFilter = document.querySelector("#recipeBeanFilter");
   const methodFilter = document.querySelector("#recipeMethodFilter");
+  const sort = document.querySelector("#recipeSortSelect");
   const favorites = document.querySelector("#recipeFavoritesFilter");
 
   function syncFilters() {
@@ -22,7 +23,7 @@ export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDial
 
   function filteredRecipes() {
     const query = search.value.trim().toLocaleLowerCase("en");
-    return [...state.brewRecipes].filter(recipe => {
+    const recipes = [...state.brewRecipes].filter(recipe => {
       const bean = beanById(state, recipe.beanId);
       const method = methodById(state, recipe.method);
       const haystack = [recipe.name, recipe.notes, bean?.name, bean?.roaster, method.name].join(" ").toLocaleLowerCase("en");
@@ -30,7 +31,18 @@ export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDial
         && (beanFilter.value === "all" || recipe.beanId === beanFilter.value)
         && (methodFilter.value === "all" || recipe.method === methodFilter.value)
         && (!favorites.checked || recipe.favorite);
-    }).sort((a, b) => Number(b.favorite) - Number(a.favorite) || new Date(b.updatedAt) - new Date(a.updatedAt));
+    });
+
+    const byName = (a, b) => String(a.name || "").localeCompare(String(b.name || ""), "en", { sensitivity: "base" });
+    const byDate = (key, direction = -1) => (a, b) => direction * (new Date(a[key] || 0) - new Date(b[key] || 0));
+    const comparators = {
+      created_desc: byDate("createdAt", -1),
+      created_asc: byDate("createdAt", 1),
+      name_asc: byName,
+      name_desc: (a, b) => byName(b, a),
+      favorites_recent: (a, b) => Number(b.favorite) - Number(a.favorite) || byDate("updatedAt", -1)(a, b)
+    };
+    return recipes.sort(comparators[sort.value] || comparators.favorites_recent);
   }
 
   function render() {
@@ -40,7 +52,7 @@ export function createRecipesPage({ state, onEdit, onFavorite, onAdd, onOpenDial
     empty.classList.toggle("hidden", recipes.length > 0);
   }
 
-  [search, beanFilter, methodFilter, favorites].forEach(input => input.addEventListener("input", render));
+  [search, beanFilter, methodFilter, sort, favorites].forEach(input => input.addEventListener("input", render));
   document.querySelectorAll("#recipesAddButton, #recipeEmptyAddButton").forEach(button => button?.addEventListener("click", () => onAdd()));
   grid.addEventListener("click", event => {
     const edit = event.target.closest("[data-edit-recipe]");

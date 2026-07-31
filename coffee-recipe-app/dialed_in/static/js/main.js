@@ -117,7 +117,8 @@ dialInPage = createDialInPage({
   showToast,
   onAddMeasurement: addMeasurement,
   onEditMeasurement: editMeasurement,
-  onEditRecipe: editRecipe
+  onEditRecipe: editRecipe,
+  onRecipeChanged: renderAll
 });
 originsPage = createOriginsPage({ state, onEditBean: editBean, showToast });
 
