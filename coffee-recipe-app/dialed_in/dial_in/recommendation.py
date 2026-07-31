@@ -141,14 +141,23 @@ def calculate_recommendation(
 
     valid_logs.sort(key=lambda log: _parse_datetime(log["brewedAt"]))
     latest = valid_logs[-1]
-    current_grind = float(latest["grind"])
+    latest_measured_grind = float(latest["grind"])
     current_time = float(latest["time"])
+
+    # The UI presents the grind stored in the selected recipe as the current
+    # setting. Use that same value as the starting point for the maximum-change
+    # limit. Fall back to the latest measured grind for older/incomplete recipes.
+    try:
+        recipe_grind = float(recipe_values.get("grind"))
+    except (TypeError, ValueError):
+        recipe_grind = latest_measured_grind
+    current_grind = recipe_grind
 
     # Grinder numbers are arbitrary: a change of 1 on a 1–20 grinder is much
     # larger than a change of 1 on a 1–60 grinder. Run the recommendation on a
     # normalized 0–20 scale, then convert the result back to the configured
-    # grinder range. This keeps taste corrections, cautious first steps and the
-    # "maximum next change" proportional to the grinder's total adjustment span.
+    # grinder range. This keeps learned relationships, taste corrections and
+    # cautious first steps proportional to the grinder's total adjustment span.
     configured_range = (
         grind_min is not None
         and grind_max is not None
@@ -182,12 +191,13 @@ def calculate_recommendation(
         {**log, "grind": normalize_grind(float(log["grind"]))}
         for log in valid_logs
     ]
+    normalized_latest_measured_grind = normalize_grind(latest_measured_grind)
     normalized_current_grind = normalize_grind(current_grind)
     points = _aggregate(normalized_logs, recipe_values)
     distinct_count = len(points)
 
     mode = "single_measurement"
-    raw_prediction = normalized_current_grind
+    raw_prediction = normalized_latest_measured_grind
     slope: float | None = None
     bracketing = False
 
@@ -204,13 +214,13 @@ def calculate_recommendation(
                 raw_prediction = (target - intercept) / slope
                 mode = "weighted_regression"
             else:
-                raw_prediction = normalized_current_grind
+                raw_prediction = normalized_latest_measured_grind
     else:
         # With only one distinct setting, use a deliberately cautious step.
         # The default assumes lower grinder numbers are finer, matching the
         # common behaviour of espresso grinders and the existing app examples.
         seconds_error = target - current_time
-        raw_prediction = normalized_current_grind - max(-1.0, min(1.0, seconds_error / 8.0))
+        raw_prediction = normalized_latest_measured_grind - max(-1.0, min(1.0, seconds_error / 8.0))
 
     if slope is None and distinct_count >= 2:
         fit = _weighted_linear_fit(points)
@@ -222,13 +232,16 @@ def calculate_recommendation(
         target - current_time,
     )
 
-    # max_step is expressed on the normalized 0–20 reference scale. For
-    # example, 2.5 means 12.5% of the grinder's configured range: 2.5 units on
-    # a 0–20 grinder, but 7.5 units on a 0–60 grinder.
-    max_step = max(0.1, min(float(max_step), normalized_span))
+    # The value entered as "Maximum next change" is an actual grinder-unit
+    # limit. A value of 5 therefore always caps the next recommendation to
+    # current ±5, independent of whether the configured grinder range is 1–20,
+    # 1–50 or 1–60. Only the prediction model itself uses the normalized scale.
+    maximum_physical_change = physical_span if configured_range else normalized_span
+    physical_max_step = max(0.1, min(float(max_step), maximum_physical_change))
+    normalized_max_step = physical_max_step / grind_scale
     normalized_delta = max(
-        -max_step,
-        min(max_step, raw_prediction - normalized_current_grind),
+        -normalized_max_step,
+        min(normalized_max_step, raw_prediction - normalized_current_grind),
     )
     normalized_recommended = normalized_current_grind + normalized_delta
     if configured_range:
@@ -236,7 +249,7 @@ def calculate_recommendation(
 
     recommended = denormalize_grind(normalized_recommended)
     physical_raw_prediction = denormalize_grind(raw_prediction)
-    effective_max_change = max_step * grind_scale
+    effective_max_change = physical_max_step
 
     if distinct_count >= 5 and bracketing:
         confidence = "high"
