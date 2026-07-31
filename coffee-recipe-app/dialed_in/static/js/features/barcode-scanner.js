@@ -6,7 +6,7 @@ export function createBarcodeScanner({
   fields,
   applyImportedData,
   metadataIsBlank,
-  onDataApplied = () => {}
+  onDataApplied = () => { }
 }) {
   const row = document.querySelector("#barcodeImportRow");
   const scanButton = document.querySelector("#barcodeScanButton");
@@ -48,7 +48,7 @@ export function createBarcodeScanner({
     state.barcodeScanHandled = false;
 
     if (currentScanner?.controls) {
-      try { currentScanner.controls.stop(); } catch {}
+      try { currentScanner.controls.stop(); } catch { }
     }
 
     const stream = readerVideo.srcObject;
@@ -136,7 +136,10 @@ export function createBarcodeScanner({
   async function start() {
     if (state.editingBeanId || state.barcodeInProgress) return;
     if (!window.ZXingBrowser) {
-      setStatus("The ZXing scanner library could not be loaded. Check the internet connection or enter the barcode manually.", "error");
+      setStatus(
+        "The barcode scanner could not be loaded. Reload the page or enter the barcode manually.",
+        "error"
+      );
       return;
     }
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {

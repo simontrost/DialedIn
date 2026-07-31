@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -22,7 +23,8 @@
   <title>Dialed In – Coffee Recipes</title>
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
   <link rel="icon" href="{{ url_for('static', filename='icons/icon.svg') }}" type="image/svg+xml">
-  <link rel="alternate icon" href="{{ url_for('static', filename='icons/favicon-32.png') }}" type="image/png" sizes="32x32">
+  <link rel="alternate icon" href="{{ url_for('static', filename='icons/favicon-32.png') }}" type="image/png"
+    sizes="32x32">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/core/variables.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/core/base.css') }}">
@@ -40,6 +42,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/origins.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/core/theme.css') }}">
 </head>
+
 <body>
   <div class="app-shell">
     {% include 'components/topbar.html' %}
@@ -62,7 +65,8 @@
   {% include 'dialogs/barcode_scanner.html' %}
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="https://unpkg.com/@zxing/browser@0.2.0" defer></script>
+  <script src="{{ url_for('static', filename='vendor/zxing/zxing-browser-0.2.0.min.js') }}" defer></script>
   <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
+
 </html>
