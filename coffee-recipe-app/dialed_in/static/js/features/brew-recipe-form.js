@@ -30,6 +30,7 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     return (method.fields || []).filter(field => {
       if (field.key === "grind") return !selectedBean?.isGround;
       if (!machineBasedMethods.has(method.id)) return true;
+      if (field.machineCapability) return Boolean(state.settings[field.machineCapability]);
       if (field.key === "temperature") return Boolean(state.settings.machineTemperatureControl);
       if (field.key === "pressure") return Boolean(state.settings.machinePressureControl);
       if (field.key === "flowRate") return Boolean(state.settings.machineFlowControl);
@@ -51,6 +52,9 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     temperature: "temperature",
     pressure: "pressure",
     flowRate: "flow",
+    preInfusionEnabled: "pre-infusion",
+    preInfusionTime: "pre-infusion",
+    preInfusionPressure: "pressure",
     addedWater: "water",
     waterTemperature: "temperature",
     servingOrder: "serving-order",
@@ -173,19 +177,71 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     syncMethodPicker();
   }
 
+  function conditionAttributes(field) {
+    const visible = field.visibleWhen;
+    const required = field.requiredWhen;
+    return [
+      visible ? `data-visible-when-key="${escapeHtml(visible.key)}" data-visible-when-value="${escapeHtml(String(visible.equals))}"` : "",
+      required ? `data-required-when-key="${escapeHtml(required.key)}" data-required-when-value="${escapeHtml(String(required.equals))}"` : ""
+    ].filter(Boolean).join(" ");
+  }
+
+  function controllerValue(input) {
+    if (!input) return null;
+    return input.type === "checkbox" ? input.checked : input.value;
+  }
+
+  function conditionMatches(key, expected) {
+    const controller = fieldsContainer.querySelector(`[data-recipe-field="${CSS.escape(key)}"]`);
+    const actual = controllerValue(controller);
+    if (expected === "true") return actual === true || actual === "true";
+    if (expected === "false") return actual === false || actual === "false";
+    return String(actual ?? "") === expected;
+  }
+
+  function syncConditionalFields() {
+    fieldsContainer.querySelectorAll("[data-visible-when-key]").forEach(shell => {
+      const visible = conditionMatches(shell.dataset.visibleWhenKey, shell.dataset.visibleWhenValue);
+      shell.classList.toggle("hidden", !visible);
+      shell.querySelectorAll("input, select, textarea").forEach(input => {
+        input.disabled = !visible;
+      });
+    });
+    fieldsContainer.querySelectorAll("[data-required-when-key]").forEach(shell => {
+      const required = !shell.classList.contains("hidden")
+        && conditionMatches(shell.dataset.requiredWhenKey, shell.dataset.requiredWhenValue);
+      shell.querySelectorAll("input, select, textarea").forEach(input => {
+        input.required = required;
+      });
+    });
+  }
+
   function fieldHtml(field, value) {
     const help = field.help ? `<small class="field-help">${escapeHtml(field.help)}</small>` : "";
     const icon = recipeFieldIcon(field);
     const inputId = `recipe-field-${field.key}`;
+    const conditions = conditionAttributes(field);
+    if (field.type === "boolean") {
+      return `<label class="toggle-field recipe-toggle-field dynamic-field" ${conditions} for="${escapeHtml(inputId)}">
+        <span class="toggle-field-copy">
+          ${fieldLabelHtml(field.label, icon)}
+          ${help}
+        </span>
+        <span class="simple-switch">
+          <input id="${escapeHtml(inputId)}" data-recipe-field="${escapeHtml(field.key)}" type="checkbox" ${value ? "checked" : ""}>
+          <span class="simple-switch-track" aria-hidden="true"></span>
+        </span>
+      </label>`;
+    }
     if (field.type === "select") {
-      return `<label class="field dynamic-field" for="${escapeHtml(inputId)}">
+      return `<label class="field dynamic-field" ${conditions} for="${escapeHtml(inputId)}">
         ${fieldLabelHtml(field.label, icon)}
         <select id="${escapeHtml(inputId)}" data-recipe-field="${escapeHtml(field.key)}">
           ${(field.options || []).map(option => `<option value="${escapeHtml(option.value)}" ${String(value) === String(option.value) ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}
         </select>${help}
       </label>`;
     }
-    return `<div class="metric-input recipe-metric-input dynamic-field">
+    return `<div class="metric-input recipe-metric-input dynamic-field" ${conditions}>
       <label for="${escapeHtml(inputId)}">${fieldLabelHtml(field.label, icon, { required: field.required })}</label>
       <div class="metric-control">
         <input id="${escapeHtml(inputId)}" data-recipe-field="${escapeHtml(field.key)}" type="number"
@@ -207,9 +263,18 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     description.innerHTML = `<span class="method-icon-shell" aria-hidden="true">${methodIconMarkup(method)}</span><div><strong>${escapeHtml(method.name)}</strong><p>${escapeHtml(method.description || "")}</p>${groundNote}</div>`;
     fieldsContainer.innerHTML = visibleMethodFields(method).map(rawField => {
       const field = configuredField(rawField);
-      const value = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : field.default;
+      const hasStoredValue = Object.prototype.hasOwnProperty.call(values, field.key);
+      let value = hasStoredValue ? values[field.key] : field.default;
+      if ((value === null || value === undefined) && field.visibleWhen) {
+        const controllerField = (method.fields || []).find(item => item.key === field.visibleWhen.key);
+        const controllerValue = Object.prototype.hasOwnProperty.call(values, field.visibleWhen.key)
+          ? values[field.visibleWhen.key]
+          : controllerField?.default;
+        if (controllerValue !== field.visibleWhen.equals) value = field.default;
+      }
       return fieldHtml(field, value);
     }).join("");
+    syncConditionalFields();
     stepsSection.classList.toggle("hidden", !method.supportsSteps);
     renderSteps();
   }
@@ -297,9 +362,19 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
   function valuesPayload() {
     const values = {};
     fieldsContainer.querySelectorAll("[data-recipe-field]").forEach(input => {
-      values[input.dataset.recipeField] = input.type === "number"
-        ? (input.value === "" ? null : Number(input.value))
-        : input.value;
+      if (input.type === "checkbox") values[input.dataset.recipeField] = input.checked;
+      else if (input.type === "number") values[input.dataset.recipeField] = input.value === "" ? null : Number(input.value);
+      else values[input.dataset.recipeField] = input.value;
+    });
+
+    const method = methodById(state, methodInput.value);
+    (method.fields || []).forEach(field => {
+      if (field.machineCapability && !state.settings[field.machineCapability]) {
+        values[field.key] = null;
+        return;
+      }
+      const condition = field.visibleWhen;
+      if (condition && values[condition.key] !== condition.equals) values[field.key] = null;
     });
     return values;
   }
@@ -396,6 +471,9 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
   fieldsContainer.addEventListener("click", event => {
     const stepper = event.target.closest("[data-number-step]");
     if (stepper) adjustNumberInput(stepper);
+  });
+  fieldsContainer.addEventListener("change", event => {
+    if (event.target.matches("[data-recipe-field]")) syncConditionalFields();
   });
   stepList.addEventListener("input", event => {
     const row = event.target.closest("[data-step-index]");

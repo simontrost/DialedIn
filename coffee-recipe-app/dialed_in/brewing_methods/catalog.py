@@ -15,8 +15,11 @@ def number_field(
     step: float | int = 1,
     required: bool = False,
     help_text: str = "",
+    visible_when: tuple[str, Any] | None = None,
+    required_when: tuple[str, Any] | None = None,
+    machine_capability: str = "",
 ) -> dict[str, Any]:
-    return {
+    field = {
         "key": key,
         "label": label,
         "type": "number",
@@ -26,6 +29,30 @@ def number_field(
         "max": maximum,
         "step": step,
         "required": required,
+        "help": help_text,
+    }
+    if visible_when:
+        field["visibleWhen"] = {"key": visible_when[0], "equals": visible_when[1]}
+    if required_when:
+        field["requiredWhen"] = {"key": required_when[0], "equals": required_when[1]}
+    if machine_capability:
+        field["machineCapability"] = machine_capability
+    return field
+
+
+def boolean_field(
+    key: str,
+    label: str,
+    *,
+    default: bool = False,
+    help_text: str = "",
+) -> dict[str, Any]:
+    return {
+        "key": key,
+        "label": label,
+        "type": "boolean",
+        "default": default,
+        "required": False,
         "help": help_text,
     }
 
@@ -57,6 +84,35 @@ ESPRESSO_FIELDS = [
     number_field("temperature", "Temperature", "°C", default=93, minimum=70, maximum=110, step=0.5),
     number_field("pressure", "Pressure", "bar", default=9, minimum=0, maximum=15, step=0.1),
     number_field("flowRate", "Flow rate", "ml/s", default=None, minimum=0, maximum=20, step=0.1),
+    boolean_field(
+        "preInfusionEnabled",
+        "Pre-infusion",
+        help_text="Gently wet the coffee puck before applying full brewing pressure.",
+    ),
+    number_field(
+        "preInfusionTime",
+        "Pre-infusion time",
+        "sec",
+        default=5,
+        minimum=0.5,
+        maximum=60,
+        step=0.5,
+        help_text="Time from first water contact until full extraction pressure. Included in the target time.",
+        visible_when=("preInfusionEnabled", True),
+        required_when=("preInfusionEnabled", True),
+    ),
+    number_field(
+        "preInfusionPressure",
+        "Pre-infusion pressure",
+        "bar",
+        default=3,
+        minimum=0.1,
+        maximum=9,
+        step=0.1,
+        help_text="Low pressure used while the puck is being saturated.",
+        visible_when=("preInfusionEnabled", True),
+        machine_capability="machinePressureControl",
+    ),
 ]
 
 BREWING_METHODS: dict[str, dict[str, Any]] = {

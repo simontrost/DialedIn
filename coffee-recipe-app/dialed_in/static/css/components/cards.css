@@ -130,3 +130,31 @@
   color: var(--muted);
   font-size: .76rem;
 }
+
+.recipe-preinfusion-summary {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+  border:1px solid rgba(201,135,74,.24);
+  border-radius:13px;
+  padding:9px 11px;
+  color:var(--espresso-700);
+  background:rgba(248,239,228,.66);
+}
+.recipe-preinfusion-summary > .app-icon {
+  flex:0 0 auto;
+  width:1.15rem;
+  height:1.15rem;
+  color:var(--crema-500);
+}
+.recipe-preinfusion-summary strong,
+.recipe-preinfusion-summary small { display:block; }
+.recipe-preinfusion-summary strong { font-size:.72rem; }
+.recipe-preinfusion-summary small { margin-top:2px; color:var(--muted); font-size:.66rem; }
+.recipe-preinfusion-summary--compact { margin-top:9px; padding:8px 10px; }
+:root[data-theme="dark"] .recipe-preinfusion-summary {
+  border-color:rgba(238,208,181,.18);
+  color:var(--ink);
+  background:#342219;
+}

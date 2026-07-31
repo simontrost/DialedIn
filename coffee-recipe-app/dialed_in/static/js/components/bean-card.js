@@ -1,4 +1,4 @@
-import { escapeHtml, formatNumber, iconMarkup, methodById, methodIconMarkup, recipeMetricSummary, statusLabel } from "../core/utils.js";
+import { escapeHtml, formatNumber, iconMarkup, methodById, methodIconMarkup, recipeMetricSummary, recipePreInfusionSummary, statusLabel } from "../core/utils.js";
 import { flavorNotePillMarkup } from "../data/flavor-notes.js";
 
 
@@ -56,6 +56,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
     : null;
   const method = methodById(state, dashboardMethod);
   const metrics = recipeMetricSummary(recipe, method);
+  const preInfusion = recipePreInfusionSummary(recipe);
   const flavorNotes = Array.isArray(bean.flavorNotes) ? bean.flavorNotes : [];
   const strength = Number(bean.strength) > 0
     ? beanStrengthMarkup(bean.strength)
@@ -107,6 +108,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
       ${recipe ? `
         <strong>${escapeHtml(recipe.name)}</strong>
         <div class="preview-metrics">${metrics.map(metric => `<span><b>${escapeHtml(metric.value)}${metric.unit ? ` ${escapeHtml(metric.unit)}` : ""}</b><small>${escapeHtml(metric.label)}</small></span>`).join("")}</div>
+        ${preInfusion ? `<div class="recipe-preinfusion-summary recipe-preinfusion-summary--compact"><span class="app-icon" style="--app-icon:url('/static/icons/recipe-fields/pre-infusion.svg')" aria-hidden="true"></span><span><strong>${escapeHtml(preInfusion.label)}</strong><small>${escapeHtml(preInfusion.value)}</small></span></div>` : ""}
       ` : `<p>No ${escapeHtml(method.name)} recipe stored for this bean.</p>`}
     </div>` : "";
 

@@ -124,3 +124,19 @@ export function recipeMetricSummary(recipe, method) {
       return { label: field.label, value: formatNumber(values[key], 2), unit: field.unit || "" };
     });
 }
+
+export function recipePreInfusionSummary(recipe) {
+  const values = recipe?.values || {};
+  if (!values.preInfusionEnabled) return null;
+
+  const parts = [];
+  const time = values.preInfusionTime === null || values.preInfusionTime === undefined || values.preInfusionTime === ""
+    ? NaN
+    : Number(values.preInfusionTime);
+  const pressure = values.preInfusionPressure === null || values.preInfusionPressure === undefined || values.preInfusionPressure === ""
+    ? NaN
+    : Number(values.preInfusionPressure);
+  if (Number.isFinite(time)) parts.push(`${formatNumber(time, 1)} sec`);
+  if (Number.isFinite(pressure)) parts.push(`${formatNumber(pressure, 1)} bar`);
+  return { label: "Pre-infusion", value: parts.join(" · ") || "Enabled" };
+}

@@ -483,3 +483,19 @@ dialog form,.quick-add-content { padding:26px; }
 #beanReorderLinkContent .url-import-row:has(.scrape-button.hidden) {
   grid-template-columns: minmax(0, 1fr);
 }
+
+/* Optional espresso pre-infusion controls. */
+#brewRecipeDialog .recipe-toggle-field {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+#brewRecipeDialog .recipe-toggle-field .recipe-field-label {
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+}
+#brewRecipeDialog .recipe-toggle-field .field-help {
+  margin-top: 6px;
+}

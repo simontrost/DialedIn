@@ -1,9 +1,10 @@
-import { beanById, escapeHtml, methodById, methodIconMarkup, recipeMetricSummary, iconMarkup } from "../core/utils.js";
+import { beanById, escapeHtml, methodById, methodIconMarkup, recipeMetricSummary, recipePreInfusionSummary, iconMarkup } from "../core/utils.js";
 
 export function brewRecipeCardHtml(recipe, state) {
   const bean = beanById(state, recipe.beanId);
   const method = methodById(state, recipe.method);
   const metrics = recipeMetricSummary(recipe, method);
+  const preInfusion = recipePreInfusionSummary(recipe);
   const stepCount = Array.isArray(recipe.steps) ? recipe.steps.length : 0;
   return `
     <article class="brew-recipe-card">
@@ -16,6 +17,7 @@ export function brewRecipeCardHtml(recipe, state) {
         <h3>${escapeHtml(recipe.name)}</h3>
         <p class="recipe-bean-name">${escapeHtml(bean?.name || "Missing bean")} · ${escapeHtml(bean?.roaster || "Roaster not set")}</p>
         <div class="recipe-card-metrics">${metrics.map(metric => `<span><b>${escapeHtml(metric.value)}${metric.unit ? ` ${escapeHtml(metric.unit)}` : ""}</b><small>${escapeHtml(metric.label)}</small></span>`).join("")}</div>
+        ${preInfusion ? `<div class="recipe-preinfusion-summary"><span class="app-icon" style="--app-icon:url('/static/icons/recipe-fields/pre-infusion.svg')" aria-hidden="true"></span><span><strong>${escapeHtml(preInfusion.label)}</strong><small>${escapeHtml(preInfusion.value)}</small></span></div>` : ""}
         ${stepCount ? `<div class="recipe-step-summary"><p class="step-count">${stepCount} saved recipe step${stepCount === 1 ? "" : "s"}</p><button class="recipe-start-button" type="button" data-start-recipe="${recipe.id}" aria-label="Start guided recipe" title="Start guided recipe">${iconMarkup("start", { group: "ui" })}</button></div>` : ""}
         ${recipe.notes ? `<p class="notes-preview">${escapeHtml(recipe.notes)}</p>` : ""}
       </div>

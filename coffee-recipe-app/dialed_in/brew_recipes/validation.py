@@ -44,6 +44,31 @@ def _coerce_number(value: Any, field: dict[str, Any]) -> float | None:
     return number
 
 
+
+
+def _coerce_boolean(value: Any, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    normalized = str(value).strip().lower()
+    if normalized in {"true", "1", "yes", "on"}:
+        return True
+    if normalized in {"false", "0", "no", "off", ""}:
+        return False
+    return default
+
+
+def _condition_matches(values: dict[str, Any], condition: Any) -> bool:
+    if not isinstance(condition, dict):
+        return True
+    key = str(condition.get("key") or "")
+    if not key:
+        return True
+    return values.get(key) == condition.get("equals")
+
 def _validate_values(method: dict[str, Any], raw_values: Any) -> dict[str, Any]:
     values = raw_values if isinstance(raw_values, dict) else {}
     clean: dict[str, Any] = {}
@@ -58,8 +83,20 @@ def _validate_values(method: dict[str, Any], raw_values: Any) -> dict[str, Any]:
             if selected and selected not in allowed:
                 raise ValueError(f"Invalid value for {field['label']}.")
             clean[key] = selected
+        elif field["type"] == "boolean":
+            clean[key] = _coerce_boolean(value, bool(field.get("default", False)))
         else:
             clean[key] = str(value or "").strip()
+
+    for field in method["fields"]:
+        key = field["key"]
+        visible_when = field.get("visibleWhen")
+        if visible_when and not _condition_matches(clean, visible_when):
+            clean[key] = None
+            continue
+        required_when = field.get("requiredWhen")
+        if required_when and _condition_matches(clean, required_when) and clean.get(key) in (None, ""):
+            raise ValueError(f"{field['label']} is required.")
     return clean
 
 
