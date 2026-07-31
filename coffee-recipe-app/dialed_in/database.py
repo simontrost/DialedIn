@@ -56,7 +56,7 @@ def _bean_columns(db: sqlite3.Connection) -> set[str]:
 
 def _ensure_bean_columns(db: sqlite3.Connection) -> None:
     additions = {
-        "origin_latitude": "TEXT NOT NULL DEFAULT ''",
+        "origin_altitude": "TEXT NOT NULL DEFAULT ''",
         "flavor_notes_json": "TEXT NOT NULL DEFAULT '[]'",
         "strength": "INTEGER NOT NULL DEFAULT 0",
         "taste_balance": "TEXT NOT NULL DEFAULT ''",
@@ -66,6 +66,17 @@ def _ensure_bean_columns(db: sqlite3.Connection) -> None:
     for name, definition in additions.items():
         if name not in existing:
             db.execute(f"ALTER TABLE beans ADD COLUMN {name} {definition}")
+
+    # The first implementation accidentally stored elevation as latitude.
+    # Preserve any values already entered while moving them to the corrected column.
+    if "origin_latitude" in existing:
+        db.execute(
+            """
+            UPDATE beans
+            SET origin_altitude = origin_latitude
+            WHERE TRIM(origin_altitude) = '' AND TRIM(origin_latitude) <> ''
+            """
+        )
 
 
 def _safe_float(value: Any) -> float | None:
@@ -253,7 +264,7 @@ def init_db() -> None:
                 roaster TEXT NOT NULL DEFAULT '',
                 origin_country TEXT NOT NULL DEFAULT '',
                 origin_region TEXT NOT NULL DEFAULT '',
-                origin_latitude TEXT NOT NULL DEFAULT '',
+                origin_altitude TEXT NOT NULL DEFAULT '',
                 blend TEXT NOT NULL DEFAULT '',
                 roast TEXT NOT NULL DEFAULT 'medium',
                 status TEXT NOT NULL DEFAULT 'active',

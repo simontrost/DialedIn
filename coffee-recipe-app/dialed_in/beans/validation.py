@@ -30,13 +30,13 @@ def _text(payload: dict[str, Any], key: str, maximum: int, default: str = "") ->
     return value
 
 
-def _origin_latitudes(payload: dict[str, Any]) -> str:
-    raw = payload.get("originLatitude", "")
+def _origin_altitudes(payload: dict[str, Any]) -> str:
+    raw = payload.get("originAltitude", payload.get("originLatitude", ""))
     if raw is None:
         return ""
     value = str(raw).strip()
     if len(value) > 300:
-        raise ValueError("originLatitude is too long.")
+        raise ValueError("originAltitude is too long.")
     if not value:
         return ""
 
@@ -49,13 +49,13 @@ def _origin_latitudes(payload: dict[str, Any]) -> str:
             normalized.append("")
             continue
         try:
-            latitude = float(item)
+            altitude = float(item)
         except (TypeError, ValueError) as error:
-            raise ValueError("Every latitude must be a number between -90 and 90.") from error
-        if latitude < -90 or latitude > 90:
-            raise ValueError("Every latitude must be between -90 and 90.")
+            raise ValueError("Every altitude must be a number between -500 and 10000 metres.") from error
+        if altitude < -500 or altitude > 10000:
+            raise ValueError("Every altitude must be between -500 and 10000 metres.")
         has_value = True
-        normalized.append(format(latitude, ".8g"))
+        normalized.append(format(altitude, ".8g"))
 
     return ", ".join(normalized) if has_value else ""
 
@@ -115,7 +115,7 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "roaster": _text(payload, "roaster", 80),
         "originCountry": _normalize_country(_text(payload, "originCountry", 100)),
         "originRegion": _text(payload, "originRegion", 100),
-        "originLatitude": _origin_latitudes(payload),
+        "originAltitude": _origin_altitudes(payload),
         "blend": _text(payload, "blend", 80),
         "roast": roast,
         "status": status,
