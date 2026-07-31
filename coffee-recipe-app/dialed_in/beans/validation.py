@@ -60,6 +60,20 @@ def _origin_altitudes(payload: dict[str, Any]) -> str:
     return ", ".join(normalized) if has_value else ""
 
 
+def _sca_score(payload: dict[str, Any]) -> float | None:
+    raw = payload.get("scaScore", "")
+    if raw in (None, ""):
+        return None
+    try:
+        value = float(raw)
+    except (TypeError, ValueError) as error:
+        raise ValueError("SCA score must be a number between 0 and 100.") from error
+    if value < 0 or value > 100:
+        raise ValueError("SCA score must be between 0 and 100.")
+    return round(value, 1)
+
+
+
 def _flavor_notes(payload: dict[str, Any]) -> list[str]:
     value = payload.get("flavorNotes", [])
     if value is None:
@@ -117,6 +131,7 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "originRegion": _text(payload, "originRegion", 100),
         "originAltitude": _origin_altitudes(payload),
         "blend": _text(payload, "blend", 80),
+        "scaScore": _sca_score(payload),
         "roast": roast,
         "status": status,
         "orderUrl": _text(payload, "orderUrl", 500),

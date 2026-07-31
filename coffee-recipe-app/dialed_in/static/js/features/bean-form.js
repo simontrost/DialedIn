@@ -38,6 +38,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     originRegion: document.querySelector("#beanOriginRegionInput"),
     originAltitude: document.querySelector("#beanOriginAltitudeInput"),
     blend: document.querySelector("#beanBlendInput"),
+    scaScore: document.querySelector("#beanScaScoreInput"),
     arabica: document.querySelector("#arabicaInput"),
     robusta: document.querySelector("#robustaInput"),
     roast: document.querySelector("#beanRoastInput"),
@@ -228,6 +229,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       originRegion: fields.originRegion.value.trim(),
       originAltitude: fields.originAltitude.value.trim(),
       blend: currentBlendValue(),
+      scaScore: fields.scaScore.value.trim(),
       roast: fields.roast.value,
       status: fields.status.value,
       orderUrl: normalizeUrl(fields.orderUrl.value),
@@ -253,12 +255,14 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     fields.originRegion.value = bean?.originRegion || "";
     fields.originAltitude.value = bean?.originAltitude ?? bean?.originLatitude ?? "";
     setBlendValue(bean?.blend || "");
+    fields.scaScore.value = bean?.scaScore ?? "";
     fields.roast.value = bean?.roast || "medium";
     fields.status.value = bean?.status || "active";
     strengthControl.setValue(bean?.strength || 0);
     setBalanceValue(bean?.tasteBalance || "");
     decafInput.checked = Boolean(bean?.decaf);
     fields.orderUrl.value = bean?.orderUrl || "";
+    if (fields.scaScore.value === "0") fields.scaScore.value = "";
     fields.barcode.value = "";
     fields.notes.value = bean?.notes || "";
     selectedFlavorNotes = Array.isArray(bean?.flavorNotes) ? [...bean.flavorNotes] : [];

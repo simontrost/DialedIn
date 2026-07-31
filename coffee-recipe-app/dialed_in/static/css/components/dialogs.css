@@ -446,3 +446,23 @@ dialog form,.quick-add-content { padding:26px; }
   color: #f4e8dc;
   background: #432d22;
 }
+
+
+/* Bean dialog follow-up refinements: full-width reorder link and SCA score field. */
+#beanDialog .bean-score-field > div { justify-content:space-between; }
+#beanDialog .bean-score-field input[type="number"] { appearance:textfield; -moz-appearance:textfield; }
+#beanDialog .bean-score-field input[type="number"]::-webkit-inner-spin-button,
+#beanDialog .bean-score-field input[type="number"]::-webkit-outer-spin-button { margin:0; -webkit-appearance:none; }
+#beanDialog #beanReorderLinkHome .url-import-row { grid-template-columns:minmax(0,1fr); }
+#beanDialog .reorder-link-content--with-scrape .url-import-row { grid-template-columns:minmax(0,1fr) auto; }
+
+/* Bean editor: keep the reorder URL on the full available dialog width. */
+#beanReorderLinkHome,
+#beanReorderLinkContent,
+#beanReorderLinkContent .url-import-row,
+#beanReorderLinkContent .import-url-field {
+  width: 100%;
+}
+#beanReorderLinkContent .url-import-row:has(.scrape-button.hidden) {
+  grid-template-columns: minmax(0, 1fr);
+}

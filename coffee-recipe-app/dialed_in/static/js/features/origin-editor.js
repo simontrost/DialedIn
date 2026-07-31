@@ -141,12 +141,38 @@ function ensureStyles() {
     .origin-editor-title{display:block;font-size:.78rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted,#7d6d63)}
     .origin-editor-subtitle{display:block;margin-top:3px;font-size:.72rem;color:var(--muted,#7d6d63)}
     .origin-editor-list{display:grid;gap:12px}
-    .origin-editor-row{display:grid;grid-template-columns:minmax(145px,1.15fr) minmax(135px,1fr) minmax(125px,.72fr) minmax(145px,.95fr) auto;gap:10px;align-items:end;padding:14px;border:1px solid var(--line,#ddd2c7);border-radius:18px;background:rgba(255,255,255,.58)}
+    .origin-editor-row{display:grid;grid-template-columns:minmax(155px,1.15fr) minmax(145px,1fr) minmax(175px,.82fr) minmax(155px,.95fr) auto;gap:10px;align-items:end;padding:14px;border:1px solid var(--line,#ddd2c7);border-radius:18px;background:rgba(255,255,255,.58)}
     .origin-editor-field{min-width:0}
     .origin-editor-row label{display:block;margin:0 0 7px;font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted,#7d6d63)}
     .origin-editor-control{box-sizing:border-box;width:100%;height:50px;margin:0;border:1px solid var(--line,#ddd2c7);border-radius:16px;padding:0 14px;color:var(--ink,#2f231d);background:#fff;font:inherit;box-shadow:none;outline:none}
     select.origin-editor-control{appearance:auto}
+    .origin-editor-metric-shell{display:flex;align-items:stretch;min-height:50px;border:1px solid var(--line,#ddd2c7);border-radius:16px;background:#fff;overflow:hidden;transition:border-color .16s ease,box-shadow .16s ease}
+    .origin-editor-metric-shell:focus-within{border-color:var(--crema-500,#d89a5b);box-shadow:0 0 0 3px rgba(216,154,91,.13)}
+    .origin-editor-altitude{flex:1 1 auto;width:auto;height:auto;border:0;padding:0 14px;border-radius:0;background:transparent}
+    .origin-editor-altitude:focus{box-shadow:none}
+    .origin-editor-altitude::-webkit-inner-spin-button,.origin-editor-altitude::-webkit-outer-spin-button{margin:0;-webkit-appearance:none}
+    .origin-editor-altitude{appearance:textfield;-moz-appearance:textfield}
+    .origin-editor-number-stepper{width:38px;flex:0 0 38px;display:grid;grid-template-rows:1fr 1fr;border-left:1px solid var(--line,#ddd2c7);background:var(--cream-50,#f8efe4)}
+    .origin-editor-number-stepper button{position:relative;min-width:0;border:0;padding:0;color:var(--espresso-700,#5f4335);background:transparent;transition:background .16s ease,color .16s ease}
+    .origin-editor-number-stepper button+button{border-top:1px solid var(--line,#ddd2c7)}
+    .origin-editor-number-stepper button::before{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;border-top:2px solid currentColor;border-left:2px solid currentColor}
+    .origin-editor-number-stepper button[data-origin-step="up"]::before{transform:translate(-50%,-25%) rotate(45deg)}
+    .origin-editor-number-stepper button[data-origin-step="down"]::before{transform:translate(-50%,-75%) rotate(225deg)}
+    .origin-editor-number-stepper button:hover,.origin-editor-number-stepper button:focus-visible{color:var(--espresso-950,#2f231d);background:var(--cream-100,#f2e3d1);outline:none}
     .origin-editor-control:focus{border-color:var(--crema-500,#d89a5b);box-shadow:0 0 0 3px rgba(216,154,91,.13)}
+    .origin-editor-altitude-wrap{display:grid;grid-template-columns:minmax(0,1fr) 42px;height:50px;border:1px solid var(--line,#ddd2c7);border-radius:16px;overflow:hidden;background:#fff;transition:border-color .18s ease,box-shadow .18s ease}
+    .origin-editor-altitude-wrap:focus-within{border-color:var(--crema-500,#d89a5b);box-shadow:0 0 0 3px rgba(216,154,91,.13)}
+    .origin-editor-altitude-wrap .origin-editor-altitude{height:48px;border:0;border-radius:0;padding:0 12px;box-shadow:none;background:transparent}
+    .origin-editor-altitude-wrap .origin-editor-altitude:focus{box-shadow:none;border:0}
+    .origin-editor-altitude::-webkit-inner-spin-button,.origin-editor-altitude::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    .origin-editor-altitude{-moz-appearance:textfield}
+    .origin-editor-stepper{display:grid;grid-template-rows:1fr 1fr;border-left:1px solid var(--line,#ddd2c7)}
+    .origin-editor-stepper button{position:relative;border:0;border-radius:0;padding:0;background:transparent;color:var(--espresso-700,#5f4335)}
+    .origin-editor-stepper button+button{border-top:1px solid var(--line,#ddd2c7)}
+    .origin-editor-stepper button::before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-top:2px solid currentColor;border-left:2px solid currentColor}
+    .origin-editor-stepper button[data-origin-altitude-step="up"]::before{transform:translate(-50%,-25%) rotate(45deg)}
+    .origin-editor-stepper button[data-origin-altitude-step="down"]::before{transform:translate(-50%,-75%) rotate(225deg)}
+    .origin-editor-stepper button:hover,.origin-editor-stepper button:focus-visible{background:rgba(216,154,91,.12);outline:none}
     .origin-editor-country-stack{display:grid;gap:8px}
     .origin-editor-remove{width:38px;height:38px;margin-bottom:6px;border:1px solid var(--line,#ddd2c7);border-radius:50%;background:#fff;color:var(--espresso-700,#5f4335);font-size:1.15rem;line-height:1;box-shadow:none}
     .origin-editor-add{display:inline-flex;align-items:center;gap:8px;justify-content:center;min-height:42px;padding:0 14px;border:1px dashed rgba(95,67,53,.36);border-radius:999px;background:rgba(255,255,255,.58);color:var(--espresso-700,#5f4335);font-weight:700}
@@ -154,8 +180,16 @@ function ensureStyles() {
     .origin-editor-hidden-field{display:none !important}
     :root[data-theme="dark"] .origin-editor-row{background:#342219;border-color:rgba(238,208,181,.18)}
     :root[data-theme="dark"] .origin-editor-control{color:var(--ink);background:#2d1c14;border-color:rgba(238,208,181,.2)}
+    :root[data-theme="dark"] .origin-editor-altitude-wrap{background:#2d1c14;border-color:rgba(238,208,181,.2)}
+    :root[data-theme="dark"] .origin-editor-stepper{border-color:rgba(238,208,181,.2)}
+    :root[data-theme="dark"] .origin-editor-stepper button{color:var(--crema-400)}
+    :root[data-theme="dark"] .origin-editor-stepper button+button{border-color:rgba(238,208,181,.2)}
     :root[data-theme="dark"] .origin-editor-control::placeholder{color:#a9917f}
     :root[data-theme="dark"] .origin-editor-control:focus{border-color:var(--crema-400);box-shadow:0 0 0 3px rgba(231,183,127,.14)}
+    :root[data-theme="dark"] .origin-editor-metric-shell{background:#2d1c14;border-color:rgba(238,208,181,.2)}
+    :root[data-theme="dark"] .origin-editor-number-stepper{background:#2d1c14;border-left-color:rgba(238,208,181,.18)}
+    :root[data-theme="dark"] .origin-editor-number-stepper button+button{border-top-color:rgba(238,208,181,.18)}
+    :root[data-theme="dark"] .origin-editor-number-stepper button:hover,:root[data-theme="dark"] .origin-editor-number-stepper button:focus-visible{color:#f4e8dc;background:#432d22}
     :root[data-theme="dark"] .origin-editor-remove{color:var(--ink);background:#2d1c14;border-color:rgba(238,208,181,.2)}
     :root[data-theme="dark"] .origin-editor-add{color:var(--crema-400);background:#342219;border-color:rgba(231,183,127,.35)}
     @media(max-width:780px) and (min-width:701px){
@@ -285,6 +319,24 @@ export function createOriginEditorEnhancer() {
     const altitude = row.querySelector(".origin-editor-altitude");
     const component = row.querySelector(".origin-editor-component");
     const remove = row.querySelector(".origin-editor-remove");
+    const stepButtons = row.querySelectorAll("[data-origin-step]");
+
+    function adjustAltitude(direction) {
+      const step = Number(altitude.step) || 100;
+      const minimum = altitude.min === "" ? -Infinity : Number(altitude.min);
+      const maximum = altitude.max === "" ? Infinity : Number(altitude.max);
+      try {
+        if (direction === "up") altitude.stepUp();
+        else altitude.stepDown();
+      } catch (error) {
+        const current = altitude.value === "" ? 0 : Number(altitude.value);
+        const next = current + (direction === "up" ? step : -step);
+        altitude.value = String(Math.min(maximum, Math.max(minimum, next)));
+      }
+      altitude.dispatchEvent(new Event("input", { bubbles: true }));
+      altitude.dispatchEvent(new Event("change", { bubbles: true }));
+      altitude.focus({ preventScroll: true });
+    }
 
     function toggleCustom() {
       const useCustom = select.value === "Custom";
@@ -298,7 +350,9 @@ export function createOriginEditorEnhancer() {
     custom.addEventListener("input", serialiseRows);
     region.addEventListener("input", serialiseRows);
     altitude.addEventListener("input", serialiseRows);
+    altitude.addEventListener("change", serialiseRows);
     component.addEventListener("change", serialiseRows);
+    stepButtons.forEach(button => button.addEventListener("click", () => adjustAltitude(button.dataset.originStep)));
     remove.addEventListener("click", () => {
       row.remove();
       if (!list.children.length) addRow();
@@ -334,7 +388,13 @@ export function createOriginEditorEnhancer() {
       </div>
       <div class="origin-editor-field">
         <label>Altitude (m)</label>
-        <input type="number" class="origin-editor-control origin-editor-altitude" min="-500" max="10000" step="1" inputmode="numeric" placeholder="e.g. 1800" value="${escapeHtml(entry.altitude || "")}">
+        <div class="origin-editor-metric-shell">
+          <input type="number" class="origin-editor-altitude" min="-500" max="10000" step="100" inputmode="numeric" placeholder="e.g. 1800" value="${escapeHtml(entry.altitude || "")}">
+          <span class="origin-editor-number-stepper" aria-hidden="true">
+            <button type="button" data-origin-step="up" tabindex="-1" aria-label="Increase altitude"></button>
+            <button type="button" data-origin-step="down" tabindex="-1" aria-label="Decrease altitude"></button>
+          </span>
+        </div>
       </div>
       <div class="origin-editor-field">
         <label>Bean component</label>

@@ -1,5 +1,35 @@
-import { escapeHtml, iconMarkup, methodById, methodIconMarkup, originLabel, recipeMetricSummary, statusLabel } from "../core/utils.js";
+import { escapeHtml, formatNumber, iconMarkup, methodById, methodIconMarkup, recipeMetricSummary, statusLabel } from "../core/utils.js";
 import { flavorNotePillMarkup } from "../data/flavor-notes.js";
+
+
+function splitOriginList(value, { preserveEmpty = false } = {}) {
+  const items = String(value || "")
+    .split(/\s*[;,]\s*/)
+    .map(item => item.trim());
+  return preserveEmpty ? items : items.filter(Boolean);
+}
+
+function beanOriginWithAltitude(bean) {
+  const countries = splitOriginList(bean?.originCountry);
+  const regions = splitOriginList(bean?.originRegion, { preserveEmpty: true });
+  const altitudes = splitOriginList(bean?.originAltitude, { preserveEmpty: true });
+  const labels = countries.map((country, index) => {
+    const parts = [country];
+    if (regions[index]) parts.push(regions[index]);
+    if (altitudes[index]) parts.push(`${altitudes[index]} m`);
+    return parts.filter(Boolean).join(" · ");
+  }).filter(Boolean);
+  if (labels.length) return labels.join(", ");
+  const standaloneRegions = regions.filter(Boolean);
+  return standaloneRegions.length ? standaloneRegions.join(", ") : "Not set";
+}
+
+function scaScoreLabel(value) {
+  if (value === null || value === undefined || value === "") return "Not set";
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "Not set";
+  return `${formatNumber(number, 1)} / 100`;
+}
 
 const TASTE_BALANCE_LABELS = Object.freeze({
   very_acidic: "Very acidic",
@@ -33,7 +63,8 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
   const tasteLabel = bean.tasteBalance && TASTE_BALANCE_LABELS[bean.tasteBalance]
     ? TASTE_BALANCE_LABELS[bean.tasteBalance]
     : "Not set";
-  const origin = originLabel(bean) === "Origin not set" ? "Not set" : originLabel(bean);
+  const detailedOrigin = beanOriginWithAltitude(bean);
+  const scaScore = scaScoreLabel(bean.scaScore);
 
   const compactDetails = `
     <div class="dashboard-bean-profile" aria-label="Bean profile">
@@ -45,13 +76,14 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
   const fullDetails = `
     <div class="bean-origin-detail">
       <small>Origin</small>
-      <p class="${origin === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(origin)}</p>
+      <p class="${detailedOrigin === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(detailedOrigin)}</p>
     </div>
     <div class="bean-profile-grid" aria-label="Bean profile">
       <div class="bean-profile-detail"><small>Blend</small><strong class="bean-profile-value ${bean.blend ? "" : "bean-profile-value--empty"}">${escapeHtml(bean.blend || "Not set")}</strong></div>
       <div class="bean-profile-detail"><small>Roast</small><strong class="bean-profile-value ${bean.roast ? "" : "bean-profile-value--empty"}">${escapeHtml(bean.roast || "Not set")}</strong></div>
       <div class="bean-profile-detail bean-profile-strength"><small>Strength</small>${strength}</div>
       <div class="bean-profile-detail bean-profile-taste"><small>Acidity / bitterness</small><strong class="bean-profile-value ${tasteLabel === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(tasteLabel)}</strong></div>
+      <div class="bean-profile-detail bean-profile-score"><small>SCA score</small><strong class="bean-profile-value ${scaScore === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(scaScore)}</strong></div>
     </div>
     ${bean.decaf ? '<span class="bean-decaf-badge">Decaf</span>' : ""}
     ${flavorNotes.length ? `

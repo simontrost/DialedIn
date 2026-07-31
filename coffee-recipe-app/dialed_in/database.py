@@ -57,6 +57,7 @@ def _bean_columns(db: sqlite3.Connection) -> set[str]:
 def _ensure_bean_columns(db: sqlite3.Connection) -> None:
     additions = {
         "origin_altitude": "TEXT NOT NULL DEFAULT ''",
+        "sca_score": "REAL",
         "flavor_notes_json": "TEXT NOT NULL DEFAULT '[]'",
         "strength": "INTEGER NOT NULL DEFAULT 0",
         "taste_balance": "TEXT NOT NULL DEFAULT ''",
@@ -266,6 +267,7 @@ def init_db() -> None:
                 origin_region TEXT NOT NULL DEFAULT '',
                 origin_altitude TEXT NOT NULL DEFAULT '',
                 blend TEXT NOT NULL DEFAULT '',
+                sca_score REAL,
                 roast TEXT NOT NULL DEFAULT 'medium',
                 status TEXT NOT NULL DEFAULT 'active',
                 order_url TEXT NOT NULL DEFAULT '',

@@ -32,6 +32,7 @@ def row_to_bean(row: sqlite3.Row) -> dict[str, Any]:
         "originRegion": row["origin_region"],
         "originAltitude": row["origin_altitude"],
         "blend": row["blend"],
+        "scaScore": row["sca_score"],
         "roast": row["roast"],
         "status": row["status"],
         "orderUrl": row["order_url"],
@@ -51,14 +52,14 @@ def insert(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         """
         INSERT INTO beans (
             id, name, roaster, origin_country, origin_region, origin_altitude,
-            blend, roast, status, order_url, notes, flavor_notes_json, strength,
+            blend, sca_score, roast, status, order_url, notes, flavor_notes_json, strength,
             taste_balance, decaf, favorite, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             bean["id"], bean["name"], bean["roaster"], bean["originCountry"],
             bean["originRegion"], bean["originAltitude"], bean["blend"],
-            bean["roast"], bean["status"],
+            bean["scaScore"], bean["roast"], bean["status"],
             bean["orderUrl"], bean["notes"],
             json.dumps(bean["flavorNotes"], ensure_ascii=False),
             bean["strength"], bean["tasteBalance"], int(bean["decaf"]),
@@ -72,7 +73,7 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         """
         UPDATE beans SET
             name = ?, roaster = ?, origin_country = ?, origin_region = ?,
-            origin_altitude = ?, blend = ?, roast = ?, status = ?, order_url = ?, notes = ?,
+            origin_altitude = ?, blend = ?, sca_score = ?, roast = ?, status = ?, order_url = ?, notes = ?,
             flavor_notes_json = ?, strength = ?, taste_balance = ?, decaf = ?,
             favorite = ?, updated_at = ?
         WHERE id = ?
@@ -80,7 +81,7 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         (
             bean["name"], bean["roaster"], bean["originCountry"],
             bean["originRegion"], bean["originAltitude"], bean["blend"],
-            bean["roast"], bean["status"],
+            bean["scaScore"], bean["roast"], bean["status"],
             bean["orderUrl"], bean["notes"],
             json.dumps(bean["flavorNotes"], ensure_ascii=False),
             bean["strength"], bean["tasteBalance"], int(bean["decaf"]),

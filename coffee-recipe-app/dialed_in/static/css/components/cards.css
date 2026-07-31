@@ -78,6 +78,7 @@
 .bean-profile-detail .bean-profile-value--empty { color:var(--muted); font-weight:700; }
 .bean-profile-strength .bean-strength-mini { margin-top:9px; }
 .bean-profile-taste strong { color:var(--espresso-700); }
+.bean-profile-score { grid-column:1 / -1; }
 .bean-decaf-badge { display:inline-flex; margin-top:10px; border-radius:999px; padding:6px 10px; color:var(--espresso-700); background:var(--cream-100); font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
 .bean-flavor-section { margin-top:15px; }
 .bean-flavor-heading { margin-bottom:8px; }
@@ -121,3 +122,9 @@
 .dashboard-strength .bean-strength-mini { margin-top:7px; }
 .bean-card--dashboard .bean-card-lower { margin-top:0; }
 .bean-card--dashboard .bean-recipe-preview { margin-top:0; }
+
+.bean-origin-altitude {
+  margin-top: 5px !important;
+  color: var(--muted);
+  font-size: .76rem;
+}
