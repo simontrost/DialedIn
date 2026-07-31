@@ -24,7 +24,7 @@
         <span>Brewed at</span>
         <input id="logBrewedAtInput" type="datetime-local" required>
       </label>
-      <label class="metric-input dial-log-metric-input">
+      <label class="metric-input dial-log-metric-input" id="logGrindField">
         <span>Grind setting *</span>
         <div class="metric-control">
           <input id="logGrindInput" type="number" min="0" max="500" step="0.1" required>
@@ -95,7 +95,7 @@
         <span>Notes</span>
         <textarea id="logNotesInput" rows="3" maxlength="1000" placeholder="Channeling, puck prep, age of beans, next adjustment …"></textarea>
       </label>
-      <label class="favorite-check full valid-check">
+      <label class="favorite-check full valid-check" id="logValidField">
         <input id="logValidInput" type="checkbox" checked>
         <span>Use this measurement in grind calculations</span>
       </label>

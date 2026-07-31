@@ -26,8 +26,9 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
   const machineBasedMethods = new Set(["espresso", "americano", "flat_white", "cappuccino", "latte"]);
 
   function visibleMethodFields(method) {
+    const selectedBean = beanById(state, beanInput.value);
     return (method.fields || []).filter(field => {
-      if (field.key === "grind") return true;
+      if (field.key === "grind") return !selectedBean?.isGround;
       if (!machineBasedMethods.has(method.id)) return true;
       if (field.key === "temperature") return Boolean(state.settings.machineTemperatureControl);
       if (field.key === "pressure") return Boolean(state.settings.machinePressureControl);
@@ -161,7 +162,7 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
 
   function fillSelects({ beanId = beanInput.value, methodId = methodInput.value } = {}) {
     beanInput.innerHTML = state.beans.length
-      ? state.beans.map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
+      ? state.beans.map(bean => `<option value="${bean.id}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}${bean.isGround ? " · Pre-ground" : ""}</option>`).join("")
       : '<option value="">Add a bean first</option>';
     methodInput.innerHTML = state.brewingMethods
       .map(method => `<option value="${escapeHtml(method.id)}">${escapeHtml(method.name)}</option>`)
@@ -199,7 +200,11 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
 
   function renderMethodFields(values = {}) {
     const method = methodById(state, methodInput.value);
-    description.innerHTML = `<span class="method-icon-shell" aria-hidden="true">${methodIconMarkup(method)}</span><div><strong>${escapeHtml(method.name)}</strong><p>${escapeHtml(method.description || "")}</p></div>`;
+    const selectedBean = beanById(state, beanInput.value);
+    const groundNote = selectedBean?.isGround
+      ? '<p class="pre-ground-method-note">Pre-ground coffee: grind settings are disabled for this recipe.</p>'
+      : "";
+    description.innerHTML = `<span class="method-icon-shell" aria-hidden="true">${methodIconMarkup(method)}</span><div><strong>${escapeHtml(method.name)}</strong><p>${escapeHtml(method.description || "")}</p>${groundNote}</div>`;
     fieldsContainer.innerHTML = visibleMethodFields(method).map(rawField => {
       const field = configuredField(rawField);
       const value = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : field.default;
@@ -384,7 +389,9 @@ export function createBrewRecipeForm({ state, api, showToast, onChanged }) {
     if (event.key === "Escape") closeMethodMenu();
   });
   beanInput.addEventListener("change", () => {
+    const currentValues = valuesPayload();
     if (!state.editingBrewRecipeId) nameInput.value = defaultRecipeName(methodInput.value);
+    renderMethodFields(currentValues);
   });
   fieldsContainer.addEventListener("click", event => {
     const stepper = event.target.closest("[data-number-step]");

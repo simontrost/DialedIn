@@ -10,6 +10,15 @@ from . import repository
 from .validation import validate_brew_recipe
 
 
+def _prepare_for_bean(db: sqlite3.Connection, clean: dict[str, Any]) -> dict[str, Any]:
+    bean = find_bean_by_id(db, clean["beanId"])
+    if not bean:
+        raise ValueError("Selected bean does not exist.")
+    if bool(bean["is_ground"]):
+        clean["values"].pop("grind", None)
+    return clean
+
+
 def list_brew_recipes(db: sqlite3.Connection) -> list[dict[str, Any]]:
     return [repository.row_to_recipe(row) for row in repository.find_all(db)]
 
@@ -20,9 +29,7 @@ def get_brew_recipe(db: sqlite3.Connection, recipe_id: str) -> dict[str, Any] | 
 
 
 def create_brew_recipe(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any]:
-    clean = validate_brew_recipe(payload)
-    if not find_bean_by_id(db, clean["beanId"]):
-        raise ValueError("Selected bean does not exist.")
+    clean = _prepare_for_bean(db, validate_brew_recipe(payload))
     timestamp = utc_now()
     recipe = {
         "id": str(uuid.uuid4()),
@@ -42,9 +49,7 @@ def update_brew_recipe(
     current = get_brew_recipe(db, recipe_id)
     if not current:
         return None
-    clean = validate_brew_recipe(payload)
-    if not find_bean_by_id(db, clean["beanId"]):
-        raise ValueError("Selected bean does not exist.")
+    clean = _prepare_for_bean(db, validate_brew_recipe(payload))
     recipe = {
         **current,
         **clean,

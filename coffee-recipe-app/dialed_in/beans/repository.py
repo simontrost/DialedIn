@@ -41,6 +41,7 @@ def row_to_bean(row: sqlite3.Row) -> dict[str, Any]:
         "strength": float(row["strength"] or 0),
         "tasteBalance": row["taste_balance"],
         "decaf": bool(row["decaf"]),
+        "isGround": bool(row["is_ground"]),
         "favorite": bool(row["favorite"]),
         "createdAt": row["created_at"],
         "updatedAt": row["updated_at"],
@@ -53,8 +54,8 @@ def insert(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         INSERT INTO beans (
             id, name, roaster, origin_country, origin_region, origin_altitude,
             blend, sca_score, roast, status, order_url, notes, flavor_notes_json, strength,
-            taste_balance, decaf, favorite, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            taste_balance, decaf, is_ground, favorite, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             bean["id"], bean["name"], bean["roaster"], bean["originCountry"],
@@ -63,6 +64,7 @@ def insert(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
             bean["orderUrl"], bean["notes"],
             json.dumps(bean["flavorNotes"], ensure_ascii=False),
             bean["strength"], bean["tasteBalance"], int(bean["decaf"]),
+            int(bean["isGround"]),
             int(bean["favorite"]), bean["createdAt"], bean["updatedAt"],
         ),
     )
@@ -74,7 +76,7 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         UPDATE beans SET
             name = ?, roaster = ?, origin_country = ?, origin_region = ?,
             origin_altitude = ?, blend = ?, sca_score = ?, roast = ?, status = ?, order_url = ?, notes = ?,
-            flavor_notes_json = ?, strength = ?, taste_balance = ?, decaf = ?,
+            flavor_notes_json = ?, strength = ?, taste_balance = ?, decaf = ?, is_ground = ?,
             favorite = ?, updated_at = ?
         WHERE id = ?
         """,
@@ -85,6 +87,7 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
             bean["orderUrl"], bean["notes"],
             json.dumps(bean["flavorNotes"], ensure_ascii=False),
             bean["strength"], bean["tasteBalance"], int(bean["decaf"]),
+            int(bean["isGround"]),
             int(bean["favorite"]), bean["updatedAt"], bean["id"],
         ),
     )

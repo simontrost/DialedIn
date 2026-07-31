@@ -26,7 +26,7 @@
         <span>Recipe</span>
         <select id="dialInRecipeSelect"></select>
       </label>
-      <label class="field compact-field">
+      <label class="field compact-field" id="dialMaxStepField">
         <span>Maximum next change</span>
         <div class="input-with-unit dial-max-step-control">
           <input id="dialInMaxStep" type="number" min="0.1" max="20" step="0.1" value="2.5">
@@ -57,7 +57,7 @@
     <article class="dial-summary-card dial-current-grind-card">
       <small>Current grind</small>
       <strong id="dialCurrentGrind">–</strong>
-      <span>Saved in the selected recipe</span>
+      <span id="dialCurrentGrindMeta">Saved in the selected recipe</span>
     </article>
     <article class="dial-summary-card">
       <small>Stored measurements</small>
@@ -78,14 +78,14 @@
         <p class="eyebrow">History</p>
         <h2>Measurements</h2>
       </div>
-      <span class="history-hint">Invalid shots stay visible but are excluded from the calculation.</span>
+      <span class="history-hint" id="dialHistoryHint">Invalid shots stay visible but are excluded from the calculation.</span>
     </div>
     <div class="measurement-table-wrap">
       <table class="measurement-table">
         <thead>
           <tr>
             <th>Date</th>
-            <th>Grind</th>
+            <th id="dialGrindHeader">Grind</th>
             <th>Dose</th>
             <th>Yield</th>
             <th>Ratio</th>

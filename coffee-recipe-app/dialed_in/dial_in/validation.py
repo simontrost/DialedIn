@@ -73,7 +73,7 @@ def validate_log(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "beanId": bean_id,
         "brewRecipeId": recipe_id,
-        "grind": _number(payload, "grind", required=True, minimum=0, maximum=500),
+        "grind": _number(payload, "grind", minimum=0, maximum=500),
         "dose": _number(payload, "dose", minimum=0, maximum=1000),
         "beverageYield": _number(payload, "beverageYield", minimum=0, maximum=10000),
         "time": _number(payload, "time", required=True, minimum=0.1, maximum=10000),

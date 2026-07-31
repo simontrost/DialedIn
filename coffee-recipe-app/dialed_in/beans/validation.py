@@ -140,5 +140,6 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "strength": strength,
         "tasteBalance": taste_balance,
         "decaf": bool(payload.get("decaf", False)),
+        "isGround": bool(payload.get("isGround", False)),
         "favorite": bool(payload.get("favorite", False)),
     }

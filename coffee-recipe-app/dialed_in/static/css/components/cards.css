@@ -79,7 +79,9 @@
 .bean-profile-strength .bean-strength-mini { margin-top:9px; }
 .bean-profile-taste strong { color:var(--espresso-700); }
 .bean-profile-score { grid-column:1 / -1; }
-.bean-decaf-badge { display:inline-flex; margin-top:10px; border-radius:999px; padding:6px 10px; color:var(--espresso-700); background:var(--cream-100); font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+.bean-profile-badges { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+.bean-profile-badge { display:inline-flex; border-radius:999px; padding:6px 10px; color:var(--espresso-700); background:var(--cream-100); font-size:.66rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+.bean-ground-badge { color:#fff; background:var(--espresso-700); }
 .bean-flavor-section { margin-top:15px; }
 .bean-flavor-heading { margin-bottom:8px; }
 .bean-card--library .bean-flavor-notes { margin:0; }

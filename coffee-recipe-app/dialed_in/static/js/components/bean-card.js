@@ -65,6 +65,10 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
     : "Not set";
   const detailedOrigin = beanOriginWithAltitude(bean);
   const scaScore = scaScoreLabel(bean.scaScore);
+  const profileBadges = [
+    bean.decaf ? '<span class="bean-profile-badge">Decaf</span>' : "",
+    bean.isGround ? '<span class="bean-profile-badge bean-ground-badge">Pre-ground</span>' : ""
+  ].filter(Boolean).join("");
 
   const compactDetails = `
     <div class="dashboard-bean-profile" aria-label="Bean profile">
@@ -85,7 +89,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
       <div class="bean-profile-detail bean-profile-taste"><small>Acidity / bitterness</small><strong class="bean-profile-value ${tasteLabel === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(tasteLabel)}</strong></div>
       <div class="bean-profile-detail bean-profile-score"><small>SCA score</small><strong class="bean-profile-value ${scaScore === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(scaScore)}</strong></div>
     </div>
-    ${bean.decaf ? '<span class="bean-decaf-badge">Decaf</span>' : ""}
+    ${profileBadges ? `<div class="bean-profile-badges">${profileBadges}</div>` : ""}
     ${flavorNotes.length ? `
       <div class="bean-flavor-section">
         <small class="bean-flavor-heading">Flavor notes</small>

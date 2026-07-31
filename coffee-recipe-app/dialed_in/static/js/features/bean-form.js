@@ -28,6 +28,8 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   const balanceInput = document.querySelector("#beanBalanceInput");
   const balanceControl = document.querySelector("#beanBalanceControl");
   const decafInput = document.querySelector("#beanDecafInput");
+  const groundInput = document.querySelector("#beanGroundInput");
+  const groundDescription = document.querySelector("#beanGroundDescription");
   const strengthControl = createFillRatingControl({ root: strengthControlRoot, input: strengthInput, itemLabel: "strength" });
   let selectedFlavorNotes = [];
 
@@ -221,6 +223,12 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     });
   }
 
+  function updateGroundDescription() {
+    groundDescription.textContent = groundInput.checked
+      ? "Pre-ground · grind settings and recommendations are disabled."
+      : "Whole bean · grind settings and recommendations are available.";
+  }
+
   function payload() {
     return {
       name: fields.name.value.trim(),
@@ -238,6 +246,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       strength: strengthInput.value === "" ? 0 : Number(strengthInput.value),
       tasteBalance: balanceInput.value,
       decaf: decafInput.checked,
+      isGround: groundInput.checked,
       favorite: fields.favorite.checked
     };
   }
@@ -261,6 +270,8 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     strengthControl.setValue(bean?.strength || 0);
     setBalanceValue(bean?.tasteBalance || "");
     decafInput.checked = Boolean(bean?.decaf);
+    groundInput.checked = Boolean(bean?.isGround);
+    updateGroundDescription();
     fields.orderUrl.value = bean?.orderUrl || "";
     if (fields.scaScore.value === "0") fields.scaScore.value = "";
     fields.barcode.value = "";
@@ -291,6 +302,11 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
         if (index >= 0) state.beans[index] = saved;
       } else {
         state.beans.unshift(saved);
+      }
+      if (saved.isGround) {
+        state.brewRecipes = state.brewRecipes.map(recipe => recipe.beanId === saved.id
+          ? { ...recipe, values: Object.fromEntries(Object.entries(recipe.values || {}).filter(([key]) => key !== "grind")) }
+          : recipe);
       }
       dialog.close();
       state.editingBeanId = null;
@@ -337,6 +353,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   flavorNoteAddButton.addEventListener("click", () => {
     setFlavorNotePicker(flavorNotePicker.classList.contains("hidden"));
   });
+  groundInput.addEventListener("change", updateGroundDescription);
   flavorNotePills.addEventListener("click", event => {
     const button = event.target.closest("[data-remove-flavor-note]");
     if (button) removeFlavorNote(button.dataset.removeFlavorNote);

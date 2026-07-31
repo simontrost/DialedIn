@@ -5,6 +5,7 @@ import uuid
 from typing import Any
 
 from ..database import utc_now
+from ..brew_recipes.repository import clear_grind_for_bean
 from . import repository
 from .validation import validate_bean
 
@@ -47,6 +48,8 @@ def update_bean(
         "updatedAt": utc_now(),
     }
     repository.update(db, bean)
+    if bean["isGround"]:
+        clear_grind_for_bean(db, bean_id, bean["updatedAt"])
     return bean
 
 

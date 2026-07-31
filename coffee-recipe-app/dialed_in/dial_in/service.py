@@ -30,6 +30,11 @@ def _validate_relations(db: sqlite3.Connection, clean: dict[str, Any]) -> None:
     recipe = row_to_recipe(recipe_row)
     if recipe["beanId"] != clean["beanId"]:
         raise ValueError("The selected recipe does not belong to this bean.")
+    if bool(bean["is_ground"]):
+        clean["grind"] = None
+        clean["valid"] = True
+    elif clean["grind"] is None:
+        raise ValueError("grind is required for whole-bean coffee.")
 
 
 def create_log(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any]:
@@ -74,6 +79,9 @@ def recommend(db: sqlite3.Connection, recipe_id: str, max_step: float = 2.5) -> 
     if not recipe_row:
         raise ValueError("Recipe not found.")
     recipe = row_to_recipe(recipe_row)
+    bean = find_bean_by_id(db, recipe["beanId"])
+    if bean and bool(bean["is_ground"]):
+        raise ValueError("Grind recommendations are disabled for pre-ground coffee.")
     logs = list_logs_for_recipe(db, recipe_id)
     settings = get_settings(db)
     result = calculate_recommendation(

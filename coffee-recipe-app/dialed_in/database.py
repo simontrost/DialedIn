@@ -62,6 +62,7 @@ def _ensure_bean_columns(db: sqlite3.Connection) -> None:
         "strength": "INTEGER NOT NULL DEFAULT 0",
         "taste_balance": "TEXT NOT NULL DEFAULT ''",
         "decaf": "INTEGER NOT NULL DEFAULT 0",
+        "is_ground": "INTEGER NOT NULL DEFAULT 0",
     }
     existing = _bean_columns(db)
     for name, definition in additions.items():
@@ -78,6 +79,58 @@ def _ensure_bean_columns(db: sqlite3.Connection) -> None:
             WHERE TRIM(origin_altitude) = '' AND TRIM(origin_latitude) <> ''
             """
         )
+
+
+def _ensure_nullable_dial_in_grind(db: sqlite3.Connection) -> None:
+    columns = db.execute("PRAGMA table_info(dial_in_logs)").fetchall()
+    grind_column = next((row for row in columns if row["name"] == "grind"), None)
+    if not grind_column or not grind_column["notnull"]:
+        return
+
+    # Pre-ground coffee can still be logged, but it has no meaningful grind
+    # setting. Rebuild the table once so existing databases can store NULL.
+    db.execute("DROP INDEX IF EXISTS idx_dial_in_logs_recipe_date")
+    db.execute("ALTER TABLE dial_in_logs RENAME TO dial_in_logs_grind_required")
+    db.execute(
+        """
+        CREATE TABLE dial_in_logs (
+            id TEXT PRIMARY KEY,
+            bean_id TEXT NOT NULL,
+            brew_recipe_id TEXT NOT NULL,
+            grind REAL,
+            dose REAL,
+            beverage_yield REAL,
+            time_seconds REAL NOT NULL,
+            taste TEXT NOT NULL DEFAULT 'neutral',
+            rating REAL,
+            valid INTEGER NOT NULL DEFAULT 1,
+            notes TEXT NOT NULL DEFAULT '',
+            brewed_at TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            FOREIGN KEY(bean_id) REFERENCES beans(id) ON DELETE CASCADE,
+            FOREIGN KEY(brew_recipe_id) REFERENCES brew_recipes(id) ON DELETE CASCADE
+        )
+        """
+    )
+    db.execute(
+        """
+        INSERT INTO dial_in_logs (
+            id, bean_id, brew_recipe_id, grind, dose, beverage_yield,
+            time_seconds, taste, rating, valid, notes, brewed_at, created_at
+        )
+        SELECT
+            id, bean_id, brew_recipe_id, grind, dose, beverage_yield,
+            time_seconds, taste, rating, valid, notes, brewed_at, created_at
+        FROM dial_in_logs_grind_required
+        """
+    )
+    db.execute("DROP TABLE dial_in_logs_grind_required")
+    db.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_dial_in_logs_recipe_date
+        ON dial_in_logs(brew_recipe_id, brewed_at DESC)
+        """
+    )
 
 
 def _safe_float(value: Any) -> float | None:
@@ -276,6 +329,7 @@ def init_db() -> None:
                 strength INTEGER NOT NULL DEFAULT 0,
                 taste_balance TEXT NOT NULL DEFAULT '',
                 decaf INTEGER NOT NULL DEFAULT 0,
+                is_ground INTEGER NOT NULL DEFAULT 0,
                 favorite INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
@@ -299,7 +353,7 @@ def init_db() -> None:
                 id TEXT PRIMARY KEY,
                 bean_id TEXT NOT NULL,
                 brew_recipe_id TEXT NOT NULL,
-                grind REAL NOT NULL,
+                grind REAL,
                 dose REAL,
                 beverage_yield REAL,
                 time_seconds REAL NOT NULL,
@@ -321,6 +375,7 @@ def init_db() -> None:
         )
         _ensure_legacy_recipe_columns(db)
         _ensure_bean_columns(db)
+        _ensure_nullable_dial_in_grind(db)
         db.executemany(
             "INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)",
             [("machine", DEFAULT_MACHINE), ("grinder", DEFAULT_GRINDER), ("theme", DEFAULT_THEME)],

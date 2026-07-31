@@ -251,3 +251,8 @@
   .dial-summary-grid{grid-template-columns:1fr}
   .recommendation-card{padding-right:92px}
 }
+
+/* Pre-ground beans keep the brew log available while grind controls are inactive. */
+#dialMaxStepField.is-disabled { opacity:.55; }
+#dialMaxStepField.is-disabled .dial-max-step-control { background:var(--cream-50); }
+#dialMaxStepField.is-disabled .number-stepper { pointer-events:none; }

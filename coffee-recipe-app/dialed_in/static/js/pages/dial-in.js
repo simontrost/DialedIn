@@ -1,4 +1,5 @@
 import {
+  beanById,
   escapeHtml,
   formatDateTime,
   formatNumber,
@@ -48,6 +49,7 @@ export function createDialInPage({
   const beanSelect = document.querySelector("#dialInBeanSelect");
   const recipeSelect = document.querySelector("#dialInRecipeSelect");
   const maxStep = document.querySelector("#dialInMaxStep");
+  const maxStepField = document.querySelector("#dialMaxStepField");
   const addButton = document.querySelector("#addMeasurementButton");
   const emptyAddButton = document.querySelector("#dialInEmptyAddButton");
   const calculateButton = document.querySelector("#calculateGrindButton");
@@ -58,6 +60,7 @@ export function createDialInPage({
   const targetSummary = document.querySelector("#dialTargetSummary");
   const recipeSummary = document.querySelector("#dialRecipeSummary");
   const currentGrindSummary = document.querySelector("#dialCurrentGrind");
+  const currentGrindMeta = document.querySelector("#dialCurrentGrindMeta");
   const measurementSummary = document.querySelector("#dialMeasurementSummary");
   const spanSummary = document.querySelector("#dialDateSpanSummary");
   const recommended = document.querySelector("#recommendedGrind");
@@ -66,10 +69,13 @@ export function createDialInPage({
   const applyRecommendedButton = document.querySelector("#applyRecommendedGrindButton");
   const totalBrewCount = document.querySelector("#dialTotalBrewCount");
   const totalBrewLabel = document.querySelector("#dialTotalBrewLabel");
+  const grindHeader = document.querySelector("#dialGrindHeader");
+  const historyHint = document.querySelector("#dialHistoryHint");
   let recommendationRecipeId = "";
   let recommendedGrindValue = null;
 
   function adjustMaxStep(button) {
+    if (maxStep.disabled) return;
     try {
       if (button.dataset.dialNumberStep === "up") maxStep.stepUp();
       else maxStep.stepDown();
@@ -94,6 +100,11 @@ export function createDialInPage({
     return recipeById(state, recipeSelect.value);
   }
 
+  function selectedBean() {
+    const recipe = selectedRecipe();
+    return beanById(state, recipe?.beanId || beanSelect.value);
+  }
+
   function selectedLogs() {
     return state.dialInLogs
       .filter(log => log.brewRecipeId === recipeSelect.value)
@@ -103,7 +114,7 @@ export function createDialInPage({
   function syncSelectors() {
     const previousBean = state.selectedDialBeanId || beanSelect.value;
     beanSelect.innerHTML = state.beans.length
-      ? state.beans.map(bean => `<option value="${escapeHtml(bean.id)}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
+      ? state.beans.map(bean => `<option value="${escapeHtml(bean.id)}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}${bean.isGround ? " · Pre-ground" : ""}</option>`).join("")
       : '<option value="">No beans available</option>';
     const selectedBean = [...beanSelect.options].some(option => option.value === previousBean) ? previousBean : (state.beans[0]?.id || "");
     beanSelect.value = selectedBean;
@@ -130,6 +141,17 @@ export function createDialInPage({
     applyRecommendedButton.textContent = "Apply";
   }
 
+  function showPreGroundRecommendation() {
+    recommendationRecipeId = "";
+    recommendedGrindValue = null;
+    recommended.textContent = "N/A";
+    recommendationMeta.textContent = "Disabled for pre-ground coffee";
+    recommendationCard.dataset.confidence = "";
+    applyRecommendedButton.classList.add("hidden");
+    applyRecommendedButton.disabled = true;
+    applyRecommendedButton.textContent = "Apply";
+  }
+
   function rowActions(logId) {
     return `
       <div class="measurement-row-actions">
@@ -140,11 +162,11 @@ export function createDialInPage({
       </div>`;
   }
 
-  function renderTable(logs) {
+  function renderTable(logs, showGrind = true) {
     tableBody.innerHTML = logs.map(log => `
       <tr class="${log.valid ? "" : "invalid-measurement"}">
         <td>${escapeHtml(formatDateTime(log.brewedAt))}${log.valid ? "" : '<small class="invalid-label">Excluded</small>'}</td>
-        <td><strong>${formatNumber(log.grind, 2)}</strong></td>
+        ${showGrind ? `<td><strong>${formatNumber(log.grind, 2)}</strong></td>` : ""}
         <td>${formatNumber(log.dose, 1)} g</td>
         <td>${formatNumber(log.beverageYield, 1)} g</td>
         <td>${formatRatio(log)}</td>
@@ -161,7 +183,9 @@ export function createDialInPage({
             <strong>${escapeHtml(formatDateTime(log.brewedAt))}</strong>
             ${log.valid ? "" : '<small class="invalid-label">Excluded</small>'}
           </div>
-          <div class="measurement-mobile-primary"><span>Grind</span><strong>${formatNumber(log.grind, 2)}</strong></div>
+          ${showGrind
+            ? `<div class="measurement-mobile-primary"><span>Grind</span><strong>${formatNumber(log.grind, 2)}</strong></div>`
+            : `<div class="measurement-mobile-primary"><span>Ratio</span><strong>${formatRatio(log)}</strong></div>`}
           <div class="measurement-mobile-primary"><span>Time</span><strong>${formatNumber(log.time, 1)} s</strong></div>
           ${rowActions(log.id)}
         </div>
@@ -193,31 +217,52 @@ export function createDialInPage({
     totalBrewCount.textContent = String(totalBrews);
     totalBrewLabel.textContent = totalBrews === 1 ? "brew logged" : "brews logged";
     const recipe = selectedRecipe();
+    const bean = selectedBean();
+    const isGround = Boolean(bean?.isGround);
     const method = recipe ? methodById(state, recipe.method) : null;
     const logs = selectedLogs();
     const validLogs = logs.filter(log => log.valid);
     const disabled = !recipe;
     addButton.disabled = disabled;
-    calculateButton.disabled = disabled || !validLogs.length;
+    calculateButton.disabled = disabled || isGround || !validLogs.length;
+    calculateButton.title = isGround ? "Grind recommendations are disabled for pre-ground coffee" : "";
     emptyAddButton.disabled = disabled;
     editTargetButton.disabled = disabled;
+    maxStep.disabled = disabled || isGround;
+    maxStepField.classList.toggle("is-disabled", disabled || isGround);
 
     targetSummary.textContent = recipe?.values?.targetTime ? `${formatNumber(recipe.values.targetTime, 1)} s` : "–";
-    recipeSummary.textContent = recipe ? `${method.name} recipe` : "Create a dial-in-capable recipe first";
-    currentGrindSummary.textContent = recipe?.values?.grind === null || recipe?.values?.grind === undefined || recipe?.values?.grind === ""
-      ? "–"
-      : formatOneDecimal(recipe.values.grind);
+    recipeSummary.textContent = recipe
+      ? `${method.name} ${isGround ? "brew log · pre-ground coffee" : "recipe"}`
+      : "Create a dial-in-capable recipe first";
+    currentGrindSummary.textContent = isGround
+      ? "Pre-ground"
+      : (recipe?.values?.grind === null || recipe?.values?.grind === undefined || recipe?.values?.grind === ""
+        ? "–"
+        : formatOneDecimal(recipe.values.grind));
+    currentGrindMeta.textContent = isGround
+      ? "No grind setting applies to this bean"
+      : "Saved in the selected recipe";
     measurementSummary.textContent = String(logs.length);
     if (logs.length > 1) {
       const oldest = logs[logs.length - 1].brewedAt;
       const newest = logs[0].brewedAt;
       const days = Math.max(0, Math.round((new Date(newest) - new Date(oldest)) / 86400000));
-      spanSummary.textContent = `${validLogs.length} used · ${days} day history`;
-    } else if (logs.length === 1) spanSummary.textContent = `${validLogs.length} used · first measurement`;
+      spanSummary.textContent = isGround
+        ? `${logs.length} logged · ${days} day history`
+        : `${validLogs.length} used · ${days} day history`;
+    } else if (logs.length === 1) spanSummary.textContent = isGround
+      ? "1 logged · first measurement"
+      : `${validLogs.length} used · first measurement`;
     else spanSummary.textContent = "No history yet";
-    renderTable(logs);
+    grindHeader.classList.toggle("hidden", isGround);
+    historyHint.textContent = isGround
+      ? "Measurements remain available as a brew log. Grind calculations are disabled for pre-ground coffee."
+      : "Invalid shots stay visible but are excluded from the calculation.";
+    renderTable(logs, !isGround);
     empty.classList.toggle("hidden", logs.length > 0);
-    if (recommendationRecipeId && recommendationRecipeId !== recipe?.id) resetRecommendation();
+    if (isGround) showPreGroundRecommendation();
+    else if (recommendationRecipeId && recommendationRecipeId !== recipe?.id) resetRecommendation();
   }
 
   function addMeasurement() {
@@ -241,6 +286,7 @@ export function createDialInPage({
   async function calculate() {
     const recipe = selectedRecipe();
     if (!recipe) return;
+    if (selectedBean()?.isGround) return showToast("Grind recommendations are disabled for pre-ground coffee");
     calculateButton.disabled = true;
     calculateButton.textContent = "Calculating …";
     try {
@@ -266,12 +312,13 @@ export function createDialInPage({
       showToast(error.message);
     } finally {
       calculateButton.textContent = "Calculate grind";
-      calculateButton.disabled = !selectedLogs().some(log => log.valid);
+      calculateButton.disabled = Boolean(selectedBean()?.isGround) || !selectedLogs().some(log => log.valid);
     }
   }
 
   async function applyRecommendedGrind() {
     const recipe = selectedRecipe();
+    if (selectedBean()?.isGround) return showToast("Grind settings cannot be applied to pre-ground coffee");
     if (!recipe || recommendationRecipeId !== recipe.id || !Number.isFinite(recommendedGrindValue)) {
       return showToast("Calculate a grind recommendation first");
     }

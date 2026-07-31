@@ -25,6 +25,22 @@ def find_by_bean(db: sqlite3.Connection, bean_id: str) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def clear_grind_for_bean(db: sqlite3.Connection, bean_id: str, updated_at: str) -> None:
+    rows = find_by_bean(db, bean_id)
+    for row in rows:
+        try:
+            values = json.loads(row["values_json"] or "{}")
+        except (json.JSONDecodeError, TypeError):
+            values = {}
+        if not isinstance(values, dict) or "grind" not in values:
+            continue
+        values.pop("grind", None)
+        db.execute(
+            "UPDATE brew_recipes SET values_json = ?, updated_at = ? WHERE id = ?",
+            (json.dumps(values, ensure_ascii=False), updated_at, row["id"]),
+        )
+
+
 def row_to_recipe(row: sqlite3.Row) -> dict[str, Any]:
     return {
         "id": row["id"],

@@ -16,6 +16,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const recipeInput = document.querySelector("#logRecipeInput");
   const context = document.querySelector("#selectedLogContext");
   const brewedAt = document.querySelector("#logBrewedAtInput");
+  const grindField = document.querySelector("#logGrindField");
   const grind = document.querySelector("#logGrindInput");
   const time = document.querySelector("#logTimeInput");
   const dose = document.querySelector("#logDoseInput");
@@ -24,6 +25,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
   const rating = document.querySelector("#logRatingInput");
   const ratingControl = createFillRatingControl({ root: document.querySelector("#logRatingControl"), input: rating, itemLabel: "stars" });
   const notes = document.querySelector("#logNotesInput");
+  const validField = document.querySelector("#logValidField");
   const valid = document.querySelector("#logValidInput");
   let editingLogId = "";
 
@@ -57,7 +59,7 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
 
   function syncBeanOptions(preferredBeanId = "") {
     beanInput.innerHTML = state.beans.length
-      ? state.beans.map(bean => `<option value="${escapeHtml(bean.id)}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}</option>`).join("")
+      ? state.beans.map(bean => `<option value="${escapeHtml(bean.id)}">${escapeHtml(bean.name)}${bean.roaster ? ` · ${escapeHtml(bean.roaster)}` : ""}${bean.isGround ? " · Pre-ground" : ""}</option>`).join("")
       : '<option value="">No beans available</option>';
     beanInput.value = [...beanInput.options].some(option => option.value === preferredBeanId)
       ? preferredBeanId
@@ -80,17 +82,32 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
     const bean = beanById(state, beanInput.value || recipe?.beanId);
     if (!recipe || !bean) {
       context.textContent = "Choose a bean with a dial-in-capable recipe.";
+      grindField.classList.remove("hidden");
+      validField.classList.remove("hidden");
+      grind.disabled = false;
+      grind.required = true;
       return null;
     }
-    context.textContent = `${bean.name} · ${recipe.name}`;
+    const isGround = Boolean(bean.isGround);
+    grindField.classList.toggle("hidden", isGround);
+    validField.classList.toggle("hidden", isGround);
+    grind.disabled = isGround;
+    grind.required = !isGround;
+    if (isGround) {
+      grind.value = "";
+      valid.checked = true;
+    }
+    context.textContent = isGround
+      ? `${bean.name} · ${recipe.name} · Pre-ground coffee, grind fields disabled`
+      : `${bean.name} · ${recipe.name}`;
     return { recipe, bean };
   }
 
   function applyRecipeDefaults({ overwrite = true } = {}) {
     const selected = updateContext();
     if (!selected) return;
-    const { recipe } = selected;
-    if (overwrite || grind.value === "") grind.value = recipe.values?.grind ?? "";
+    const { recipe, bean } = selected;
+    if (!bean.isGround && (overwrite || grind.value === "")) grind.value = recipe.values?.grind ?? "";
     if (overwrite || time.value === "") time.value = recipe.values?.targetTime ?? "";
     if (overwrite || dose.value === "") dose.value = recipe.values?.dose ?? "";
     if (overwrite || beverageYield.value === "") {
@@ -181,14 +198,14 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
           beanId: bean.id,
           brewRecipeId: recipe.id,
           brewedAt: new Date(brewedAt.value).toISOString(),
-          grind: Number(grind.value),
+          grind: bean.isGround ? null : Number(grind.value),
           time: Number(time.value),
           dose: dose.value === "" ? null : Number(dose.value),
           beverageYield: beverageYield.value === "" ? null : Number(beverageYield.value),
           taste: taste.value,
           rating: rating.value === "" ? null : Number(rating.value),
           notes: notes.value.trim(),
-          valid: valid.checked
+          valid: bean.isGround ? true : valid.checked
         })
       });
 
