@@ -449,8 +449,20 @@ dialog form,.quick-add-content { padding:26px; }
 
 
 /* Bean dialog follow-up refinements: full-width reorder link and SCA score field. */
-#beanDialog .bean-score-field > div { justify-content:space-between; }
-#beanDialog .bean-score-field input[type="number"] { appearance:textfield; -moz-appearance:textfield; }
+#beanDialog .bean-score-field > div {
+  height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 13px;
+}
+#beanDialog .bean-score-field input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.2;
+}
 #beanDialog .bean-score-field input[type="number"]::-webkit-inner-spin-button,
 #beanDialog .bean-score-field input[type="number"]::-webkit-outer-spin-button { margin:0; -webkit-appearance:none; }
 #beanDialog #beanReorderLinkHome .url-import-row { grid-template-columns:minmax(0,1fr); }
@@ -458,10 +470,14 @@ dialog form,.quick-add-content { padding:26px; }
 
 /* Bean editor: keep the reorder URL on the full available dialog width. */
 #beanReorderLinkHome,
+#beanReorderLinkHome.full,
 #beanReorderLinkContent,
 #beanReorderLinkContent .url-import-row,
 #beanReorderLinkContent .import-url-field {
   width: 100%;
+}
+#beanReorderLinkHome.full {
+  grid-column: 1 / -1;
 }
 #beanReorderLinkContent .url-import-row:has(.scrape-button.hidden) {
   grid-template-columns: minmax(0, 1fr);
