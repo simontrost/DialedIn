@@ -37,6 +37,18 @@ function formatRatio(log) {
   return `1:${formatNumber(beverageYield / dose, 2)}`;
 }
 
+
+function renderStarRating(value) {
+  const rating = Math.max(0, Math.min(5, Number(value) || 0));
+  if (!Number.isFinite(rating) || rating <= 0) return "–";
+  const stars = Array.from({ length: 5 }, (_, index) => {
+    const amount = Math.max(0, Math.min(1, rating - index));
+    const stateClass = amount >= 0.99 ? "is-full" : amount >= 0.49 ? "is-half" : "";
+    return `<span class="star-rating-mini-item ${stateClass}" aria-hidden="true"></span>`;
+  }).join("");
+  return `<span class="star-rating-mini" aria-label="${formatNumber(rating, 1)} out of 5 stars" title="${formatNumber(rating, 1)} / 5">${stars}</span>`;
+}
+
 export function createDialInPage({
   state,
   api,
@@ -172,7 +184,7 @@ export function createDialInPage({
         <td>${formatRatio(log)}</td>
         <td>${formatNumber(log.time, 1)} s</td>
         <td>${escapeHtml(tasteLabels[log.taste] || log.taste)}</td>
-        <td>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</td>
+        <td>${log.rating === null || log.rating === undefined ? "–" : renderStarRating(log.rating)}</td>
         <td class="measurement-actions-cell">${rowActions(log.id)}</td>
       </tr>`).join("");
 
@@ -196,7 +208,7 @@ export function createDialInPage({
             <div><dt>Yield</dt><dd>${formatNumber(log.beverageYield, 1)} g</dd></div>
             <div><dt>Ratio</dt><dd>${formatRatio(log)}</dd></div>
             <div><dt>Taste</dt><dd>${escapeHtml(tasteLabels[log.taste] || log.taste)}</dd></div>
-            <div><dt>Rating</dt><dd>${log.rating === null || log.rating === undefined ? "–" : `${formatNumber(log.rating, 1)} / 5`}</dd></div>
+            <div><dt>Rating</dt><dd>${log.rating === null || log.rating === undefined ? "–" : renderStarRating(log.rating)}</dd></div>
           </dl>
         </details>
       </article>`).join("");

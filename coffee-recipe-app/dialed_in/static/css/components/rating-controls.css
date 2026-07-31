@@ -169,3 +169,33 @@
   .bean-balance-scale { grid-template-columns:repeat(7,minmax(64px,1fr)); overflow-x:auto; }
   .bean-balance-option { min-width:64px; }
 }
+
+
+.star-rating-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  vertical-align: middle;
+}
+.star-rating-mini-item {
+  position: relative;
+  width: .95rem;
+  height: .95rem;
+  color: #cbbfb5;
+  background: currentColor;
+  -webkit-mask: url('/static/icons/ui/star.svg') center / contain no-repeat;
+  mask: url('/static/icons/ui/star.svg') center / contain no-repeat;
+}
+.star-rating-mini-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--crema-500);
+  clip-path: inset(0 100% 0 0);
+  -webkit-mask: url('/static/icons/ui/star.svg') center / contain no-repeat;
+  mask: url('/static/icons/ui/star.svg') center / contain no-repeat;
+}
+.star-rating-mini-item.is-half::after { clip-path: inset(0 50% 0 0); }
+.star-rating-mini-item.is-full::after { clip-path: inset(0 0 0 0); }
+
+:root[data-theme="dark"] .star-rating-mini-item { color: #806e61; }
