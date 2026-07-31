@@ -19,6 +19,27 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
     return darkMode?.checked ? "dark" : "light";
   }
 
+  function adjustNumberInput(button) {
+    const inputId = button.dataset.settingsInput;
+    const input = inputId ? document.getElementById(inputId) : null;
+    if (!input || input.disabled) return;
+    try {
+      if (button.dataset.settingsNumberStep === "up") input.stepUp();
+      else input.stepDown();
+    } catch (error) {
+      const step = Number(input.step) || 1;
+      const current = input.value === "" ? (Number(input.min) || 0) : Number(input.value);
+      const next = current + (button.dataset.settingsNumberStep === "up" ? step : -step);
+      const minimum = input.min === "" ? -Infinity : Number(input.min);
+      const maximum = input.max === "" ? Infinity : Number(input.max);
+      input.value = String(Math.min(maximum, Math.max(minimum, next)));
+    }
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    input.focus({ preventScroll: true });
+  }
+
+
   function open() {
     machine.value = state.settings.machine;
     grinder.value = state.settings.grinder;
@@ -100,5 +121,9 @@ export function createSettings({ state, api, showToast, reloadState, onChanged }
   });
   document.querySelector("#exportButton")?.addEventListener("click", exportData);
   importInput?.addEventListener("change", event => importData(event.target.files?.[0]));
+  form.addEventListener("click", event => {
+    const button = event.target.closest("[data-settings-number-step]");
+    if (button) adjustNumberInput(button);
+  });
   return { open };
 }

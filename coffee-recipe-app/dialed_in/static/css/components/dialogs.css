@@ -484,18 +484,107 @@ dialog form,.quick-add-content { padding:26px; }
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Optional espresso pre-infusion controls. */
-#brewRecipeDialog .recipe-toggle-field {
-  grid-column: 1 / -1;
-  min-width: 0;
-}
-#brewRecipeDialog .recipe-toggle-field .recipe-field-label {
-  color: var(--ink);
-  font-size: .78rem;
+
+/* Settings dialog: number inputs should visually match the recipe editor controls. */
+#settingsDialog .settings-metric-input > label {
+  color: var(--muted);
+  font-size: .72rem;
   font-weight: 800;
-  text-transform: none;
-  letter-spacing: 0;
+  text-transform: uppercase;
+  letter-spacing: .08em;
 }
-#brewRecipeDialog .recipe-toggle-field .field-help {
-  margin-top: 6px;
+#settingsDialog .settings-metric-input > .metric-control {
+  position: relative;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  padding: 0 0 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+#settingsDialog .settings-metric-input > .metric-control:focus-within {
+  border-color: rgba(201,135,74,.82);
+  box-shadow: 0 0 0 4px rgba(201,135,74,.12);
+}
+#settingsDialog .settings-metric-input input[type="number"] {
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  line-height: normal;
+  color: var(--ink);
+  background: transparent;
+  font-size: 1.1rem;
+  font-weight: 900;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+#settingsDialog .settings-metric-input input[type="number"]::-webkit-inner-spin-button,
+#settingsDialog .settings-metric-input input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+#settingsDialog .settings-metric-input .number-stepper {
+  width: 40px;
+  align-self: stretch;
+  flex: 0 0 40px;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  border-left: 1px solid var(--line);
+  background: var(--cream-50);
+}
+#settingsDialog .settings-metric-input .number-stepper button {
+  position: relative;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  color: var(--espresso-700);
+  background: transparent;
+  transition: background .16s ease, color .16s ease;
+}
+#settingsDialog .settings-metric-input .number-stepper button + button {
+  border-top: 1px solid var(--line);
+}
+#settingsDialog .settings-metric-input .number-stepper button::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+}
+#settingsDialog .settings-metric-input .number-stepper button[data-settings-number-step="up"]::before {
+  transform: translate(-50%, -25%) rotate(45deg);
+}
+#settingsDialog .settings-metric-input .number-stepper button[data-settings-number-step="down"]::before {
+  transform: translate(-50%, -75%) rotate(225deg);
+}
+#settingsDialog .settings-metric-input .number-stepper button:hover,
+#settingsDialog .settings-metric-input .number-stepper button:focus-visible {
+  color: var(--espresso-950);
+  background: var(--cream-100);
+  outline: none;
+}
+:root[data-theme="dark"] #settingsDialog .settings-metric-input > .metric-control {
+  background: rgba(255,255,255,.04);
+}
+:root[data-theme="dark"] #settingsDialog .settings-metric-input .number-stepper {
+  background: rgba(255,255,255,.04);
+}
+:root[data-theme="dark"] #settingsDialog .settings-metric-input .number-stepper button + button {
+  border-top-color: rgba(255,255,255,.08);
+}
+:root[data-theme="dark"] #settingsDialog .settings-metric-input .number-stepper button:hover,
+:root[data-theme="dark"] #settingsDialog .settings-metric-input .number-stepper button:focus-visible {
+  background: rgba(255,255,255,.08);
 }
