@@ -116,3 +116,62 @@ def test_untracked_bean_measurements_remain_supported(
     stored = get_bean(client, bean["id"])
     assert stored["bagSizeGrams"] is None
     assert stored["remainingGrams"] is None
+
+def test_tracked_stock_controls_status_automatically(
+    client: FlaskClient,
+    bean_factory: Callable[..., dict[str, Any]],
+) -> None:
+    bean = bean_factory(
+        bagSizeGrams=250,
+        remainingGrams=100,
+        status="wishlist",
+    )
+    assert bean["status"] == "active"
+
+    emptied = client.put(
+        f"/api/beans/{bean['id']}",
+        json={**bean, "remainingGrams": 0, "status": "active"},
+    )
+    assert emptied.status_code == 200, emptied.get_json()
+    assert emptied.get_json()["status"] == "empty"
+
+    refilled = client.put(
+        f"/api/beans/{bean['id']}",
+        json={**emptied.get_json(), "remainingGrams": 250, "status": "empty"},
+    )
+    assert refilled.status_code == 200, refilled.get_json()
+    assert refilled.get_json()["status"] == "active"
+
+
+def test_measurement_emptying_and_restoring_stock_updates_status(
+    client: FlaskClient,
+    bean_factory: Callable[..., dict[str, Any]],
+    recipe_factory: Callable[..., dict[str, Any]],
+) -> None:
+    bean = bean_factory(bagSizeGrams=250, remainingGrams=18)
+    recipe = recipe_factory(bean["id"])
+
+    created = client.post(
+        "/api/dial-in-logs",
+        json=measurement_payload(bean, recipe, dose=18),
+    )
+    assert created.status_code == 201, created.get_json()
+    empty_bean = get_bean(client, bean["id"])
+    assert empty_bean["remainingGrams"] == 0
+    assert empty_bean["status"] == "empty"
+
+    deleted = client.delete(f"/api/dial-in-logs/{created.get_json()['id']}")
+    assert deleted.status_code == 204
+    restored_bean = get_bean(client, bean["id"])
+    assert restored_bean["remainingGrams"] == 18
+    assert restored_bean["status"] == "active"
+
+
+def test_untracked_bean_status_remains_manual(
+    client: FlaskClient,
+    bean_factory: Callable[..., dict[str, Any]],
+) -> None:
+    bean = bean_factory(status="wishlist")
+    assert bean["bagSizeGrams"] is None
+    assert bean["status"] == "wishlist"
+

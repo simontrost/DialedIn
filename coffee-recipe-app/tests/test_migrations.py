@@ -102,3 +102,40 @@ def test_schema_upgrade_can_run_more_than_once(tmp_path: Path) -> None:
         ).fetchone()[0]
 
     assert count == 1
+
+def test_startup_reconciles_status_for_existing_tracked_stock(tmp_path: Path) -> None:
+    db_path = tmp_path / "tracked-stock.db"
+    config = {"TESTING": True, "DB_PATH": db_path}
+    create_app(config)
+
+    with closing(sqlite3.connect(db_path)) as db:
+        timestamp = LEGACY_TIMESTAMP
+        db.executemany(
+            """
+            INSERT INTO beans (
+                id, name, status, bag_size_grams, remaining_grams, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                ("empty-stock", "Empty stock", "active", 250, 0, timestamp, timestamp),
+                ("filled-stock", "Filled stock", "empty", 250, 125, timestamp, timestamp),
+                ("manual-status", "Manual status", "wishlist", None, None, timestamp, timestamp),
+            ],
+        )
+        db.commit()
+
+    create_app(config)
+
+    with closing(sqlite3.connect(db_path)) as db:
+        statuses = dict(db.execute("SELECT id, status FROM beans WHERE id IN (?, ?, ?)", (
+            "empty-stock",
+            "filled-stock",
+            "manual-status",
+        )).fetchall())
+
+    assert statuses == {
+        "empty-stock": "empty",
+        "filled-stock": "active",
+        "manual-status": "wishlist",
+    }
+

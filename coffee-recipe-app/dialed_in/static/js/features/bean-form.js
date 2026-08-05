@@ -30,6 +30,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   const decafInput = document.querySelector("#beanDecafInput");
   const groundInput = document.querySelector("#beanGroundInput");
   const groundDescription = document.querySelector("#beanGroundDescription");
+  const statusHint = document.querySelector("#beanStatusHint");
   const bagSizeOptions = document.querySelector("#beanBagSizeOptions");
   const customBagSizeField = document.querySelector("#beanCustomBagSizeField");
   const bagSizeInput = document.querySelector("#beanBagSizeInput");
@@ -266,9 +267,14 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     stockClearButton.classList.toggle("hidden", !bagSizeMode);
     remainingInput.required = tracked;
     bagSizeInput.required = bagSizeMode === "custom";
+    fields.status.disabled = tracked;
+    statusHint.textContent = tracked
+      ? "Managed automatically from the current bean stock."
+      : "Set manually when bean stock is not tracked.";
 
     if (!tracked) return;
     const safeRemaining = Math.max(0, Math.min(bagSize, remaining ?? bagSize));
+    fields.status.value = safeRemaining <= 0 ? "empty" : "active";
     remainingRange.max = String(bagSize);
     remainingInput.max = String(bagSize);
     remainingRange.value = String(safeRemaining);

@@ -114,13 +114,17 @@ def adjust_inventory(
         return None
 
     bag_size = max(0.0, float(row["bag_size_grams"]))
-    remaining = max(0.0, min(bag_size, float(row["remaining_grams"]) + float(delta_grams)))
+    remaining = round(
+        max(0.0, min(bag_size, float(row["remaining_grams"]) + float(delta_grams))),
+        2,
+    )
+    status = "empty" if remaining <= 0 else "active"
     db.execute(
         """
         UPDATE beans
-        SET remaining_grams = ?, updated_at = ?
+        SET remaining_grams = ?, status = ?, updated_at = ?
         WHERE id = ?
         """,
-        (remaining, updated_at, bean_id),
+        (remaining, status, updated_at, bean_id),
     )
     return remaining

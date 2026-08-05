@@ -156,6 +156,8 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Invalid acidity / bitterness value.")
 
     bag_size_grams, remaining_grams = _inventory(payload)
+    if bag_size_grams is not None:
+        status = "empty" if remaining_grams is not None and remaining_grams <= 0 else "active"
 
     return {
         "name": name,

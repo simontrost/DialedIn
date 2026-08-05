@@ -86,6 +86,26 @@ def _ensure_bean_columns(db: sqlite3.Connection) -> None:
         )
 
 
+def _sync_tracked_bean_statuses(db: sqlite3.Connection) -> None:
+    """Keep the derived bean status consistent for existing tracked stock."""
+
+    db.execute(
+        """
+        UPDATE beans
+        SET status = CASE
+            WHEN remaining_grams <= 0 THEN 'empty'
+            ELSE 'active'
+        END
+        WHERE bag_size_grams IS NOT NULL
+          AND remaining_grams IS NOT NULL
+          AND status <> CASE
+              WHEN remaining_grams <= 0 THEN 'empty'
+              ELSE 'active'
+          END
+        """
+    )
+
+
 def _ensure_nullable_dial_in_grind(db: sqlite3.Connection) -> None:
     columns = db.execute("PRAGMA table_info(dial_in_logs)").fetchall()
     grind_column = next((row for row in columns if row["name"] == "grind"), None)
@@ -382,6 +402,7 @@ def init_db(db_path: str | Path | None = None, *, seed: bool = True) -> None:
         )
         _ensure_legacy_recipe_columns(db)
         _ensure_bean_columns(db)
+        _sync_tracked_bean_statuses(db)
         _ensure_nullable_dial_in_grind(db)
         db.executemany(
             "INSERT OR IGNORE INTO settings(key, value) VALUES (?, ?)",
