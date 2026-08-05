@@ -66,6 +66,8 @@ def _ensure_bean_columns(db: sqlite3.Connection) -> None:
         "taste_balance": "TEXT NOT NULL DEFAULT ''",
         "decaf": "INTEGER NOT NULL DEFAULT 0",
         "is_ground": "INTEGER NOT NULL DEFAULT 0",
+        "bag_size_grams": "REAL",
+        "remaining_grams": "REAL",
     }
     existing = _bean_columns(db)
     for name, definition in additions.items():
@@ -333,6 +335,8 @@ def init_db(db_path: str | Path | None = None, *, seed: bool = True) -> None:
                 taste_balance TEXT NOT NULL DEFAULT '',
                 decaf INTEGER NOT NULL DEFAULT 0,
                 is_ground INTEGER NOT NULL DEFAULT 0,
+                bag_size_grams REAL,
+                remaining_grams REAL,
                 favorite INTEGER NOT NULL DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL

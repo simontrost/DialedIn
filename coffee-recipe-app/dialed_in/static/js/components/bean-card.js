@@ -50,6 +50,25 @@ function beanStrengthMarkup(value = 0) {
   }).join("")}</span>`;
 }
 
+function beanStockMarkup(bean) {
+  const bagSize = Number(bean?.bagSizeGrams);
+  const remaining = Number(bean?.remainingGrams);
+  if (!Number.isFinite(bagSize) || bagSize <= 0 || !Number.isFinite(remaining)) return "";
+
+  const safeRemaining = Math.max(0, Math.min(bagSize, remaining));
+  const percent = Math.max(0, Math.min(100, Math.round((safeRemaining / bagSize) * 100)));
+  const levelClass = percent === 0 ? "is-empty" : percent <= 20 ? "is-low" : "";
+  return `
+    <div class="bean-stock-card ${levelClass}" aria-label="${formatNumber(safeRemaining, 1)} grams remaining from ${formatNumber(bagSize, 1)} grams">
+      <div class="bean-stock-card-heading">
+        <div><small>Bean stock</small><strong>${formatNumber(safeRemaining, 1)} g left</strong></div>
+        <span>${percent}%</span>
+      </div>
+      <div class="bean-stock-card-track" aria-hidden="true"><span style="width:${percent}%"></span></div>
+      <small class="bean-stock-card-size">of ${formatNumber(bagSize, 1)} g</small>
+    </div>`;
+}
+
 export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = false, compactBeanDetails = false } = {}) {
   const recipe = showRecipe
     ? state.brewRecipes.find(item => item.beanId === bean.id && item.method === dashboardMethod)
@@ -91,6 +110,7 @@ export function beanCardHtml(bean, state, { dashboardMethod = "", showRecipe = f
       <div class="bean-profile-detail bean-profile-score"><small>SCA score</small><strong class="bean-profile-value ${scaScore === "Not set" ? "bean-profile-value--empty" : ""}">${escapeHtml(scaScore)}</strong></div>
     </div>
     ${profileBadges ? `<div class="bean-profile-badges">${profileBadges}</div>` : ""}
+    ${beanStockMarkup(bean)}
     ${flavorNotes.length ? `
       <div class="bean-flavor-section">
         <small class="bean-flavor-heading">Flavor notes</small>

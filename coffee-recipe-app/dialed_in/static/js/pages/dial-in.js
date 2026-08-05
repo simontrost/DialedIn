@@ -363,8 +363,14 @@ export function createDialInPage({
     try {
       await api(`/api/dial-in-logs/${logId}`, { method: "DELETE" });
       state.dialInLogs = state.dialInLogs.filter(log => log.id !== logId);
+      try {
+        state.beans = await api("/api/beans");
+      } catch (refreshError) {
+        console.warn("Bean stock could not be refreshed.", refreshError);
+      }
       resetRecommendation();
-      render();
+      if (onRecipeChanged) onRecipeChanged();
+      else render();
       showToast("Measurement deleted");
     } catch (error) {
       showToast(error.message);

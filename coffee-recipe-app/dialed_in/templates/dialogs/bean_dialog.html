@@ -150,6 +150,49 @@
           <span class="simple-switch-track" aria-hidden="true"></span>
         </span>
       </label>
+      <section class="bean-stock-editor full" aria-labelledby="beanStockHeading">
+        <div class="bean-stock-heading">
+          <div>
+            <span id="beanStockHeading">Bean bag &amp; stock</span>
+            <small>The dose used by every new measurement is deducted automatically.</small>
+          </div>
+          <button class="bean-stock-clear hidden" id="beanStockClearButton" type="button">Stop tracking</button>
+        </div>
+
+        <div class="bean-bag-size-options" id="beanBagSizeOptions" role="group" aria-label="Bean bag size">
+          <button type="button" data-bag-size="250">250 g</button>
+          <button type="button" data-bag-size="500">500 g</button>
+          <button type="button" data-bag-size="1000">1 kg</button>
+          <button type="button" data-bag-size="custom">Custom</button>
+        </div>
+
+        <label class="metric-input bean-custom-bag-size hidden" id="beanCustomBagSizeField">
+          <span>Custom bag size</span>
+          <div>
+            <input id="beanBagSizeInput" type="number" min="1" max="100000" step="1" inputmode="decimal" placeholder="e.g. 750">
+            <small>g</small>
+          </div>
+        </label>
+
+        <div class="bean-stock-controls hidden" id="beanStockControls">
+          <div class="bean-stock-summary">
+            <div>
+              <small>Current fill level</small>
+              <strong id="beanStockAmountLabel">250 g of 250 g</strong>
+            </div>
+            <span id="beanStockPercentLabel">100%</span>
+          </div>
+          <input class="bean-stock-range" id="beanRemainingRange" type="range" min="0" max="250" step="0.1" value="250" aria-label="Remaining beans in grams">
+          <label class="metric-input bean-remaining-input">
+            <span>Exact remaining amount</span>
+            <div>
+              <input id="beanRemainingInput" type="number" min="0" max="250" step="0.1" inputmode="decimal">
+              <small>g</small>
+            </div>
+          </label>
+        </div>
+        <p class="bean-stock-empty-hint" id="beanStockEmptyHint">Choose a bag size to start tracking this bean.</p>
+      </section>
       <div class="flavor-notes-editor full">
         <div class="flavor-notes-heading">
           <div>

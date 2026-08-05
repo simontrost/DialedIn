@@ -4,6 +4,7 @@ import sqlite3
 import uuid
 from typing import Any
 
+from ..beans.repository import adjust_inventory
 from ..beans.repository import find_by_id as find_bean_by_id
 from ..brew_recipes.repository import find_by_id as find_recipe_by_id
 from ..brew_recipes.repository import row_to_recipe
@@ -47,6 +48,8 @@ def create_log(db: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any
         "createdAt": timestamp,
     }
     repository.insert(db, log)
+    if log["dose"] is not None and log["dose"] > 0:
+        adjust_inventory(db, log["beanId"], -log["dose"], timestamp)
     return log
 
 
@@ -67,11 +70,35 @@ def update_log(
         "createdAt": existing["created_at"],
     }
     repository.update(db, log)
+
+    inventory_timestamp = utc_now()
+    old_dose = float(existing["dose"] or 0)
+    new_dose = float(log["dose"] or 0)
+    old_bean_id = str(existing["bean_id"])
+    new_bean_id = log["beanId"]
+    if old_bean_id == new_bean_id:
+        adjust_inventory(db, new_bean_id, old_dose - new_dose, inventory_timestamp)
+    else:
+        if old_dose > 0:
+            adjust_inventory(db, old_bean_id, old_dose, inventory_timestamp)
+        if new_dose > 0:
+            adjust_inventory(db, new_bean_id, -new_dose, inventory_timestamp)
     return log
 
 
 def delete_log(db: sqlite3.Connection, log_id: str) -> bool:
-    return repository.delete_by_id(db, log_id)
+    existing = repository.find_by_id(db, log_id)
+    if not existing:
+        return False
+    deleted = repository.delete_by_id(db, log_id)
+    if deleted and existing["dose"] is not None and float(existing["dose"]) > 0:
+        adjust_inventory(
+            db,
+            str(existing["bean_id"]),
+            float(existing["dose"]),
+            utc_now(),
+        )
+    return deleted
 
 
 def recommend(db: sqlite3.Connection, recipe_id: str, max_step: float = 2.5) -> dict[str, Any]:

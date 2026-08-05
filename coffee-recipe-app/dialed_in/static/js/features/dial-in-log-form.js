@@ -218,6 +218,11 @@ export function createDialInLogForm({ state, api, showToast, onChanged }) {
       }
       state.selectedDialBeanId = bean.id;
       state.selectedDialRecipeId = recipe.id;
+      try {
+        state.beans = await api("/api/beans");
+      } catch (refreshError) {
+        console.warn("Bean stock could not be refreshed.", refreshError);
+      }
       dialog.close();
       onChanged(saved, { edited: wasEditing });
       showToast(wasEditing ? "Measurement updated" : "Measurement saved");

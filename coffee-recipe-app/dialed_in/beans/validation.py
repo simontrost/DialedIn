@@ -74,6 +74,37 @@ def _sca_score(payload: dict[str, Any]) -> float | None:
 
 
 
+def _inventory(payload: dict[str, Any]) -> tuple[float | None, float | None]:
+    raw_size = payload.get("bagSizeGrams", "")
+    if raw_size in (None, ""):
+        raw_remaining = payload.get("remainingGrams", "")
+        if raw_remaining not in (None, ""):
+            raise ValueError("Choose a bag size before setting the remaining amount.")
+        return None, None
+
+    try:
+        bag_size = float(raw_size)
+    except (TypeError, ValueError) as error:
+        raise ValueError("Bag size must be a number of grams.") from error
+    if bag_size <= 0 or bag_size > 100000:
+        raise ValueError("Bag size must be between 1 and 100000 grams.")
+
+    raw_remaining = payload.get("remainingGrams", bag_size)
+    if raw_remaining in (None, ""):
+        remaining = bag_size
+    else:
+        try:
+            remaining = float(raw_remaining)
+        except (TypeError, ValueError) as error:
+            raise ValueError("Remaining beans must be a number of grams.") from error
+    if remaining < 0:
+        raise ValueError("Remaining beans cannot be negative.")
+    if remaining > bag_size:
+        raise ValueError("Remaining beans cannot exceed the bag size.")
+
+    return round(bag_size, 2), round(remaining, 2)
+
+
 def _flavor_notes(payload: dict[str, Any]) -> list[str]:
     value = payload.get("flavorNotes", [])
     if value is None:
@@ -124,6 +155,8 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
     if taste_balance not in VALID_TASTE_BALANCES:
         raise ValueError("Invalid acidity / bitterness value.")
 
+    bag_size_grams, remaining_grams = _inventory(payload)
+
     return {
         "name": name,
         "roaster": _text(payload, "roaster", 80),
@@ -141,5 +174,7 @@ def validate_bean(payload: dict[str, Any]) -> dict[str, Any]:
         "tasteBalance": taste_balance,
         "decaf": bool(payload.get("decaf", False)),
         "isGround": bool(payload.get("isGround", False)),
+        "bagSizeGrams": bag_size_grams,
+        "remainingGrams": remaining_grams,
         "favorite": bool(payload.get("favorite", False)),
     }

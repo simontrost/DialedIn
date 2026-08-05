@@ -65,7 +65,8 @@ def test_schema_upgrade_preserves_existing_bean(tmp_path: Path) -> None:
         }
         bean = db.execute(
             """
-            SELECT name, roaster, origin_altitude, sca_score, is_ground
+            SELECT name, roaster, origin_altitude, sca_score, is_ground,
+                   bag_size_grams, remaining_grams
             FROM beans
             WHERE id = ?
             """,
@@ -80,8 +81,10 @@ def test_schema_upgrade_preserves_existing_bean(tmp_path: Path) -> None:
         "taste_balance",
         "decaf",
         "is_ground",
+        "bag_size_grams",
+        "remaining_grams",
     }.issubset(columns)
-    assert bean == ("Old Espresso", "Old Roastery", "", None, 0)
+    assert bean == ("Old Espresso", "Old Roastery", "", None, 0, None, None)
 
 
 def test_schema_upgrade_can_run_more_than_once(tmp_path: Path) -> None:

@@ -30,8 +30,19 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
   const decafInput = document.querySelector("#beanDecafInput");
   const groundInput = document.querySelector("#beanGroundInput");
   const groundDescription = document.querySelector("#beanGroundDescription");
+  const bagSizeOptions = document.querySelector("#beanBagSizeOptions");
+  const customBagSizeField = document.querySelector("#beanCustomBagSizeField");
+  const bagSizeInput = document.querySelector("#beanBagSizeInput");
+  const stockControls = document.querySelector("#beanStockControls");
+  const remainingRange = document.querySelector("#beanRemainingRange");
+  const remainingInput = document.querySelector("#beanRemainingInput");
+  const stockAmountLabel = document.querySelector("#beanStockAmountLabel");
+  const stockPercentLabel = document.querySelector("#beanStockPercentLabel");
+  const stockEmptyHint = document.querySelector("#beanStockEmptyHint");
+  const stockClearButton = document.querySelector("#beanStockClearButton");
   const strengthControl = createFillRatingControl({ root: strengthControlRoot, input: strengthInput, itemLabel: "strength" });
   let selectedFlavorNotes = [];
+  let bagSizeMode = "";
 
   const fields = {
     name: document.querySelector("#beanNameInput"),
@@ -229,6 +240,99 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       : "Whole bean · grind settings and recommendations are available.";
   }
 
+  function numericValue(input) {
+    if (input.value.trim() === "") return null;
+    const value = Number(input.value);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  function formatGrams(value) {
+    const rounded = Math.round(Number(value) * 10) / 10;
+    return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+  }
+
+  function selectedBagSize() {
+    if (!bagSizeMode) return null;
+    return numericValue(bagSizeInput);
+  }
+
+  function updateStockSummary() {
+    const bagSize = selectedBagSize();
+    const remaining = numericValue(remainingInput);
+    const tracked = bagSize !== null && bagSize > 0;
+
+    stockControls.classList.toggle("hidden", !tracked);
+    stockEmptyHint.classList.toggle("hidden", tracked);
+    stockClearButton.classList.toggle("hidden", !bagSizeMode);
+    remainingInput.required = tracked;
+    bagSizeInput.required = bagSizeMode === "custom";
+
+    if (!tracked) return;
+    const safeRemaining = Math.max(0, Math.min(bagSize, remaining ?? bagSize));
+    remainingRange.max = String(bagSize);
+    remainingInput.max = String(bagSize);
+    remainingRange.value = String(safeRemaining);
+    if (remaining === null) remainingInput.value = String(safeRemaining);
+    const percent = bagSize > 0 ? Math.round((safeRemaining / bagSize) * 100) : 0;
+    stockAmountLabel.textContent = `${formatGrams(safeRemaining)} g of ${formatGrams(bagSize)} g`;
+    stockPercentLabel.textContent = `${percent}%`;
+    stockControls.style.setProperty("--bean-stock-percent", `${percent}%`);
+  }
+
+  function setBagSizeMode(mode, { remaining = null, preserveRemaining = false } = {}) {
+    const previousSize = selectedBagSize();
+    const previousRemaining = numericValue(remainingInput);
+    bagSizeMode = mode || "";
+
+    bagSizeOptions.querySelectorAll("[data-bag-size]").forEach(button => {
+      const active = button.dataset.bagSize === bagSizeMode;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    customBagSizeField.classList.toggle("hidden", bagSizeMode !== "custom");
+
+    if (!bagSizeMode) {
+      bagSizeInput.value = "";
+      remainingInput.value = "";
+      updateStockSummary();
+      return;
+    }
+
+    if (bagSizeMode !== "custom") bagSizeInput.value = bagSizeMode;
+    const bagSize = selectedBagSize();
+    if (bagSize !== null && bagSize > 0) {
+      let nextRemaining = remaining;
+      if (nextRemaining === null) {
+        const wasFull = previousSize !== null && previousRemaining !== null
+          && Math.abs(previousRemaining - previousSize) < 0.01;
+        nextRemaining = preserveRemaining && previousRemaining !== null && !wasFull
+          ? Math.min(previousRemaining, bagSize)
+          : (!previousSize || wasFull ? bagSize : Math.min(previousRemaining ?? bagSize, bagSize));
+      }
+      remainingInput.value = String(Math.max(0, Math.min(bagSize, Number(nextRemaining))));
+    }
+    updateStockSummary();
+    bagSizeInput.dataset.previousSize = selectedBagSize() ?? "";
+    if (bagSizeMode === "custom") setTimeout(() => bagSizeInput.focus(), 20);
+  }
+
+  function setStockValues(bean) {
+    const rawSize = bean?.bagSizeGrams;
+    const bagSize = rawSize === null || rawSize === undefined || rawSize === "" ? null : Number(rawSize);
+    if (!Number.isFinite(bagSize) || bagSize <= 0) {
+      if (bean) setBagSizeMode("");
+      else setBagSizeMode("250", { remaining: 250 });
+      return;
+    }
+
+    bagSizeInput.value = String(bagSize);
+    const remaining = bean?.remainingGrams === null || bean?.remainingGrams === undefined
+      ? bagSize
+      : Math.max(0, Math.min(bagSize, Number(bean.remainingGrams)));
+    const preset = [250, 500, 1000].find(value => Math.abs(value - bagSize) < 0.01);
+    setBagSizeMode(preset ? String(preset) : "custom", { remaining });
+  }
+
   function payload() {
     return {
       name: fields.name.value.trim(),
@@ -247,6 +351,8 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
       tasteBalance: balanceInput.value,
       decaf: decafInput.checked,
       isGround: groundInput.checked,
+      bagSizeGrams: selectedBagSize(),
+      remainingGrams: selectedBagSize() === null ? null : numericValue(remainingInput),
       favorite: fields.favorite.checked
     };
   }
@@ -272,6 +378,7 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     decafInput.checked = Boolean(bean?.decaf);
     groundInput.checked = Boolean(bean?.isGround);
     updateGroundDescription();
+    setStockValues(bean);
     fields.orderUrl.value = bean?.orderUrl || "";
     if (fields.scaScore.value === "0") fields.scaScore.value = "";
     fields.barcode.value = "";
@@ -354,6 +461,46 @@ export function createBeanForm({ state, api, showToast, onChanged }) {
     setFlavorNotePicker(flavorNotePicker.classList.contains("hidden"));
   });
   groundInput.addEventListener("change", updateGroundDescription);
+  bagSizeOptions.addEventListener("click", event => {
+    const button = event.target.closest("[data-bag-size]");
+    if (!button) return;
+    setBagSizeMode(button.dataset.bagSize, { preserveRemaining: true });
+  });
+  bagSizeInput.addEventListener("input", () => {
+    if (bagSizeMode !== "custom") return;
+    const bagSize = numericValue(bagSizeInput);
+    const remaining = numericValue(remainingInput);
+    const previousSize = Number(bagSizeInput.dataset.previousSize);
+    const wasFull = Number.isFinite(previousSize) && remaining !== null
+      && Math.abs(remaining - previousSize) < 0.01;
+    if (bagSize !== null && bagSize > 0) {
+      if (remaining === null || wasFull) remainingInput.value = String(bagSize);
+      else if (remaining > bagSize) remainingInput.value = String(bagSize);
+      bagSizeInput.dataset.previousSize = String(bagSize);
+    }
+    updateStockSummary();
+  });
+  remainingRange.addEventListener("input", () => {
+    remainingInput.value = remainingRange.value;
+    updateStockSummary();
+  });
+  remainingInput.addEventListener("input", () => {
+    const bagSize = selectedBagSize();
+    const remaining = numericValue(remainingInput);
+    if (bagSize !== null && remaining !== null) {
+      remainingRange.value = String(Math.max(0, Math.min(bagSize, remaining)));
+    }
+    updateStockSummary();
+  });
+  remainingInput.addEventListener("change", () => {
+    const bagSize = selectedBagSize();
+    const remaining = numericValue(remainingInput);
+    if (bagSize !== null && remaining !== null) {
+      remainingInput.value = String(Math.max(0, Math.min(bagSize, remaining)));
+    }
+    updateStockSummary();
+  });
+  stockClearButton.addEventListener("click", () => setBagSizeMode(""));
   flavorNotePills.addEventListener("click", event => {
     const button = event.target.closest("[data-remove-flavor-note]");
     if (button) removeFlavorNote(button.dataset.removeFlavorNote);

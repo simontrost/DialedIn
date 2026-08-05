@@ -588,3 +588,189 @@ dialog form,.quick-add-content { padding:26px; }
 :root[data-theme="dark"] #settingsDialog .settings-metric-input .number-stepper button:focus-visible {
   background: rgba(255,255,255,.08);
 }
+
+/* Bean inventory editor */
+#beanDialog .bean-stock-editor {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(201, 135, 74, .28);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(248, 239, 228, .5);
+}
+#beanDialog .bean-stock-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+#beanDialog .bean-stock-heading > div > span {
+  display: block;
+  color: var(--espresso-700);
+  font-size: .78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+#beanDialog .bean-stock-heading small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1.45;
+}
+#beanDialog .bean-stock-clear {
+  flex: 0 0 auto;
+  border: 0;
+  padding: 3px 0;
+  color: var(--danger);
+  background: transparent;
+  font-size: .7rem;
+  font-weight: 800;
+}
+#beanDialog .bean-bag-size-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+#beanDialog .bean-bag-size-options button {
+  min-height: 43px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  color: var(--espresso-700);
+  background: #fff;
+  font-size: .78rem;
+  font-weight: 850;
+  transition: border-color .18s ease, background .18s ease, color .18s ease;
+}
+#beanDialog .bean-bag-size-options button:hover,
+#beanDialog .bean-bag-size-options button:focus-visible {
+  border-color: rgba(201, 135, 74, .72);
+  outline: none;
+}
+#beanDialog .bean-bag-size-options button.is-active {
+  border-color: var(--crema-500);
+  color: #fff;
+  background: var(--crema-500);
+}
+#beanDialog .bean-custom-bag-size {
+  max-width: 230px;
+  margin-top: 13px;
+}
+#beanDialog .bean-custom-bag-size > div,
+#beanDialog .bean-remaining-input > div {
+  height: 48px;
+  align-items: center;
+}
+#beanDialog .bean-custom-bag-size input,
+#beanDialog .bean-remaining-input input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  font-size: 1rem;
+  font-weight: 500;
+}
+#beanDialog .bean-custom-bag-size input::-webkit-inner-spin-button,
+#beanDialog .bean-custom-bag-size input::-webkit-outer-spin-button,
+#beanDialog .bean-remaining-input input::-webkit-inner-spin-button,
+#beanDialog .bean-remaining-input input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+#beanDialog .bean-stock-controls {
+  --bean-stock-percent: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 210px;
+  gap: 13px 18px;
+  align-items: end;
+  margin-top: 15px;
+}
+#beanDialog .bean-stock-summary {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+#beanDialog .bean-stock-summary small,
+#beanDialog .bean-stock-summary strong {
+  display: block;
+}
+#beanDialog .bean-stock-summary small {
+  color: var(--muted);
+  font-size: .65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+#beanDialog .bean-stock-summary strong {
+  margin-top: 4px;
+  font-family: Georgia, serif;
+  font-size: 1rem;
+}
+#beanDialog .bean-stock-summary > span {
+  color: var(--crema-500);
+  font-size: .9rem;
+  font-weight: 900;
+}
+#beanDialog .bean-stock-range {
+  width: 100%;
+  height: 8px;
+  margin: 0 0 20px;
+  border-radius: 999px;
+  appearance: none;
+  background: linear-gradient(
+    90deg,
+    var(--crema-500) 0 var(--bean-stock-percent),
+    var(--cream-200) var(--bean-stock-percent) 100%
+  );
+  outline: none;
+}
+#beanDialog .bean-stock-range::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  appearance: none;
+  background: var(--crema-500);
+  box-shadow: 0 3px 10px rgba(67, 42, 25, .2);
+}
+#beanDialog .bean-stock-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: var(--crema-500);
+  box-shadow: 0 3px 10px rgba(67, 42, 25, .2);
+}
+#beanDialog .bean-stock-empty-hint {
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: .72rem;
+}
+:root[data-theme="dark"] #beanDialog .bean-stock-editor {
+  border-color: rgba(238, 208, 181, .16);
+  background: #2b1c15;
+}
+:root[data-theme="dark"] #beanDialog .bean-bag-size-options button {
+  border-color: rgba(238, 208, 181, .14);
+  color: var(--ink);
+  background: #342219;
+}
+:root[data-theme="dark"] #beanDialog .bean-bag-size-options button.is-active {
+  border-color: var(--crema-400);
+  color: #20130d;
+  background: var(--crema-400);
+}
+:root[data-theme="dark"] #beanDialog .bean-stock-range {
+  background: linear-gradient(
+    90deg,
+    var(--crema-400) 0 var(--bean-stock-percent),
+    #51372a var(--bean-stock-percent) 100%
+  );
+}
+@media (max-width: 700px) {
+  #beanDialog .bean-bag-size-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #beanDialog .bean-stock-controls { grid-template-columns: 1fr; }
+  #beanDialog .bean-stock-range { margin-bottom: 4px; }
+  #beanDialog .bean-custom-bag-size { max-width: none; }
+}

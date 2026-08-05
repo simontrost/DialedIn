@@ -42,6 +42,8 @@ def row_to_bean(row: sqlite3.Row) -> dict[str, Any]:
         "tasteBalance": row["taste_balance"],
         "decaf": bool(row["decaf"]),
         "isGround": bool(row["is_ground"]),
+        "bagSizeGrams": row["bag_size_grams"],
+        "remainingGrams": row["remaining_grams"],
         "favorite": bool(row["favorite"]),
         "createdAt": row["created_at"],
         "updatedAt": row["updated_at"],
@@ -54,8 +56,9 @@ def insert(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
         INSERT INTO beans (
             id, name, roaster, origin_country, origin_region, origin_altitude,
             blend, sca_score, roast, status, order_url, notes, flavor_notes_json, strength,
-            taste_balance, decaf, is_ground, favorite, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            taste_balance, decaf, is_ground, bag_size_grams, remaining_grams,
+            favorite, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             bean["id"], bean["name"], bean["roaster"], bean["originCountry"],
@@ -64,7 +67,7 @@ def insert(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
             bean["orderUrl"], bean["notes"],
             json.dumps(bean["flavorNotes"], ensure_ascii=False),
             bean["strength"], bean["tasteBalance"], int(bean["decaf"]),
-            int(bean["isGround"]),
+            int(bean["isGround"]), bean["bagSizeGrams"], bean["remainingGrams"],
             int(bean["favorite"]), bean["createdAt"], bean["updatedAt"],
         ),
     )
@@ -77,7 +80,7 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
             name = ?, roaster = ?, origin_country = ?, origin_region = ?,
             origin_altitude = ?, blend = ?, sca_score = ?, roast = ?, status = ?, order_url = ?, notes = ?,
             flavor_notes_json = ?, strength = ?, taste_balance = ?, decaf = ?, is_ground = ?,
-            favorite = ?, updated_at = ?
+            bag_size_grams = ?, remaining_grams = ?, favorite = ?, updated_at = ?
         WHERE id = ?
         """,
         (
@@ -87,7 +90,7 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
             bean["orderUrl"], bean["notes"],
             json.dumps(bean["flavorNotes"], ensure_ascii=False),
             bean["strength"], bean["tasteBalance"], int(bean["decaf"]),
-            int(bean["isGround"]),
+            int(bean["isGround"]), bean["bagSizeGrams"], bean["remainingGrams"],
             int(bean["favorite"]), bean["updatedAt"], bean["id"],
         ),
     )
@@ -96,3 +99,28 @@ def update(db: sqlite3.Connection, bean: dict[str, Any]) -> None:
 def delete_by_id(db: sqlite3.Connection, bean_id: str) -> bool:
     result = db.execute("DELETE FROM beans WHERE id = ?", (bean_id,))
     return result.rowcount > 0
+
+
+def adjust_inventory(
+    db: sqlite3.Connection,
+    bean_id: str,
+    delta_grams: float,
+    updated_at: str,
+) -> float | None:
+    """Apply a stock delta and return the new remainder for tracked beans."""
+
+    row = find_by_id(db, bean_id)
+    if not row or row["bag_size_grams"] is None or row["remaining_grams"] is None:
+        return None
+
+    bag_size = max(0.0, float(row["bag_size_grams"]))
+    remaining = max(0.0, min(bag_size, float(row["remaining_grams"]) + float(delta_grams)))
+    db.execute(
+        """
+        UPDATE beans
+        SET remaining_grams = ?, updated_at = ?
+        WHERE id = ?
+        """,
+        (remaining, updated_at, bean_id),
+    )
+    return remaining

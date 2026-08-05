@@ -70,3 +70,19 @@ def test_log_rejects_unknown_taste() -> None:
                 "taste": "salty",
             }
         )
+
+
+def test_bean_rejects_remaining_stock_above_bag_size() -> None:
+    with pytest.raises(ValueError, match="cannot exceed the bag size"):
+        validate_bean({
+            "name": "Test",
+            "bagSizeGrams": 250,
+            "remainingGrams": 300,
+        })
+
+
+def test_bean_defaults_remaining_stock_to_full_bag() -> None:
+    bean = validate_bean({"name": "Test", "bagSizeGrams": 500})
+
+    assert bean["bagSizeGrams"] == 500
+    assert bean["remainingGrams"] == 500

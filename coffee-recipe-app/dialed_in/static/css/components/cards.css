@@ -158,3 +158,71 @@
   color:var(--ink);
   background:#342219;
 }
+
+/* Bean bag fill level */
+.bean-stock-card {
+  margin-top: 14px;
+  border: 1px solid rgba(201, 135, 74, .24);
+  border-radius: 15px;
+  padding: 12px;
+  background: rgba(248, 239, 228, .58);
+}
+.bean-stock-card-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+}
+.bean-stock-card-heading small,
+.bean-stock-card-heading strong,
+.bean-stock-card-size {
+  display: block;
+}
+.bean-stock-card-heading small {
+  color: var(--muted);
+  font-size: .6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+.bean-stock-card-heading strong {
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: .8rem;
+}
+.bean-stock-card-heading > span {
+  color: var(--crema-500);
+  font-size: .78rem;
+  font-weight: 900;
+}
+.bean-stock-card-track {
+  height: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--cream-200);
+}
+.bean-stock-card-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--crema-500);
+  transition: width .25s ease;
+}
+.bean-stock-card-size {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: .63rem;
+  text-align: right;
+}
+.bean-stock-card.is-low .bean-stock-card-heading > span,
+.bean-stock-card.is-low .bean-stock-card-heading strong { color: #9a5a2d; }
+.bean-stock-card.is-low .bean-stock-card-track > span { background: #b96b34; }
+.bean-stock-card.is-empty .bean-stock-card-heading > span,
+.bean-stock-card.is-empty .bean-stock-card-heading strong { color: var(--danger); }
+.bean-stock-card.is-empty .bean-stock-card-track > span { background: var(--danger); }
+:root[data-theme="dark"] .bean-stock-card {
+  border-color: rgba(238, 208, 181, .15);
+  background: #2f2018;
+}
+:root[data-theme="dark"] .bean-stock-card-track { background: #51372a; }
