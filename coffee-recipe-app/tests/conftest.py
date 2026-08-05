@@ -37,7 +37,18 @@ def app(tmp_path: Path) -> Flask:
 
 @pytest.fixture()
 def client(app: Flask) -> FlaskClient:
-    return app.test_client()
+    test_client = app.test_client()
+    profiles = test_client.get("/api/profiles").get_json()["profiles"]
+    default_profile = next(profile for profile in profiles if profile["isDefault"])
+    response = test_client.post(
+        f"/api/profiles/{default_profile['id']}/setup-password",
+        json={
+            "password": "test-password",
+            "passwordConfirmation": "test-password",
+        },
+    )
+    assert response.status_code == 200
+    return test_client
 
 
 @pytest.fixture()

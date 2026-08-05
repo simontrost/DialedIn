@@ -24,9 +24,10 @@
         aria-hidden="true"></span>
     </button>
     <button class="icon-button profile-button" id="profileButton" type="button" aria-label="Open profiles" title="Profiles">
-      <span class="app-icon app-icon--md"
-        style="--app-icon:url('{{ url_for('static', filename='icons/navigation/profile.svg') }}')"
-        aria-hidden="true"></span>
+      <span class="profile-button-visual" id="profileButtonVisual" aria-hidden="true">
+        <span class="app-icon app-icon--md"
+          style="--app-icon:url('{{ url_for('static', filename='icons/navigation/profile.svg') }}')"></span>
+      </span>
     </button>
     <button class="icon-button" id="settingsButton" type="button" aria-label="Open settings">
       <span class="app-icon app-icon--md"

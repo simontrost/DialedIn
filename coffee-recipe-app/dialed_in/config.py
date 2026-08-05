@@ -20,3 +20,5 @@ class Config:
     PROFILE_REGISTRY_PATH = os.environ.get("PROFILE_REGISTRY_PATH")
     PROFILE_DATABASE_DIR = os.environ.get("PROFILE_DATABASE_DIR")
     DEFAULT_PROFILE_NAME = os.environ.get("DEFAULT_PROFILE_NAME", "Main profile")
+
+    PROFILE_IMAGE_MAX_BYTES = 1024 * 1024
