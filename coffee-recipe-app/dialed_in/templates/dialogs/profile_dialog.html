@@ -1,15 +1,103 @@
-<dialog id="profileDialog" class="profile-dialog" aria-labelledby="profileDialogTitle">
+<dialog id="profileDialog" class="profile-dialog" data-view="chooser" aria-labelledby="profileDialogTitle">
   <div class="profile-dialog-content">
-    <div class="dialog-header">
+    <div class="dialog-header profile-dialog-header">
       <div>
         <p class="eyebrow" id="profileDialogEyebrow">Profiles</p>
         <h2 id="profileDialogTitle">Choose a profile</h2>
-        <p class="profile-dialog-intro">Every profile has its own beans, recipes, measurements, settings and protected login.</p>
+        <p class="profile-dialog-intro" id="profileDialogIntro">Choose who is brewing to load the matching coffee collection.</p>
       </div>
       <button aria-label="Close profile dialog" class="dialog-close" data-close-profile type="button">×</button>
     </div>
 
-    <div class="profile-current" id="profileCurrent" hidden></div>
+    <section class="profile-account-view" id="profileAccountView" hidden aria-label="Signed-in profile">
+      <div class="profile-account-card" id="profileCurrent"></div>
+      <div class="profile-account-actions">
+        <button class="secondary-button" id="profileEditButton" type="button">Edit profile</button>
+        <button class="secondary-button profile-logout-button" id="profileLogoutButton" type="button">Sign out</button>
+      </div>
+      <p class="profile-local-note">Only this profile's beans, recipes, measurements and settings are currently loaded.</p>
+    </section>
+
+    <section class="profile-chooser-view" id="profileChooserView" hidden aria-label="Available profiles">
+      <div class="profile-picker" id="profileList" aria-live="polite"></div>
+      <button class="secondary-button profile-create-open" id="profileCreateOpen" type="button">
+        <span aria-hidden="true">+</span>
+        Create account
+      </button>
+      <p class="profile-local-note">Select a profile first. The password is requested only after you choose one.</p>
+    </section>
+
+    <section class="profile-login-panel" id="profileLoginPanel" hidden aria-labelledby="profileLoginTitle">
+      <button class="profile-back-button" id="profileLoginCancel" type="button" aria-label="Back to profile selection">
+        <span aria-hidden="true">←</span> Back
+      </button>
+
+      <div class="profile-login-identity">
+        <div id="profileLoginAvatar"></div>
+        <span class="settings-section-label" id="profileLoginEyebrow">Profile login</span>
+        <strong id="profileLoginTitle">Log in</strong>
+        <small id="profileLoginHint">Enter the profile password.</small>
+      </div>
+
+      <form id="profileLoginForm" class="profile-login-form" novalidate>
+        <label class="field" for="profileLoginPassword">
+          <span id="profileLoginPasswordLabel">Password</span>
+          <input id="profileLoginPassword" type="password" minlength="6" maxlength="128" autocomplete="current-password" required>
+        </label>
+        <label class="field" id="profileLoginConfirmationField" for="profileLoginPasswordConfirmation" hidden>
+          <span>Confirm password</span>
+          <input id="profileLoginPasswordConfirmation" type="password" minlength="6" maxlength="128" autocomplete="new-password">
+        </label>
+
+        <div class="profile-feedback" id="profileLoginFeedback" role="alert" aria-live="assertive" hidden></div>
+
+        <button class="primary-button profile-login-submit" id="profileLoginSubmit" type="submit">Log in</button>
+      </form>
+    </section>
+
+    <section class="profile-create-panel" id="profileCreatePanel" hidden aria-labelledby="profileCreateTitle">
+      <div class="profile-panel-heading">
+        <div>
+          <span class="settings-section-label">New profile</span>
+          <strong id="profileCreateTitle">Create account</strong>
+          <small>A new profile starts with its own empty coffee database.</small>
+        </div>
+        <button class="secondary-button small-button" id="profileCreateCancel" type="button">Cancel</button>
+      </div>
+
+      <form class="profile-create-form" id="profileCreateForm" novalidate>
+        <div class="profile-photo-editor full">
+          <div class="profile-photo-preview" id="profileCreatePreview" aria-hidden="true">+</div>
+          <div class="profile-photo-copy">
+            <strong>Profile picture</strong>
+            <small>Optional · PNG, JPEG or WebP · max. 1 MB</small>
+            <label class="secondary-button small-button file-button">
+              Choose image
+              <input id="profileCreateAvatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp">
+            </label>
+          </div>
+        </div>
+
+        <label class="field full" for="profileNameInput">
+          <span>Profile name</span>
+          <input id="profileNameInput" name="name" maxlength="40" autocomplete="name" placeholder="e.g. Simon" required>
+        </label>
+        <label class="field" for="profilePasswordInput">
+          <span>Password</span>
+          <input id="profilePasswordInput" name="password" type="password" minlength="6" maxlength="128" autocomplete="new-password" required>
+        </label>
+        <label class="field" for="profilePasswordConfirmationInput">
+          <span>Confirm password</span>
+          <input id="profilePasswordConfirmationInput" name="passwordConfirmation" type="password" minlength="6" maxlength="128" autocomplete="new-password" required>
+        </label>
+
+        <div class="profile-feedback full" id="profileCreateFeedback" role="alert" aria-live="assertive" hidden></div>
+
+        <div class="profile-form-actions full">
+          <button class="primary-button" type="submit">Create profile</button>
+        </div>
+      </form>
+    </section>
 
     <section class="profile-editor" id="profileEditPanel" hidden aria-labelledby="profileEditTitle">
       <div class="profile-panel-heading">
@@ -21,7 +109,7 @@
         <button class="secondary-button small-button" id="profileEditCancel" type="button">Cancel</button>
       </div>
 
-      <form id="profileEditForm" class="profile-form-grid">
+      <form id="profileEditForm" class="profile-form-grid" novalidate>
         <div class="profile-photo-editor full">
           <div class="profile-photo-preview" id="profileEditPreview" aria-hidden="true"></div>
           <div class="profile-photo-copy">
@@ -60,81 +148,15 @@
           <input id="profileNewPasswordConfirmation" name="newPasswordConfirmation" type="password" minlength="6" maxlength="128" autocomplete="new-password">
         </label>
 
+        <div class="profile-feedback full" id="profileEditFeedback" role="alert" aria-live="assertive" hidden></div>
+
         <div class="profile-form-actions full">
           <button class="primary-button" type="submit">Save profile</button>
         </div>
       </form>
     </section>
 
-    <div class="profile-list" id="profileList" aria-live="polite"></div>
-
-    <section class="profile-login-panel" id="profileLoginPanel" hidden aria-labelledby="profileLoginTitle">
-      <div class="profile-login-identity">
-        <div id="profileLoginAvatar"></div>
-        <div>
-          <span class="settings-section-label" id="profileLoginEyebrow">Profile login</span>
-          <strong id="profileLoginTitle">Log in</strong>
-          <small id="profileLoginHint">Enter the profile password.</small>
-        </div>
-      </div>
-      <form id="profileLoginForm" class="profile-login-form">
-        <label class="field" for="profileLoginPassword">
-          <span id="profileLoginPasswordLabel">Password</span>
-          <input id="profileLoginPassword" type="password" minlength="6" maxlength="128" autocomplete="current-password" required>
-        </label>
-        <label class="field" id="profileLoginConfirmationField" for="profileLoginPasswordConfirmation" hidden>
-          <span>Confirm password</span>
-          <input id="profileLoginPasswordConfirmation" type="password" minlength="6" maxlength="128" autocomplete="new-password">
-        </label>
-        <div class="profile-login-actions">
-          <button class="secondary-button" id="profileLoginCancel" type="button">Cancel</button>
-          <button class="primary-button" id="profileLoginSubmit" type="submit">Log in</button>
-        </div>
-      </form>
-    </section>
-
-    <form class="profile-create-form" id="profileCreateForm">
-      <div class="profile-create-copy">
-        <span class="settings-section-label">New profile</span>
-        <strong>Create a separate coffee space</strong>
-        <small>The profile starts empty with its own database and is protected by a password.</small>
-      </div>
-
-      <div class="profile-photo-editor profile-create-photo">
-        <div class="profile-photo-preview" id="profileCreatePreview" aria-hidden="true">+</div>
-        <div class="profile-photo-copy">
-          <strong>Profile picture</strong>
-          <small>Optional · PNG, JPEG or WebP · max. 1 MB</small>
-          <label class="secondary-button small-button file-button">
-            Choose image
-            <input id="profileCreateAvatar" name="avatar" type="file" accept="image/png,image/jpeg,image/webp">
-          </label>
-        </div>
-      </div>
-
-      <div class="profile-create-controls">
-        <label class="field" for="profileNameInput">
-          <span>Profile name</span>
-          <input id="profileNameInput" name="name" maxlength="40" autocomplete="name" placeholder="e.g. Simon" required>
-        </label>
-        <label class="field" for="profilePasswordInput">
-          <span>Password</span>
-          <input id="profilePasswordInput" name="password" type="password" minlength="6" maxlength="128" autocomplete="new-password" required>
-        </label>
-        <label class="field" for="profilePasswordConfirmationInput">
-          <span>Confirm password</span>
-          <input id="profilePasswordConfirmationInput" name="passwordConfirmation" type="password" minlength="6" maxlength="128" autocomplete="new-password" required>
-        </label>
-        <button class="primary-button profile-create-submit" type="submit">Create profile</button>
-      </div>
-    </form>
-
-    <p class="profile-local-note">
-      Passwords are stored only as secure hashes. Profile data and pictures remain on this Dialed In installation.
-    </p>
-
-    <div class="dialog-actions profile-dialog-actions">
-      <button class="secondary-button profile-logout-button" id="profileLogoutButton" type="button">Sign out</button>
+    <div class="dialog-actions profile-dialog-actions" id="profileDialogActions" hidden>
       <span class="action-spacer"></span>
       <button class="primary-button" data-close-profile type="button">Done</button>
     </div>
