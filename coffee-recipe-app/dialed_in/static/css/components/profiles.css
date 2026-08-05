@@ -1,3 +1,14 @@
+/* Views use the native hidden attribute; keep it authoritative over component display rules. */
+.profile-account-view[hidden],
+.profile-chooser-view[hidden],
+.profile-login-panel[hidden],
+.profile-create-panel[hidden],
+.profile-editor[hidden],
+.profile-login-form .field[hidden],
+.profile-dialog-actions[hidden] {
+  display: none !important;
+}
+
 .profile-button {
   position: relative;
   overflow: visible;
