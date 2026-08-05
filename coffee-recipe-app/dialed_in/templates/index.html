@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/core/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/icons.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/navigation.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/profiles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/cards.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/dialogs.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components/flavor-notes.css') }}">
@@ -62,6 +63,7 @@
   {% include 'dialogs/recipe_runner_dialog.html' %}
   {% include 'dialogs/dial_in_log_dialog.html' %}
   {% include 'dialogs/settings_dialog.html' %}
+  {% include 'dialogs/profile_dialog.html' %}
   {% include 'dialogs/barcode_scanner.html' %}
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>

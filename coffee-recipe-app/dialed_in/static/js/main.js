@@ -9,6 +9,7 @@ import { createRecipeRunner } from "./features/recipe-runner.js";
 import { createDialInLogForm } from "./features/dial-in-log-form.js";
 import { createQuickAdd } from "./features/quick-add.js";
 import { createSettings } from "./features/settings.js";
+import { createProfiles } from "./features/profiles.js";
 import { createOriginEditorEnhancer } from "./features/origin-editor.js";
 import { createOverviewPage } from "./pages/overview.js";
 import { createBeansPage } from "./pages/beans.js";
@@ -24,6 +25,7 @@ let originsPage;
 let navigation;
 let quickAdd;
 let recipeRunner;
+let profiles;
 
 function renderAll() {
   overviewPage?.render();
@@ -39,9 +41,11 @@ async function loadState() {
     applyServerState(await api("/api/state"));
     applyTheme(state.settings.theme);
     renderAll();
+    return true;
   } catch (error) {
     showToast("Server unavailable");
     console.error(error);
+    return false;
   }
 }
 
@@ -133,6 +137,17 @@ quickAdd = createQuickAdd({
 });
 document.querySelector("#mobileAddButton")?.addEventListener("click", quickAdd.open);
 
-const initialPage = location.hash.slice(1) || "overview";
-navigation.showPage(initialPage, { updateHash: !location.hash });
-void loadState();
+profiles = createProfiles({ state, api, showToast, loadState, renderAll });
+
+async function initializeApp() {
+  const initialPage = location.hash.slice(1) || "overview";
+  navigation.showPage(initialPage, { updateHash: !location.hash });
+  try {
+    if (await profiles.initialize()) await loadState();
+  } catch (error) {
+    showToast("Profiles unavailable");
+    console.error(error);
+  }
+}
+
+void initializeApp();

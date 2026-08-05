@@ -5,9 +5,8 @@ import sqlite3
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
-
-from flask import current_app
 
 from .settings.service import DEFAULT_GRINDER, DEFAULT_MACHINE, DEFAULT_THEME
 
@@ -17,8 +16,12 @@ def utc_now() -> str:
 
 
 @contextmanager
-def db_connection():
-    db_path = current_app.config["DB_PATH"]
+def db_connection(db_path: str | Path | None = None):
+    if db_path is None:
+        from .profiles.service import get_active_profile_db_path
+
+        db_path = get_active_profile_db_path()
+    db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(db_path)
     connection.row_factory = sqlite3.Row
@@ -281,8 +284,8 @@ def _seed_new_database(db: sqlite3.Connection) -> None:
     )
 
 
-def init_db() -> None:
-    with db_connection() as db:
+def init_db(db_path: str | Path | None = None, *, seed: bool = True) -> None:
+    with db_connection(db_path) as db:
         db.executescript(
             """
             CREATE TABLE IF NOT EXISTS recipes (
@@ -381,4 +384,5 @@ def init_db() -> None:
             [("machine", DEFAULT_MACHINE), ("grinder", DEFAULT_GRINDER), ("theme", DEFAULT_THEME)],
         )
         _migrate_legacy_recipes(db)
-        _seed_new_database(db)
+        if seed:
+            _seed_new_database(db)

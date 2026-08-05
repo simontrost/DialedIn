@@ -2,6 +2,9 @@ coffee-recipe-app/.venv/
 coffee-recipe-app/data/*.db
 coffee-recipe-app/data/*.db-shm
 coffee-recipe-app/data/*.db-wal
+coffee-recipe-app/data/profiles/*.db
+coffee-recipe-app/data/profiles/*.db-shm
+coffee-recipe-app/data/profiles/*.db-wal
 
 __pycache__/
 *.pyc

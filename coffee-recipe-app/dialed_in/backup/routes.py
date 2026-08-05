@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -17,6 +18,7 @@ from ..database import db_connection, utc_now
 from ..dial_in.repository import insert as insert_log
 from ..dial_in.service import list_logs
 from ..dial_in.validation import validate_log
+from ..profiles.service import get_active_profile
 from ..settings.service import get_settings
 
 backup_blueprint = Blueprint("backup", __name__)
@@ -83,16 +85,19 @@ def _legacy_to_v2(payload: dict[str, Any]) -> dict[str, Any]:
 
 @backup_blueprint.get("/api/export")
 def export_data():
+    profile = get_active_profile()
     with db_connection() as db:
         payload = {
             "version": 2,
             "generatedAt": utc_now(),
+            "profile": {"name": profile["name"]} if profile else None,
             "settings": get_settings(db),
             "beans": list_beans(db),
             "brewRecipes": list_brew_recipes(db),
             "dialInLogs": list_logs(db),
         }
-    filename = f"dialed-in-backup-{datetime.now().strftime('%Y-%m-%d')}.json"
+    profile_slug = re.sub(r"[^a-z0-9]+", "-", (profile or {}).get("name", "profile").lower()).strip("-")
+    filename = f"dialed-in-{profile_slug or 'profile'}-backup-{datetime.now().strftime('%Y-%m-%d')}.json"
     return Response(
         json.dumps(payload, ensure_ascii=False, indent=2),
         mimetype="application/json",

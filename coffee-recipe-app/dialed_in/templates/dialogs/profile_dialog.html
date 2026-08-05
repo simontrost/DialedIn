@@ -1,0 +1,40 @@
+<dialog id="profileDialog" class="profile-dialog" aria-labelledby="profileDialogTitle">
+  <div class="profile-dialog-content">
+    <div class="dialog-header">
+      <div>
+        <p class="eyebrow" id="profileDialogEyebrow">Local profiles</p>
+        <h2 id="profileDialogTitle">Choose a profile</h2>
+        <p class="profile-dialog-intro">Each profile keeps its own beans, recipes, measurements and settings.</p>
+      </div>
+      <button aria-label="Close profile dialog" class="dialog-close" data-close-profile type="button">×</button>
+    </div>
+
+    <div class="profile-current" id="profileCurrent" hidden></div>
+    <div class="profile-list" id="profileList" aria-live="polite"></div>
+
+    <form class="profile-create-form" id="profileCreateForm">
+      <div class="profile-create-copy">
+        <span class="settings-section-label">New profile</span>
+        <strong>Create a separate coffee space</strong>
+        <small>The new profile starts empty with its own database and default settings.</small>
+      </div>
+      <div class="profile-create-controls">
+        <label class="field" for="profileNameInput">
+          <span>Profile name</span>
+          <input id="profileNameInput" maxlength="40" autocomplete="off" placeholder="e.g. Simon" required>
+        </label>
+        <button class="primary-button" type="submit">Create profile</button>
+      </div>
+    </form>
+
+    <p class="profile-local-note">
+      Profiles are designed for local separation, not password-protected user accounts. Signing out only clears the active profile in this browser.
+    </p>
+
+    <div class="dialog-actions profile-dialog-actions">
+      <button class="secondary-button profile-logout-button" id="profileLogoutButton" type="button">Sign out</button>
+      <span class="action-spacer"></span>
+      <button class="primary-button" data-close-profile type="button">Done</button>
+    </div>
+  </div>
+</dialog>
